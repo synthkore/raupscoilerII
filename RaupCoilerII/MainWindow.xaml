@@ -1,0 +1,211 @@
+﻿<Window x:Class="RaupCoilerII.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:glWpfControl="clr-namespace:OpenTK.Wpf;assembly=GLWpfControl"
+        xmlns:local="clr-namespace:RaupCoilerII"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="610" Width="1055" MinWidth="1000" MinHeight="600">
+    <Window.Resources>
+        <Style x:Key="VerticalCenteredTextBox"
+               TargetType="TextBox">
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
+        </Style>
+        <local:stringToFloatConverter  x:Key="stringToFloatConverter"/>
+        <local:stringToDoubleConverter  x:Key="stringToDoubleConverter"/>
+        <local:doubleToIntConverter  x:Key="doubleToIntConverter"/>
+    </Window.Resources>
+    <Grid Margin="0,0,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Menu Height="40" VerticalAlignment="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="New">
+                </MenuItem>
+                <MenuItem Header="Load">
+                </MenuItem>
+                <MenuItem Header="Save">
+                </MenuItem>
+                <MenuItem Header="Export">
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="Online help">
+                </MenuItem>
+                <MenuItem Header="About">
+                </MenuItem>
+            </MenuItem>            
+        </Menu>
+        <!-- Main Layout Grid: column 0: OpenGL control, column 1: hide button, column 2: parameters editor -->
+        <Grid Background="#FFE5E5E5" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <!-- Column 0: lef panel, the OpenGL WPF control used to render the model -->
+                <ColumnDefinition x:Name="leftPanel" Width="*"/>
+                <!-- Column 1: with the button used to hide or show the rirght panel as if it was a splitter -->
+                <ColumnDefinition Width="7"/>
+                <!-- Column 2: right panel, grid column wiht the controls used to enter the model parameters -->
+                <ColumnDefinition x:Name="rigthPanel" Width="{x:Static local:ViewModel.rightPanelWidth}"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <!-- Column 0: the OpenGL WPF control used to render the model -->
+            <glWpfControl:GLWpfControl x:Name="OpenTkControl" Render="OpenTkControl_OnRender" Loaded="OpenTkControl_Loaded" SizeChanged="OpenTkControl_SizeChanged" />
+            <!-- Column 1: with the button used to hide or show the rirght panel as if it was a splitter -->
+            <Button Grid.Column="1" Click="PanelSplitButton_Click"/>
+            <!-- Column 2: the column with the tools -->
+            <TabControl Grid.Column="2" Margin="2,2,2,2">
+                <!-- Model TabPage controls-->
+                <TabItem Header="Model">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="250"/>
+                            <RowDefinition Height="292.08"/>
+                        </Grid.RowDefinitions>
+                        <!-- Column 0 Row 0: Raup parameters panel -->
+                        <GroupBox Header="Raup" Grid.Column="0" Grid.Row="0" Margin="2,2,2,2" BorderBrush="Black" BorderThickness="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <!-- D parameter -->
+                                <WrapPanel Margin="2,2,2,2" Grid.Row="0">
+                                    <Label Content="D:"/>
+                                    <TextBox TextWrapping="Wrap" Text="{Binding Dparam, Mode=TwoWay, Converter={StaticResource stringToDoubleConverter},ConverterParameter=3}" Width="120" Style="{StaticResource VerticalCenteredTextBox}" />
+                                    <!-- binding in the controls width to take the same width than the parent Grid -->
+                                    <ScrollBar Value="{Binding Dparam, Mode=TwoWay}" Minimum="{x:Static local:ViewModel.DparamMin}" Maximum="{x:Static local:ViewModel.DparamMax}" ViewportSize="0.01" Orientation="Horizontal" Margin="2,2,0,2" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="0.025" LargeChange="0.1" />
+                                </WrapPanel>
+                                <!-- W parameter -->
+                                <WrapPanel Margin="2,2,2,2" Grid.Row="1">
+                                    <Label Content="W:"/>
+                                    <TextBox TextWrapping="Wrap" Text="{Binding Wparam, Mode=TwoWay, Converter={StaticResource stringToDoubleConverter},ConverterParameter=3}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                    <!-- binding in the controls width to take the same width than the parent Grid -->
+                                    <ScrollBar Value="{Binding Wparam, Mode=TwoWay}" Minimum="{Binding WparamMin}" Maximum="{Binding WparamMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="2" LargeChange="5"/>
+                                </WrapPanel>
+                                <!-- T parameter -->
+                                <WrapPanel Margin="2,2,2,2" Grid.Row="2">
+                                    <Label Content="T:"/>
+                                    <TextBox TextWrapping="Wrap" Text="{Binding Tparam, Mode=TwoWay, Converter={StaticResource stringToDoubleConverter},ConverterParameter=3}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                    <!-- binding in the controls width to take the same width than the parent Grid -->
+                                    <ScrollBar Value="{Binding Tparam, Mode=TwoWay}" Minimum="{Binding TparamMin}" Maximum="{Binding TparamMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="0.1" LargeChange="1"/>
+                                </WrapPanel>
+                                <!-- S parameter -->
+                                <WrapPanel Margin="2,2,2,2" Grid.Row="3">
+                                    <Label Content="S:"/>
+                                    <TextBox TextWrapping="Wrap" Text="{Binding Sparam, Mode=TwoWay, Converter={StaticResource stringToDoubleConverter},ConverterParameter=3}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                    <!-- binding in the controls width to take the same width than the parent Grid -->
+                                    <ScrollBar Value="{Binding Sparam, Mode=TwoWay}" Minimum="{Binding SparamMin}" Maximum="{Binding SparamMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="0.025" LargeChange="0.1"/>
+                                </WrapPanel>
+                            </Grid>
+                        </GroupBox>
+                        <!-- Column 1 Row 0: Raup parameters panel -->
+                        <GroupBox Header="Drawing" Grid.Column="1" Grid.Row="0" Margin="2,2,2,2" BorderBrush="Black" BorderThickness="1">
+                            <StackPanel>
+                                <!-- BEGIN GroupBox: Shell mesh geometry options -->
+                                <GroupBox Header="Geometry" Grid.Row="0" Margin="2,0,2,0" BorderBrush="Black" BorderThickness="1" Height="158" Width="220">
+                                    <StackPanel Margin="10,10,10,10" >
+                                        <RadioButton Content="No mesh" Height="24" VerticalAlignment="Top" IsChecked="{Binding NoMesh}"/>
+                                        <RadioButton Content="Vertexs" Height="24" VerticalAlignment="Top" IsChecked="{Binding Vertexs}"/>
+                                        <RadioButton Content="Rings" Height="24" VerticalAlignment="Top"  IsChecked="{Binding Rings}"/>
+                                        <RadioButton Content="Quads" Height="24" VerticalAlignment="Top"  IsChecked="{Binding Quads}"/>
+                                        <RadioButton Content="Triangles" Height="24" VerticalAlignment="Top" IsChecked="{Binding Triangles}"/>
+                                    </StackPanel>
+                                </GroupBox>
+                                <!-- END GroupBox: Shell mesh geometry options -->
+                                <!-- BEGIN CheckBoxes Spiral, Axis -->
+                                <CheckBox Margin="5,10,2,2" Content="Spiral" IsChecked="{Binding Spiral}"/>
+                                <CheckBox Margin="5,2,2,2" Content="Axis" IsChecked="{Binding Axis}"/>
+                            </StackPanel>
+                        </GroupBox>
+                        <!-- Column 0 Row 1: Mesh panel -->
+                        <GroupBox Header="Mesh" Grid.Column="0" Grid.Row="1" Margin="2,2,2,95" BorderBrush="Black" BorderThickness="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <!-- Revolutions  -->
+                                <WrapPanel Margin="2,2,2,2" Grid.Row="0">
+                                    <Label Content="Revolutions:"/>
+                                    <TextBox TextWrapping="Wrap" Text="{Binding Revolutions,Converter={StaticResource doubleToIntConverter}, Mode=TwoWay}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                    <!-- binding in the controls width to take the same width than the parent Grid -->
+                                    <ScrollBar Value="{Binding Revolutions, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Minimum="{Binding RevolutionsMin}" Maximum="{Binding RevolutionsMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    <!-- <ScrollBar Value="{Binding Revolutions, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Minimum="1" Maximum="16" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/> -->
+                                </WrapPanel>
+                                <!-- Resolution  -->
+                                <WrapPanel Margin="2,2,2,2" Grid.Row="1">
+                                    <Label Content="Resolution:"/>
+                                    <TextBox TextWrapping="Wrap" Text="{Binding Resolution,Converter={StaticResource doubleToIntConverter}, Mode=TwoWay}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                    <!-- binding in the controls width to take the same width than the parent Grid -->
+                                    <ScrollBar Value="{Binding Resolution, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Minimum="{Binding RevolutionsMin}" Maximum="{Binding RevolutionsMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                </WrapPanel>
+                                <!-- RingsRev  -->
+                                <WrapPanel Margin="2,2,2,2" Grid.Row="2">
+                                    <Label Content="Rings/Rev:"/>
+                                    <TextBox TextWrapping="Wrap" Text="{Binding RingsRev, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                    <!-- binding in the controls width to take the same width than the parent Grid -->
+                                    <ScrollBar Value="{Binding RingsRev, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Minimum="{Binding RingsRevMin}" Maximum="{Binding RingsRevMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                </WrapPanel>
+                            </Grid>
+                        </GroupBox>
+                        <!-- Column 1 Row 1: Orientation -->
+                        <GroupBox Header="Orientation" Grid.Column="1" Grid.Row="1" Margin="2,2,2,95" BorderBrush="Black" BorderThickness="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <!--- X Axis -->
+                                <WrapPanel Margin="2,2,2,2" Grid.Row="0">
+                                    <Label Content="X:"/>
+                                    <TextBox TextWrapping="Wrap" Text="{Binding XOrientation,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="90" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                    <!-- binding in the controls width to take the same width than the parent Grid -->
+                                    <ScrollBar Value="{Binding XOrientation, Mode=TwoWay}" Minimum="{Binding XOrientationMin}" Maximum="{Binding XOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                </WrapPanel>
+                                <!--- Y Axis -->
+                                <WrapPanel Margin="2,2,2,2" Grid.Row="1">
+                                    <Label Content="Y:"/>
+                                    <TextBox TextWrapping="Wrap" Text="{Binding YOrientation,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="90" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                    <!-- binding in the controls width to take the same width than the parent Grid -->
+                                    <ScrollBar Value="{Binding YOrientation, Mode=TwoWay}" Minimum="{Binding YOrientationMin}" Maximum="{Binding YOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                </WrapPanel>
+                                <!--- Z Axis -->
+                                <WrapPanel Margin="2,2,2,2" Grid.Row="2">
+                                    <Label Content="Z:"/>
+                                    <TextBox TextWrapping="Wrap" Text="{Binding ZOrientation,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="90" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                    <!-- binding in the controls width to take the same width than the parent Grid -->
+                                    <ScrollBar Value="{Binding ZOrientation, Mode=TwoWay}" Minimum="{Binding ZOrientationMin}" Maximum="{Binding ZOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                </WrapPanel>
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="View">
+                </TabItem>
+                <TabItem Header="Section">
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </Grid>
+</Window>
