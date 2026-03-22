@@ -19,7 +19,10 @@ using System.Windows.Shapes;
 
 namespace RaupCoilerII {
 
-
+    /*******************************************************************************
+    * @brief Converter used to transform string values in some controls to float
+    * values in the ViewModel and viceversa.
+    *******************************************************************************/
     public class stringToFloatConverter: IValueConverter {
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
@@ -43,6 +46,10 @@ namespace RaupCoilerII {
 
     }//stringToFloatConverter 
 
+    /*******************************************************************************
+    * @brief Converter used to transform string values in some controls to double
+    * values in the ViewModel and viceversa.
+    *******************************************************************************/
     public class stringToDoubleConverter : IValueConverter {
 
             // @param[in] parameter is used to specify the number of decimals to place in conversion
@@ -71,7 +78,32 @@ namespace RaupCoilerII {
 
     }//stringToDoubleConverter
 
+    /*******************************************************************************
+    * @brief Converter used to transform brush values in some controls to color
+    * values in the ViewModel and viceversa.
+    *******************************************************************************/
+    public class colorToBrushConverter : IValueConverter {
 
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+            if (value is Color color)
+                return new SolidColorBrush(color);
+
+            return null;
+        }//Convert
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+            if (value is SolidColorBrush brush)
+                return brush.Color;
+
+            return null;
+        }//ConvertBack
+
+    }//colorToBrushConverter
+
+    /*******************************************************************************
+    * @brief Converter used to transform double values in some controls to int
+    * values in the ViewModel and viceversa.
+    *******************************************************************************/
     public class doubleToIntConverter : IValueConverter {
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
@@ -128,6 +160,173 @@ namespace RaupCoilerII {
 
         }//PanelSplitButton_Click
 
+        private bool isDragging = false;// flat that inidcates if the user is pressing the mouse button or not
+        private Point lastMousePosition;// used to calculate the displecement of the mouse while the user presses the mouse button
+        private double dTotalPercentMoveX = 0;// the percentage of the control width that the user has moved pressing the mouse button 
+        private double dTotalPercentMoveY = 0;// the percentage of the control height that the user has moved pressing the mouse button 
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user presses the 
+        * mouse left button over the Open GL control
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void OpenTkControl_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+
+            isDragging = true;
+            lastMousePosition = e.GetPosition(OpenTkControl);
+            OpenTkControl.CaptureMouse();
+
+        }//OpenTkControl_MouseLeftButtonDown
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user releases the 
+        * mouse left button over the Open GL control
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void OpenTkControl_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+
+            isDragging = false;
+            OpenTkControl.ReleaseMouseCapture();
+
+        }//OpenTkControl_MouseLeftButtonUp
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user moves the mouse
+        * over the Open GL control.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void OpenTkControl_MouseMove(object sender, MouseEventArgs e) {
+            double dWidth = OpenTkControl.ActualWidth;
+            double dHeight = OpenTkControl.ActualHeight;
+            double dYPercentVar = 0;
+            double dXPercentVar = 0;
+            double deltaX = 0;
+            double deltaY = 0;
+
+            // only update rotation angles if the user is pressing the mouse button
+            if (!isDragging)
+                return;
+
+            Point currentPosition = e.GetPosition(OpenTkControl);
+
+            // calculate the mouse position variation since the previous function call
+            deltaX = currentPosition.X - lastMousePosition.X;
+            deltaY = currentPosition.Y - lastMousePosition.Y;
+
+            // calculate the mouse potition variation in percentaje of the control width and height
+            dYPercentVar = deltaY / dHeight;
+            dXPercentVar = deltaX / dWidth;
+             
+            // acumulate the mouse position variation percentaje
+            dTotalPercentMoveX += dXPercentVar;
+            dTotalPercentMoveY += dYPercentVar;
+
+            // limit the total mouse position percentaje variation between -1 and 1
+            dTotalPercentMoveX = Math.Max(-1, Math.Min(1, dTotalPercentMoveX));
+            dTotalPercentMoveY = Math.Max(-1, Math.Min(1, dTotalPercentMoveY));
+
+
+            appViewModel.XOrientation= -(dTotalPercentMoveX * 360);
+            appViewModel.ZOrientation = -(dTotalPercentMoveY * 360);
+
+            lastMousePosition = currentPosition;
+
+        }//OpenTkControl_MouseMove
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the mesh color selecction button.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void btnMeshColor_Click(object sender, RoutedEventArgs e) {
+                var dialog = new ColorPickerWindow(appViewModel.MeshColor);
+                dialog.Owner = this;
+
+                bool? resultado = dialog.ShowDialog();
+
+                if (resultado == true && dialog.SelectedColor.HasValue) {
+
+                    Color color = dialog.SelectedColor.Value;
+
+                    // Aquí usas el color
+                    appViewModel.MeshColor = color;
+
+                }//if
+
+        }//btnMeshColor_Click
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the mesh spiral color selecction button.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void btnSpiralColor_Click(object sender, RoutedEventArgs e) {
+            var dialog = new ColorPickerWindow(appViewModel.SpiralColor);
+            dialog.Owner = this;
+
+            bool? resultado = dialog.ShowDialog();
+
+            if (resultado == true && dialog.SelectedColor.HasValue) {
+
+                Color color = dialog.SelectedColor.Value;
+
+                // Aquí usas el color
+                appViewModel.SpiralColor = color;
+
+            }//if
+
+        }//btnSpiralColor_Click
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the axis color selecction button.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void btnAxisColor_Click(object sender, RoutedEventArgs e) {
+            var dialog = new ColorPickerWindow(appViewModel.AxisColor);
+            dialog.Owner = this;
+
+            bool? resultado = dialog.ShowDialog();
+
+            if (resultado == true && dialog.SelectedColor.HasValue) {
+
+                Color color = dialog.SelectedColor.Value;
+
+                // Aquí usas el color
+                appViewModel.AxisColor = color;
+
+            }//if
+
+        }//btnAxisColor_Click
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the background color selecction button.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void btnBackColor_Click(object sender, RoutedEventArgs e) {
+            var dialog = new ColorPickerWindow(appViewModel.BackgroundColor);
+            dialog.Owner = this;
+
+            bool? resultado = dialog.ShowDialog();
+
+            if (resultado == true && dialog.SelectedColor.HasValue) {
+
+                Color color = dialog.SelectedColor.Value;
+
+                // Aquí usas el color
+                appViewModel.BackgroundColor = color;
+
+            }//if
+
+        }//btnBackColor_Click
 
     }
 }

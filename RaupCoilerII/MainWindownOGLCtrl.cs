@@ -13,7 +13,7 @@ using OpenTK.Wpf;
 namespace RaupCoilerII {
 
     /*****************************************************************************
-    * Partial class with the methods and properties related to the Open GL control.
+    * @brief Partial class with the methods and properties related to the Open GL control.
     ***************************************************************************/
     public partial class MainWindow : Window {
 
@@ -26,6 +26,14 @@ namespace RaupCoilerII {
         float[] flArrayReadModel = null;
         int[] iIdxsReadModel = null;
         Int32 iModelIdxCter = 0;
+        
+        // Axis data
+        private int vaoAxis;
+        private int vboAxis;
+        private int eboAxis;
+        float[] flArrayReadAxis = null;
+        int[] iIdxsReadAxis = null;
+        Int32 iAxisIdxCter = 0;
 
         // model parameters
         private float objAngleX = 0f;
@@ -210,10 +218,15 @@ namespace RaupCoilerII {
 
         }//CreateShaders
 
-        public void InitializeGeoemtry() {
+        /*******************************************************************************
+        * @brief method that genereates the shell the axis and the spiral geometry and
+        * initializes the openGL data structures with that new generated data.
+        *******************************************************************************/
+        public void InitializeXYZAxis() {
             var importer = new AssimpContext();
             // Acceder al primer Mesh (malla) del archivo
             Mesh mesh = null;
+            Scene scene = null;
             int iStride = 0;
             int iAux = 0;
 
@@ -241,8 +254,129 @@ namespace RaupCoilerII {
                                     PostProcessSteps.FlipUVs |
                                     PostProcessSteps.GenerateNormals;
 
+            // ######################### Loade the XYZ axis 3d model 
+
             // Cargamos la escena
-            Scene scene = importer.ImportFile("WomanNCube.obj", postProcessSteps);
+            scene = importer.ImportFile("Axis.obj", postProcessSteps);
+
+            // importer.ExportFile(scene, "salida", "stl");
+
+            if (scene == null || scene.SceneFlags.HasFlag(SceneFlags.Incomplete) || scene.RootNode == null) {
+                Console.WriteLine("Error loading the XYZ axis model.");
+                return;
+            }
+
+            // 3 vertex floats   + 3 color floats  + 3 normal floats
+            List<float> axisCoordNColors = new List<float>();
+            // add to the list of vertexs the coordinates of the woman
+            mesh = scene.Meshes[0];
+            int iAxisTotalVertices = mesh.Vertices.Count();
+            for (iAux = 0; iAux < iAxisTotalVertices; iAux++) {
+                // each face has 3 vertices + 3 colors + 3 normals
+                // vertex coords
+                axisCoordNColors.Add((float)mesh.Vertices[iAux].X);
+                axisCoordNColors.Add((float)mesh.Vertices[iAux].Y);
+                axisCoordNColors.Add((float)mesh.Vertices[iAux].Z);
+                // color
+                axisCoordNColors.Add((float)1);
+                axisCoordNColors.Add((float)0);
+                axisCoordNColors.Add((float)0);
+                // normal
+                axisCoordNColors.Add((float)mesh.Normals[iAux].X);
+                axisCoordNColors.Add((float)mesh.Normals[iAux].Y);
+                axisCoordNColors.Add((float)mesh.Normals[iAux].Z);
+            }//for
+
+            // faces indexs
+            // add to the list of the indexs of the vertexs that define the faces of the mode
+            List<uint> axisFaceIdxs = new List<uint>();
+            mesh = scene.Meshes[0];
+            foreach (var face in mesh.Faces) {
+                // each face has 3 index because we us PostProcessSteps.Triangulate
+                axisFaceIdxs.Add((uint)face.Indices[0]);
+                axisFaceIdxs.Add((uint)face.Indices[1]);
+                axisFaceIdxs.Add((uint)face.Indices[2]);
+            }
+            iAxisIdxCter = axisFaceIdxs.Count;
+
+            //  initalize the axis vao, vbo and ebo with the cube attributes, vertices and faces
+            vaoAxis = GL.GenVertexArray();
+            vboAxis = GL.GenBuffer();
+            eboAxis = GL.GenBuffer();
+
+            // set the VAO in context
+            GL.BindVertexArray(vaoAxis);
+
+            // set in context and initalize the VBO
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboAxis);
+            GL.BufferData(BufferTarget.ArrayBuffer, axisCoordNColors.Count * sizeof(float), axisCoordNColors.ToArray(), BufferUsageHint.StaticDraw);
+
+            // set in context and initalize the EBO
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, eboAxis);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, axisFaceIdxs.Count * sizeof(uint), axisFaceIdxs.ToArray(), BufferUsageHint.StaticDraw);
+
+            iStride = (3 + 3 + 3) * sizeof(float); // pos (3) + color (3) + normal (3)
+
+            // configure the position atributes
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, iStride, 0);
+            GL.EnableVertexAttribArray(0);
+
+            // configure the color atributes
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, iStride, 3 * sizeof(float));
+            GL.EnableVertexAttribArray(1);
+
+            // configure the attributes of the normals
+            GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, iStride, 6 * sizeof(float));
+            GL.EnableVertexAttribArray(2);
+
+            // clear the context
+            GL.BindVertexArray(0);
+
+        }//InitializeXYZAxis
+
+        /*******************************************************************************
+        * @brief method that genereates the shell the axis and the spiral geometry and
+        * initializes the openGL data structures with that new generated data.
+        *******************************************************************************/
+        public void InitializeShellSpiralAxisGeometry() {
+            var importer = new AssimpContext();
+            // Acceder al primer Mesh (malla) del archivo
+            Mesh mesh = null;
+            int iStride = 0;
+            int iAux = 0;
+            // maximum and minimum coordinates values used to center the model
+            float flMaxX = 0, flMaxY = 0, flMaxZ = 0;
+            float flMinX = 0, flMinY = 0, flMinZ = 0;
+
+
+            // initialize some OpenGL functionalites 
+            GL.Enable(EnableCap.DepthTest);
+            GL.DepthFunc(DepthFunction.Lequal);
+
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Back);
+            GL.FrontFace(FrontFaceDirection.Ccw); // o Cw según tu modelo
+
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+            // ponemos en contexto el control GLControl sobre el que vamos a operar
+            // if (!myGLControl.Context.IsCurrent) myGLControl.MakeCurrent();
+
+            // Configuración de carga (Post-Procesamiento)
+            // * Triangulate: Convierte todo a triángulos (vital para OpenGL)
+            // * FlipUVs: Voltea las texturas (OpenGL tiene el origen de textura abajo-izq,
+            // la mayoría de formatos arriba-izq)
+            // * GenerateNormals: Si el modelo no tiene normales, las calcula.
+            var postProcessSteps = PostProcessSteps.Triangulate |
+                                    PostProcessSteps.FlipUVs |
+                                    PostProcessSteps.GenerateNormals;
+
+
+            // ######################### Initialize MODEL 
+
+            // Cargamos la escena
+            Scene scene = importer.ImportFile("TestOGL.obj", postProcessSteps);
 
             // importer.ExportFile(scene, "salida", "stl");
 
@@ -251,27 +385,41 @@ namespace RaupCoilerII {
                 return;
             }
 
-            // ######################### Initialize MODEL 
-
             // 3 vertex floats   + 3 color floats  + 3 normal floats
             List<float> modelCoordNColors = new List<float>();
             // add to the list of vertexs the coordinates of the woman
             mesh = scene.Meshes[1];
-            int iTotalVertices = mesh.Vertices.Count();
-            for (iAux = 0; iAux < iTotalVertices; iAux++) {
+            int iModelTotalVertices = mesh.Vertices.Count();
+            for (iAux = 0; iAux < iModelTotalVertices; iAux++) {
                 // each face has 3 vertices + 3 colors + 3 normals
                 // vertex coords
                 modelCoordNColors.Add((float)mesh.Vertices[iAux].X);
                 modelCoordNColors.Add((float)mesh.Vertices[iAux].Y);
                 modelCoordNColors.Add((float)mesh.Vertices[iAux].Z);
                 // color
-                modelCoordNColors.Add((float)1);
-                modelCoordNColors.Add((float)0);
-                modelCoordNColors.Add((float)0);
+                modelCoordNColors.Add(((float)appViewModel.MeshColor.R) / 255);
+                modelCoordNColors.Add(((float)appViewModel.MeshColor.G) / 255);
+                modelCoordNColors.Add(((float)appViewModel.MeshColor.B) / 255);
                 // normal
                 modelCoordNColors.Add((float)mesh.Normals[iAux].X);
                 modelCoordNColors.Add((float)mesh.Normals[iAux].Y);
                 modelCoordNColors.Add((float)mesh.Normals[iAux].Z);
+                // update the Maximum and mínimum coordinates values if necessary
+                if (mesh.Vertices[iAux].X > flMaxX) {
+                    flMaxX = mesh.Vertices[iAux].X;
+                } else if (mesh.Vertices[iAux].X < flMinX) {
+                    flMinX = mesh.Vertices[iAux].X;
+                }
+                if (mesh.Vertices[iAux].Y > flMaxY) {
+                    flMaxY = mesh.Vertices[iAux].Y;
+                } else if (mesh.Vertices[iAux].Y < flMinY) {
+                    flMinY = mesh.Vertices[iAux].Y;
+                }
+                if (mesh.Vertices[iAux].Z > flMaxZ) {
+                    flMaxZ = mesh.Vertices[iAux].Z;
+                } else if (mesh.Vertices[iAux].Z < flMinZ) {
+                    flMinZ = mesh.Vertices[iAux].Z;
+                }
             }//for
 
             // faces indexs
@@ -320,7 +468,12 @@ namespace RaupCoilerII {
             // clear the context
             GL.BindVertexArray(0);
 
-        }//InitializeGeoemtry
+            // calculate the translation values to center the object
+            objTransX = -(flMaxX - flMinX)/2;
+            objTransY = -(flMaxY - flMinY) / 2;
+            objTransZ = -(flMaxZ - flMinZ) / 2;
+
+        }//InitializeShellSpiralAxisGeometry
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the OpenGL control has
@@ -332,7 +485,11 @@ namespace RaupCoilerII {
 
             CreateShaders();
 
-            InitializeGeoemtry();
+            InitializeXYZAxis();
+            InitializeShellSpiralAxisGeometry();
+
+            appViewModel.bRequireToRegenerate = false;
+            appViewModel.bRequireToReRender = true;
 
         }//OpenTkControl_Loaded
 
@@ -361,8 +518,15 @@ namespace RaupCoilerII {
             Vector3 light_vector = new Vector3();
             Vector3 view_vector = new Vector3();
 
-            // only repaint the model in case any parameter has changed
+            // only regenerate the model geometry if any geometry related parameter has changed
+            if (appViewModel.bRequireToRegenerate) {
 
+                InitializeShellSpiralAxisGeometry();
+                appViewModel.bRequireToRegenerate = false;
+
+            }//if
+
+            // only repaint the model in case any render related parameter has changed
             if (appViewModel.bRequireToReRender) {
                 
                 appViewModel.bRequireToReRender = false;
@@ -418,9 +582,10 @@ namespace RaupCoilerII {
                 lightDist = 10;// miViewModel.lightDist;
 
                 objAngleX = (float)appViewModel.XOrientation;
+                objAngleY = (float)appViewModel.YOrientation;
+                objAngleZ = (float)appViewModel.ZOrientation;
                 objScale = 1;// appViewModel.
-                objTransZ = 0; //miViewModel.objTransZ;
-                objTransX = 0; //miViewModel.objTransX;
+
 
                 // calculate the coordinates of the View Vector
 
@@ -462,7 +627,8 @@ namespace RaupCoilerII {
                 int locView = GL.GetUniformLocation(shaderProgram, "uView");
                 int locProj = GL.GetUniformLocation(shaderProgram, "uProjection");
 
-                model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateScale((float)objScale) * Matrix4.CreateTranslation(objTransX, 0, objTransZ);
+                model = Matrix4.CreateScale((float)objScale) * Matrix4.CreateTranslation(objTransX, objTransY, objTransZ);
+                model = model * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
 
                 // inicializamos el contenido de las diferentes buffers Uniform de las matrices 
                 // en los shaders con las matrices calculadas
@@ -478,21 +644,25 @@ namespace RaupCoilerII {
                 GL.Uniform1(GL.GetUniformLocation(shaderProgram, "specularStrength"), 0.5);// miViewModel.difuse);
                 GL.Uniform1(GL.GetUniformLocation(shaderProgram, "shininess"), 32);// miViewModel.shine);
 
-                // render the model two times
+                // render the axis
+                Matrix4 axis;
 
                 GL.BindVertexArray(vaoModel);
 
                 // printamos el primer objeto en modo solido
                 GL.Uniform1(GL.GetUniformLocation(shaderProgram, "isLightSource"), 0);
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                GL.DrawElements(BeginMode.Triangles, iModelIdxCter, DrawElementsType.UnsignedInt, 0);
+                GL.DrawElements(BeginMode.Triangles, iAxisIdxCter, DrawElementsType.UnsignedInt, 0);
+
+
+                GL.BindVertexArray(vaoAxis);
 
                 // printamos el segundo cubo desplazado en modo malla
-                model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians((float)objAngleY)) * Matrix4.CreateScale((float)0.05) * Matrix4.CreateTranslation((float)0.5, (float)0.5, 0);
-                GL.UniformMatrix4(locModel, false, ref model);
+                axis = Matrix4.CreateScale((float)0.25) * Matrix4.CreateTranslation(0, -1.0f, -1.0f);
+                GL.UniformMatrix4(locModel, false, ref axis);
 
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                GL.DrawElements(BeginMode.Triangles, iModelIdxCter, DrawElementsType.UnsignedInt, 0);
+                GL.DrawElements(BeginMode.Triangles, iAxisIdxCter, DrawElementsType.UnsignedInt, 0);
 
                 // MyOpenTkControl.SwapBuffers();
 

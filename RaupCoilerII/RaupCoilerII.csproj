@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
     <PackageReference Include="OpenTK" Version="4.9.4" />
     <PackageReference Include="OpenTK.Core" Version="4.9.4" />
     <PackageReference Include="OpenTK.GLWpfControl" Version="4.3.4" />

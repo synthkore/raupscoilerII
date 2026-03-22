@@ -6,10 +6,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Data;
 
 namespace RaupCoilerII {
 
+    /*******************************************************************************
+    * @brief the view model object used to share data between the View and the DataModel.
+    * All the public attributes are implemented with as properties with a setter 
+    * and getter to allow binding them to the user interface. It also impelements
+    * the INotifyPropertyChanged methods to send changes to the interface when changes
+    * the value of any of its properties.
+    *******************************************************************************/
     public class ViewModel : INotifyPropertyChanged {
 
         public enum tGeometryStyleEnum {
@@ -46,6 +54,8 @@ namespace RaupCoilerII {
         public double YOrientationMax { get; } = 360;
         public double ZOrientationMin { get; } = -360;
         public double ZOrientationMax { get; } = 360;
+
+        // properties
 
         tGeometryStyleEnum geometryStyle = tGeometryStyleEnum.Triangles;
 
@@ -317,6 +327,19 @@ namespace RaupCoilerII {
             }//set
         }// Resolution
 
+        // Axis flag
+        bool bAxis3D;
+        public bool Axis3D {
+            get { return bAxis3D; }
+            set {
+                if (bAxis3D != value) {
+                    bAxis3D = value;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("Axis3D");
+                }//if
+            }//set
+        }//Axis
+
         // Model orientation parameters
         // X rotation
         double dXOrientation;
@@ -345,10 +368,10 @@ namespace RaupCoilerII {
             set {
                 if (dYOrientation != value) {
                     // check that received value is in range
-                    if (value > XOrientationMax) {
-                        dYOrientation = XOrientationMax;
-                    } else if (value < XOrientationMin) {
-                        dYOrientation = XOrientationMin;
+                    if (value > YOrientationMax) {
+                        dYOrientation = YOrientationMax;
+                    } else if (value < YOrientationMin) {
+                        dYOrientation = YOrientationMin;
                     } else {
                         dYOrientation = value;
                     }
@@ -365,10 +388,10 @@ namespace RaupCoilerII {
             set {
                 if (dZOrientation != value) {
                     // check that received value is in range
-                    if (value > XOrientationMax) {
-                        dZOrientation = XOrientationMax;
-                    } else if (value < XOrientationMin) {
-                        dZOrientation = XOrientationMin;
+                    if (value > ZOrientationMax) {
+                        dZOrientation = ZOrientationMax;
+                    } else if (value < ZOrientationMin) {
+                        dZOrientation = ZOrientationMin;
                     } else {
                         dZOrientation = value;
                     }
@@ -378,38 +401,101 @@ namespace RaupCoilerII {
             }//set
         }//Zorientation
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        // mesh color code
+        Color colMeshColor;
+        public Color MeshColor {
+            get { return colMeshColor; }
+            set {
+              if (colMeshColor != value) {
+                colMeshColor = value;
+                bRequireToRegenerate = true;
+                bRequireToReRender = true;
+                this.NotifyMyPropertyChanged("MeshColor");
+              }
+            }//set
+        }//MeshColor
 
+        // axis color code
+        Color colAxisColor;
+        public Color AxisColor {
+            get { return colAxisColor; }
+            set {
+                if (colAxisColor != value) {
+                    colAxisColor = value;
+                    bRequireToRegenerate = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("AxisColor");
+                }
+            }//set
+        }//AxisColor
+
+        // spiral color code
+        Color colSpiralColor;
+        public Color SpiralColor {
+            get { return colSpiralColor; }
+            set {
+                if (colSpiralColor != value) {
+                    colSpiralColor = value;
+                    bRequireToRegenerate = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("SpiralColor");
+                }
+            }//set
+        }//SpiralColor
+
+        // background color code
+        Color colBackgroundColor;
+        public Color BackgroundColor {
+            get { return colBackgroundColor; }
+            set {
+                if (colBackgroundColor != value) {
+                    bRequireToRegenerate = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("BackgroundColor");
+                }
+            }//set
+        }//BackgroundColor
+
+        // required on classes that implement the INotifyPropertyChanged interface to notify changes to the user interface
+        public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyMyPropertyChanged(string propName) {
             if (this.PropertyChanged != null) {
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
             }
         }
 
+        /*******************************************************************************
+        * @brief Default constructor
+        *******************************************************************************/
         public ViewModel() {
 
-            dDparam = 0.025f;
-            dWparam = 1;
-            dTparam = 0;
-            dSparam = 1;
+            Dparam = 0.025f;
+            Wparam = 1;
+            Tparam = 0;
+            Sparam = 1;
 
             geometryStyle = tGeometryStyleEnum.Triangles;
 
-            bNoMesh = false;
-            bVertexs = false;
-            bRings = false;
-            bQuads = false;
-            bTriangles = true;
-            bSpiral = false;
-            bAxis = true;
+            NoMesh = false;
+            Vertexs = false;
+            Rings = false;
+            Quads = false;
+            Triangles = true;
+            Spiral = false;
+            Axis = true;
 
-            iRevolutions = 6;
-            iResolution = 36;
-            iRingsRev = 16;
+            Revolutions = 6;
+            Resolution = 36;
+            RingsRev = 16;
 
             XOrientation = 0;
             YOrientation = 0;
             ZOrientation = 0;
+
+            MeshColor = System.Windows.Media.Color.FromRgb(0, 255, 0);
+            AxisColor = System.Windows.Media.Color.FromRgb(255, 0, 0);
+            SpiralColor = System.Windows.Media.Color.FromRgb(255, 0, 0);
+            BackgroundColor = System.Windows.Media.Color.FromRgb(0, 0, 0);
 
         }//ViewModel
 
