@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,7 +26,7 @@ namespace RaupCoilerII {
         private int eboModel;
         float[] flArrayReadModel = null;
         int[] iIdxsReadModel = null;
-        Int32 iModelIdxCter = 0;
+        Int32 iModelIndicesFacesCter = 0; // the total number of vertex indices used to draw the geometry ( they may be repeated )
         
         // Axis data
         private int vaoAxis;
@@ -33,7 +34,7 @@ namespace RaupCoilerII {
         private int eboAxis;
         float[] flArrayReadAxis = null;
         int[] iIdxsReadAxis = null;
-        Int32 iAxisIdxCter = 0;
+        Int32 iAxisIndicesFacesCter = 0; // the total number of vertex indices used to draw the geometry ( they may be repeated )
 
         // model parameters
         private float objAngleX = 0f;
@@ -224,12 +225,17 @@ namespace RaupCoilerII {
         *******************************************************************************/
         public void InitializeXYZAxis() {
             var importer = new AssimpContext();
+            List<float> axisCoordNColors = null;
+            List<uint> axisFaceIdxs = null;
             // Acceder al primer Mesh (malla) del archivo
             Mesh mesh = null;
             Scene scene = null;
+            int iAxisTotalVertices = 0;
             int iStride = 0;
             int iAux = 0;
-
+            int iAux2 = 0;
+            int iMeshXVertexCtr = 0;
+            float fR = 0,fG = 0, fB = 0;
 
             // initialize some OpenGL functionalites 
             GL.Enable(EnableCap.DepthTest);
@@ -267,37 +273,60 @@ namespace RaupCoilerII {
             }
 
             // 3 vertex floats   + 3 color floats  + 3 normal floats
-            List<float> axisCoordNColors = new List<float>();
-            // add to the list of vertexs the coordinates of the woman
-            mesh = scene.Meshes[0];
-            int iAxisTotalVertices = mesh.Vertices.Count();
-            for (iAux = 0; iAux < iAxisTotalVertices; iAux++) {
-                // each face has 3 vertices + 3 colors + 3 normals
-                // vertex coords
-                axisCoordNColors.Add((float)mesh.Vertices[iAux].X);
-                axisCoordNColors.Add((float)mesh.Vertices[iAux].Y);
-                axisCoordNColors.Add((float)mesh.Vertices[iAux].Z);
-                // color
-                axisCoordNColors.Add((float)1);
-                axisCoordNColors.Add((float)0);
-                axisCoordNColors.Add((float)0);
-                // normal
-                axisCoordNColors.Add((float)mesh.Normals[iAux].X);
-                axisCoordNColors.Add((float)mesh.Normals[iAux].Y);
-                axisCoordNColors.Add((float)mesh.Normals[iAux].Z);
+            // add to the list of vertexs the coordinates of the 3D XYZ Axis
+            axisCoordNColors = new List<float>();
+            iAxisTotalVertices = 0;
+            for (iAux = 0; iAux < 3; iAux++) {
+
+                mesh = scene.Meshes[iAux];
+
+                // assign a different color to each mesh of the object ( each mesh is an arrow of the axis)
+                if (iAux == 0) { fR = 0; fG = 0; fB = 1; }
+                if (iAux == 1) { fR = 0; fG = 1; fB = 0; }
+                if (iAux == 2) { fR = 1; fG = 0; fB = 0; }
+
+
+                for (iAux2 = 0; iAux2 < mesh.Vertices.Count(); iAux2++) {
+                    // each face has 3 vertices + 3 colors + 3 normals
+                    // vertex coords
+                    axisCoordNColors.Add((float)mesh.Vertices[iAux2].X);
+                    axisCoordNColors.Add((float)mesh.Vertices[iAux2].Y);
+                    axisCoordNColors.Add((float)mesh.Vertices[iAux2].Z);
+                    // color
+                    axisCoordNColors.Add((float)fR);
+                    axisCoordNColors.Add((float)fG);
+                    axisCoordNColors.Add((float)fB);
+                    // normal
+                    axisCoordNColors.Add((float)mesh.Normals[iAux2].X);
+                    axisCoordNColors.Add((float)mesh.Normals[iAux2].Y);
+                    axisCoordNColors.Add((float)mesh.Normals[iAux2].Z);
+                }//for
+
+                iAxisTotalVertices = iAxisTotalVertices + mesh.Vertices.Count();
+
             }//for
 
             // faces indexs
-            // add to the list of the indexs of the vertexs that define the faces of the mode
-            List<uint> axisFaceIdxs = new List<uint>();
-            mesh = scene.Meshes[0];
-            foreach (var face in mesh.Faces) {
-                // each face has 3 index because we us PostProcessSteps.Triangulate
-                axisFaceIdxs.Add((uint)face.Indices[0]);
-                axisFaceIdxs.Add((uint)face.Indices[1]);
-                axisFaceIdxs.Add((uint)face.Indices[2]);
-            }
-            iAxisIdxCter = axisFaceIdxs.Count;
+            // add to the list the indexs that define the faces of the 3D XYZ Axis
+            axisFaceIdxs = new List<uint>();                 
+            iMeshXVertexCtr = 0;
+            for (iAux = 0; iAux < 3; iAux++) {
+
+                mesh = scene.Meshes[iAux];
+
+                for (iAux2 = 0; iAux2 < mesh.Faces.Count(); iAux2++) {
+
+                    // each face has 3 index because we us PostProcessSteps.Triangulate
+                    axisFaceIdxs.Add((uint)(iMeshXVertexCtr + mesh.Faces[iAux2].Indices[0]));
+                    axisFaceIdxs.Add((uint)(iMeshXVertexCtr + mesh.Faces[iAux2].Indices[1]));
+                    axisFaceIdxs.Add((uint)(iMeshXVertexCtr + mesh.Faces[iAux2].Indices[2]));
+
+                }//for
+
+                iMeshXVertexCtr = iMeshXVertexCtr + mesh.Vertices.Count();
+
+            }//for
+            iAxisIndicesFacesCter = axisFaceIdxs.Count(); ;
 
             //  initalize the axis vao, vbo and ebo with the cube attributes, vertices and faces
             vaoAxis = GL.GenVertexArray();
@@ -404,7 +433,7 @@ namespace RaupCoilerII {
                 modelCoordNColors.Add((float)mesh.Normals[iAux].X);
                 modelCoordNColors.Add((float)mesh.Normals[iAux].Y);
                 modelCoordNColors.Add((float)mesh.Normals[iAux].Z);
-                // update the Maximum and mínimum coordinates values if necessary
+                // update the maximum and mínimum coordinates values if necessary
                 if (mesh.Vertices[iAux].X > flMaxX) {
                     flMaxX = mesh.Vertices[iAux].X;
                 } else if (mesh.Vertices[iAux].X < flMinX) {
@@ -432,7 +461,7 @@ namespace RaupCoilerII {
                 modelFaceIdxs.Add((uint)face.Indices[1]);
                 modelFaceIdxs.Add((uint)face.Indices[2]);
             }
-            iModelIdxCter = modelFaceIdxs.Count;
+            iModelIndicesFacesCter = modelFaceIdxs.Count;
 
             //  initalize the model vao, vbo and ebo with the cube attributes, vertices and faces
 
@@ -486,9 +515,12 @@ namespace RaupCoilerII {
             CreateShaders();
 
             InitializeXYZAxis();
-            InitializeShellSpiralAxisGeometry();
 
-            appViewModel.bRequireToRegenerate = false;
+            if (appViewModel.bRequireToRegenerate) {
+                InitializeShellSpiralAxisGeometry();
+                appViewModel.bRequireToRegenerate = false;
+            }
+            
             appViewModel.bRequireToReRender = true;
 
         }//OpenTkControl_Loaded
@@ -586,7 +618,6 @@ namespace RaupCoilerII {
                 objAngleZ = (float)appViewModel.ZOrientation;
                 objScale = 1;// appViewModel.
 
-
                 // calculate the coordinates of the View Vector
 
                 // invert the Up vector to avoid that the camera flips when passing 90º over the model or 270º under the model.
@@ -613,28 +644,23 @@ namespace RaupCoilerII {
                 light_vector = new Vector3(lightX, lightY, lightZ);
                 // lightVectorDescrLbl.Text = "Light (" + lightX.ToString("0.00") + "," + lightY.ToString("0.00") + "," + lightZ.ToString("0.00") + ")";
 
-                Matrix4 model;
-                Matrix4 view = Matrix4.LookAt(
-                view_vector,
-                Vector3.Zero,
-                up_vector);
-
-                Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(
-                MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
+                Matrix4 transforMatrix;
+                Matrix4 viewMatrix = Matrix4.LookAt(view_vector,Vector3.Zero,up_vector);
+                Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
 
                 // obtenemos los handlers de los diferentes Uniforms a partir de su nombre
                 int locModel = GL.GetUniformLocation(shaderProgram, "uModel");
                 int locView = GL.GetUniformLocation(shaderProgram, "uView");
                 int locProj = GL.GetUniformLocation(shaderProgram, "uProjection");
 
-                model = Matrix4.CreateScale((float)objScale) * Matrix4.CreateTranslation(objTransX, objTransY, objTransZ);
-                model = model * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
+                transforMatrix = Matrix4.CreateScale((float)objScale) * Matrix4.CreateTranslation(objTransX, objTransY, objTransZ);
+                transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
 
                 // inicializamos el contenido de las diferentes buffers Uniform de las matrices 
                 // en los shaders con las matrices calculadas
-                GL.UniformMatrix4(locModel, false, ref model);
-                GL.UniformMatrix4(locView, false, ref view);
-                GL.UniformMatrix4(locProj, false, ref projection);
+                GL.UniformMatrix4(locModel, false, ref transforMatrix);
+                GL.UniformMatrix4(locView, false, ref viewMatrix);
+                GL.UniformMatrix4(locProj, false, ref projectionMatrix);
 
                 GL.Uniform3(GL.GetUniformLocation(shaderProgram, "lightPos"), light_vector);
                 GL.Uniform3(GL.GetUniformLocation(shaderProgram, "lightColor"), Vector3.One);
@@ -644,27 +670,27 @@ namespace RaupCoilerII {
                 GL.Uniform1(GL.GetUniformLocation(shaderProgram, "specularStrength"), 0.5);// miViewModel.difuse);
                 GL.Uniform1(GL.GetUniformLocation(shaderProgram, "shininess"), 32);// miViewModel.shine);
 
-                // render the axis
-                Matrix4 axis;
-
+                // ###### render the Model ######
                 GL.BindVertexArray(vaoModel);
-
-                // printamos el primer objeto en modo solido
-                GL.Uniform1(GL.GetUniformLocation(shaderProgram, "isLightSource"), 0);
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                GL.DrawElements(BeginMode.Triangles, iAxisIdxCter, DrawElementsType.UnsignedInt, 0);
+                GL.DrawElements(BeginMode.Triangles, iModelIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                // clear the context
+                GL.BindVertexArray(0);
 
+                // render the XYZ Axis if enabled
+                if (appViewModel.Axis3D) {
 
-                GL.BindVertexArray(vaoAxis);
+                    // ###### render the XYZ Axis ######
+                    GL.BindVertexArray(vaoAxis);
+                    transforMatrix = Matrix4.CreateScale((float)0.2) * Matrix4.CreateTranslation(0, -1.0f, -1.0f);
+                    transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
+                    GL.UniformMatrix4(locModel, false, ref transforMatrix);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    GL.DrawElements(BeginMode.Triangles, iAxisIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                    // clear the context
+                    GL.BindVertexArray(0);
 
-                // printamos el segundo cubo desplazado en modo malla
-                axis = Matrix4.CreateScale((float)0.25) * Matrix4.CreateTranslation(0, -1.0f, -1.0f);
-                GL.UniformMatrix4(locModel, false, ref axis);
-
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                GL.DrawElements(BeginMode.Triangles, iAxisIdxCter, DrawElementsType.UnsignedInt, 0);
-
-                // MyOpenTkControl.SwapBuffers();
+                }//if (appViewModel.Axis3D)
 
             }
 

@@ -489,7 +489,7 @@ namespace RaupCoilerII {
             RingsRev = 16;
 
             XOrientation = 0;
-            YOrientation = 0;
+            YOrientation = 90;
             ZOrientation = 0;
 
             MeshColor = System.Windows.Media.Color.FromRgb(0, 255, 0);

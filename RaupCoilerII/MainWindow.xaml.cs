@@ -173,9 +173,26 @@ namespace RaupCoilerII {
         *******************************************************************************/
         private void OpenTkControl_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
 
-            isDragging = true;
-            lastMousePosition = e.GetPosition(OpenTkControl);
-            OpenTkControl.CaptureMouse();
+            if (e.ClickCount == 2) {
+
+                // double click
+                if (rigthPanel.Width.Value > 10) {
+                    // hide the tools panel
+                    rigthPanel.Width = new GridLength(5);
+                } else {
+                    // show the tools panel
+                    rigthPanel.Width = ViewModel.rightPanelWidth;
+                }
+
+            } else {
+
+                // single click
+                isDragging = true;
+                lastMousePosition = e.GetPosition(OpenTkControl);
+                OpenTkControl.CaptureMouse();
+
+            }// if (e.ClickCount == 2)
+
 
         }//OpenTkControl_MouseLeftButtonDown
 
@@ -327,6 +344,21 @@ namespace RaupCoilerII {
             }//if
 
         }//btnBackColor_Click
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the reset orientation angles button
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void btnResetOrientation_Click(object sender, RoutedEventArgs e) {
+
+            // set all the angles to 0
+            appViewModel.XOrientation = 0;
+            appViewModel.YOrientation = 0;
+            appViewModel.ZOrientation = 0;
+
+        }//btnResetOrientation_Click
 
     }
 }

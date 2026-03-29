@@ -4,13 +4,13 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:RaupCoilerII"            
         Title="Seleccionar color"
-        Width="320"
+        Width="270"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize" Height="130">
 
         <StackPanel Margin="5,5,5,5">
             <Label Content="Select one color from the list:"/>
-            <xctk:ColorPicker x:Name="colorPicker" Margin="0,0,0,10" Width="290"/>
+            <xctk:ColorPicker x:Name="colorPicker" Margin="0,0,0,10" Width="240"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Aceptar" Width="80" Margin="1"
                     Click="acceptButton_Click"/>
