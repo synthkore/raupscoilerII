@@ -54,6 +54,9 @@ namespace RaupCoilerII {
         public double YOrientationMax { get; } = 360;
         public double ZOrientationMin { get; } = -360;
         public double ZOrientationMax { get; } = 360;
+        
+        public double ViewDistanceMin { get; } = 0;
+        public double ViewDistanceMax { get; } = 10;
 
         // properties
 
@@ -340,8 +343,8 @@ namespace RaupCoilerII {
             }//set
         }//Axis
 
-        // Model orientation parameters
-        // X rotation
+        // Model transformation parameters
+        // Model rotation arround X axis
         double dXOrientation;
         public double XOrientation {
             get { return dXOrientation; }
@@ -362,6 +365,7 @@ namespace RaupCoilerII {
         }//Xorientation
 
         // Y rotation
+        // Model rotation arround Y axis
         double dYOrientation;
         public double YOrientation {
             get { return dYOrientation; }
@@ -382,6 +386,7 @@ namespace RaupCoilerII {
         }//Yorientation
 
         // Z rotation
+        // Model rotation arround Z axis
         double dZOrientation;
         public double ZOrientation {
             get { return dZOrientation; }
@@ -400,6 +405,68 @@ namespace RaupCoilerII {
                 }
             }//set
         }//Zorientation
+
+        // The view vector points from the coordinates defined by the Spheric
+        // coordinates (Ro,Theta,Phi) to the origin (0,0,0)
+        // View vector coordinates: radius / distance to the 0,0,0 origin
+        double dViewRoDistance;
+        public double ViewRoDistance {
+            get { return dViewRoDistance; }
+            set {
+                if (dViewRoDistance != value) {
+                    // check that received value is in range
+                    if (value > ViewDistanceMax) {
+                        dViewRoDistance = ViewDistanceMax;
+                    } else if (value < ViewDistanceMin) {
+                        dViewRoDistance = ViewDistanceMin;
+                    } else {
+                        dViewRoDistance = value;
+                    }
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("ViewRoDistance");
+                }
+            }//set
+        }//ViewRoDistance
+
+        // View vector coordinates: polar/zenith angle
+        double dViewPhiZenithAngle;
+        public double ViewPhiZenithAngle {
+            get { return dViewPhiZenithAngle; }
+            set {
+                if (dViewPhiZenithAngle != value) {
+                    // check that received value is in range
+                    if (value > XOrientationMax) {
+                        dViewPhiZenithAngle = XOrientationMax;
+                    } else if (value < XOrientationMin) {
+                        dViewPhiZenithAngle = XOrientationMin;
+                    } else {
+                        dViewPhiZenithAngle = value;
+                    }
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("ViewPhiZenithAngle");
+                }
+            }//set
+        }//ViewPhiPolarAngle
+
+        // View vector coordinates: azimuth angle
+        double dViewThetaAzimuthAngle;
+        public double ViewThetaAzimuthAngle {
+            get { return dViewThetaAzimuthAngle; }
+            set {
+                if (dViewThetaAzimuthAngle != value) {
+                    // check that received value is in range
+                    if (value > YOrientationMax) {
+                        dViewThetaAzimuthAngle = YOrientationMax;
+                    } else if (value < YOrientationMin) {
+                        dViewThetaAzimuthAngle = YOrientationMin;
+                    } else {
+                        dViewThetaAzimuthAngle = value;
+                    }
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("ViewThetaAzimuthAngle");
+                }
+            }//set
+        }//ViewThetaAzimuthAngle
 
         // mesh color code
         Color colMeshColor;
@@ -489,8 +556,12 @@ namespace RaupCoilerII {
             RingsRev = 16;
 
             XOrientation = 0;
-            YOrientation = 90;
+            YOrientation = 0;
             ZOrientation = 0;
+
+            ViewPhiZenithAngle = 90;
+            ViewThetaAzimuthAngle = 0;
+            ViewRoDistance = 2;
 
             MeshColor = System.Windows.Media.Color.FromRgb(0, 255, 0);
             AxisColor = System.Windows.Media.Color.FromRgb(255, 0, 0);

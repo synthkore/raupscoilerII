@@ -245,9 +245,8 @@ namespace RaupCoilerII {
             dTotalPercentMoveX = Math.Max(-1, Math.Min(1, dTotalPercentMoveX));
             dTotalPercentMoveY = Math.Max(-1, Math.Min(1, dTotalPercentMoveY));
 
-
             appViewModel.XOrientation= -(dTotalPercentMoveX * 360);
-            appViewModel.ZOrientation = -(dTotalPercentMoveY * 360);
+            appViewModel.YOrientation = -(dTotalPercentMoveY * 360);
 
             lastMousePosition = currentPosition;
 
@@ -343,22 +342,22 @@ namespace RaupCoilerII {
 
             }//if
 
-        }//btnBackColor_Click
+        }//btnBackColor_Click               
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user clicks over
-        * the reset orientation angles button
+        * the reset view vector parameters
         * @param[in] sender reference to the object that raises the event
         * @param[in] e the information related to the event
         *******************************************************************************/
-        private void btnResetOrientation_Click(object sender, RoutedEventArgs e) {
+        private void btnResetViewOrientation_Click(object sender, RoutedEventArgs e) {
 
-            // set all the angles to 0
-            appViewModel.XOrientation = 0;
-            appViewModel.YOrientation = 0;
-            appViewModel.ZOrientation = 0;
+            // set all the view vector parameters to its default value
+            appViewModel.ViewPhiZenithAngle = 0;
+            appViewModel.ViewThetaAzimuthAngle = 0;
+            appViewModel.ViewRoDistance = 5;
 
-        }//btnResetOrientation_Click
+        }//btnResetViewOrientation_Click
 
     }
 }

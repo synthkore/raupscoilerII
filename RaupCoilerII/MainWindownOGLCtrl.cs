@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Intrinsics.X86;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -37,17 +38,27 @@ namespace RaupCoilerII {
         Int32 iAxisIndicesFacesCter = 0; // the total number of vertex indices used to draw the geometry ( they may be repeated )
 
         // model parameters
-        private float objAngleX = 0f;
-        private float objAngleY = 0f;
-        private float objAngleZ = 0f;
-        private float objScale = 0f;
-        private float objTransX = 0f;
-        private float objTransY = 0f;
-        private float objTransZ = 0f;
-        
+        private float objModelAngleX = 0f;
+        private float objModelAngleY = 0f;
+        private float objModelAngleZ = 0f;
+        private float objModelScale = 0f;
+        private float objModelTransX = 0f;
+        private float objModelTransY = 0f;
+        private float objModelTransZ = 0f;
+
+        // XYZ axis parameters
+        private float objXYZAxisAngleX = 0f;
+        private float objXYZAxisAngleY = 0f;
+        private float objXYZAxisAngleZ = 0f;
+        private float objXYZAxisScale = 0.2f;
+        private float objXYZAxisTransX = 0f;
+        private float objXYZAxisTransY = -1.0f;
+        private float objXYZAxisTransZ = 0f;
+
         // view coordinates
         private float viewXAngle = 0f;
         private float viewYAngle = 0f;
+        private float viewZAngle = 0f;
         private float viewDist = 0f;
         private float viewX = 0f;
         private float viewY = 0f;
@@ -280,6 +291,7 @@ namespace RaupCoilerII {
 
                 mesh = scene.Meshes[iAux];
 
+
                 // assign a different color to each mesh of the object ( each mesh is an arrow of the axis)
                 if (iAux == 0) { fR = 0; fG = 0; fB = 1; }
                 if (iAux == 1) { fR = 0; fG = 1; fB = 0; }
@@ -498,9 +510,9 @@ namespace RaupCoilerII {
             GL.BindVertexArray(0);
 
             // calculate the translation values to center the object
-            objTransX = -(flMaxX - flMinX)/2;
-            objTransY = -(flMaxY - flMinY) / 2;
-            objTransZ = -(flMaxZ - flMinZ) / 2;
+            objModelTransX = -(flMaxX - flMinX) / 2;
+            objModelTransY = -(flMaxY - flMinY) / 2;
+            objModelTransZ = -(flMaxZ - flMinZ) / 2;
 
         }//InitializeShellSpiralAxisGeometry
 
@@ -545,7 +557,7 @@ namespace RaupCoilerII {
         * @param[in] e the information related to the event
         *******************************************************************************/
         private void OpenTkControl_OnRender(TimeSpan delta) {
-
+            float flAux = 0;
             Vector3 up_vector = new Vector3();
             Vector3 light_vector = new Vector3();
             Vector3 view_vector = new Vector3();
@@ -606,17 +618,18 @@ namespace RaupCoilerII {
                 // lightDistDescrLbl.Text = "lightDist:" + lightDist.ToString("0.00");
 
                 // convert from degrees to radians
-                viewXAngle = 0; //MathHelper.DegreesToRadians(miViewModel.viewXAngle);// * (float)(2 * Math.PI / (float)360);
-                viewYAngle = 0; //MathHelper.DegreesToRadians(miViewModel.viewYAngle);// * (float)(2 * Math.PI / (float)360);
-                viewDist = 3;// miViewModel.viewDist;
+                viewXAngle = MathHelper.DegreesToRadians((float)appViewModel.ViewThetaAzimuthAngle);
+                viewYAngle = MathHelper.DegreesToRadians((float)appViewModel.ViewPhiZenithAngle);
+                viewZAngle = 0;
+                viewDist = (float)appViewModel.ViewRoDistance;
                 lightXAngle = 0;//MathHelper.DegreesToRadians(miViewModel.lightXAngle);// * (float)(2 * Math.PI / (float)360);
                 lightYAngle = 0;//MathHelper.DegreesToRadians(miViewModel.lightYAngle);// * (float)(2 * Math.PI / (float)360);
                 lightDist = 10;// miViewModel.lightDist;
 
-                objAngleX = (float)appViewModel.XOrientation;
-                objAngleY = (float)appViewModel.YOrientation;
-                objAngleZ = (float)appViewModel.ZOrientation;
-                objScale = 1;// appViewModel.
+                objModelAngleX = (float)appViewModel.XOrientation;
+                objModelAngleY = (float)appViewModel.YOrientation;
+                objModelAngleZ = (float)appViewModel.ZOrientation;
+                objModelScale = 1;// appViewModel.
 
                 // calculate the coordinates of the View Vector
 
@@ -627,11 +640,17 @@ namespace RaupCoilerII {
                     up_vector = Vector3.UnitY;
                 }
 
-                // calculate the X,Y,Z coordinates of the View Vector
+                // calculate the X,Y,Z endpoint of the View Vector the other endpoint is the 0,0,0
                 float projectView = (float)Math.Cos((float)viewYAngle) * (float)viewDist;
-                viewY = (float)viewDist * (float)Math.Sin((float)viewYAngle);
+                // Endpoint X coordinate
+                flAux = MathHelper.DegreesToRadians((float)appViewModel.ViewThetaAzimuthAngle);
                 viewX = (float)Math.Cos((float)viewXAngle) * projectView;
-                viewZ = (float)Math.Sin((float)viewXAngle) * projectView;
+                // Endpoint Y coordinate
+                flAux =  MathHelper.DegreesToRadians((float)appViewModel.ViewPhiZenithAngle);
+                viewY = (float)viewDist * (float)Math.Sin((float)viewYAngle);
+                // Endpoint Z coordinate
+                flAux = MathHelper.DegreesToRadians((float)appViewModel.ViewThetaAzimuthAngle);
+                viewZ = (float)Math.Sin(flAux) * projectView;               
                 view_vector = new Vector3(viewX, viewY, viewZ);
 
                 // viewVectorDescrLbl.Text = "View (" + viewX.ToString("0.00") + "," + viewY.ToString("0.00") + "," + viewZ.ToString("0.00") + ")";
@@ -653,8 +672,23 @@ namespace RaupCoilerII {
                 int locView = GL.GetUniformLocation(shaderProgram, "uView");
                 int locProj = GL.GetUniformLocation(shaderProgram, "uProjection");
 
-                transforMatrix = Matrix4.CreateScale((float)objScale) * Matrix4.CreateTranslation(objTransX, objTransY, objTransZ);
-                transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
+                // transforMatrix = Matrix4.CreateScale((float)objModelScale) * Matrix4.CreateTranslation(objModelTransX, objModelTransY, objModelTransZ);
+                // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objModelAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objModelAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objModelAngleZ));
+
+
+                // INICIO
+
+                OpenTK.Mathematics.Quaternion rotationQuatern = OpenTK.Mathematics.Quaternion.Identity;
+                rotationQuatern *= OpenTK.Mathematics.Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(objModelAngleX));
+                rotationQuatern *= OpenTK.Mathematics.Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(objModelAngleY));
+                rotationQuatern *= OpenTK.Mathematics.Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(objModelAngleZ));
+                // convert the quaterinon to a matrix
+                Matrix4 rotation = Matrix4.CreateFromQuaternion(rotationQuatern);
+
+                transforMatrix = Matrix4.CreateScale((float)objModelScale) * Matrix4.CreateTranslation(objModelTransX, objModelTransY, objModelTransZ);
+                transforMatrix = transforMatrix * rotation;
+
+                // FIN
 
                 // inicializamos el contenido de las diferentes buffers Uniform de las matrices 
                 // en los shaders con las matrices calculadas
@@ -682,8 +716,9 @@ namespace RaupCoilerII {
 
                     // ###### render the XYZ Axis ######
                     GL.BindVertexArray(vaoAxis);
-                    transforMatrix = Matrix4.CreateScale((float)0.2) * Matrix4.CreateTranslation(0, -1.0f, -1.0f);
-                    transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
+                    transforMatrix = Matrix4.CreateScale((float)objXYZAxisScale) * Matrix4.CreateTranslation(objXYZAxisTransX, objXYZAxisTransY, objXYZAxisTransZ);
+                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
+                    transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objXYZAxisAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objXYZAxisAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objXYZAxisAngleZ));
                     GL.UniformMatrix4(locModel, false, ref transforMatrix);
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                     GL.DrawElements(BeginMode.Triangles, iAxisIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
