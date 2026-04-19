@@ -131,15 +131,24 @@ namespace RaupCoilerII {
 
             InitializeComponent();
 
-            InitializeOpenTK();
-
-            // force "international" culture
-            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("EN-US");
-
             // create the ViewModel data structure and set it into the user interface data context
             appViewModel = new ViewModel();
             this.DataContext = appViewModel;
 
+            InitializeOpenTK();
+
+            InitializeOpenGL();
+
+            ZYXaxis = new cZYXaxis(appViewModel);
+            ZYXaxis.Initialize();
+            ZYXaxis.TransformUpdateVAO();
+
+            ShellModel = new cShellModel(appViewModel);
+            ShellModel.Initialize();
+            ShellModel.TransformUpdateVAO();
+
+            // force "international" culture
+            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("EN-US");
 
         }//MainWindow
 
@@ -162,8 +171,8 @@ namespace RaupCoilerII {
 
         private bool isDragging = false;// flat that inidcates if the user is pressing the mouse button or not
         private Point lastMousePosition;// used to calculate the displecement of the mouse while the user presses the mouse button
-        private double dTotalPercentMoveX = 0;// the percentage of the control width that the user has moved pressing the mouse button 
-        private double dTotalPercentMoveY = 0;// the percentage of the control height that the user has moved pressing the mouse button 
+        // private double dTotalPercentMoveX = 0;// the percentage of the control width that the user has moved pressing the mouse button 
+        // private double dTotalPercentMoveY = 0;// the percentage of the control height that the user has moved pressing the mouse button 
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user presses the 
@@ -207,6 +216,9 @@ namespace RaupCoilerII {
             isDragging = false;
             OpenTkControl.ReleaseMouseCapture();
 
+            appViewModel.bRequireToRegenerate = true;
+            appViewModel.bRequireToReRender = true;
+
         }//OpenTkControl_MouseLeftButtonUp
 
         /*******************************************************************************
@@ -236,17 +248,20 @@ namespace RaupCoilerII {
             // calculate the mouse potition variation in percentaje of the control width and height
             dYPercentVar = deltaY / dHeight;
             dXPercentVar = deltaX / dWidth;
-             
+
             // acumulate the mouse position variation percentaje
-            dTotalPercentMoveX += dXPercentVar;
-            dTotalPercentMoveY += dYPercentVar;
+            // dTotalPercentMoveX += dXPercentVar;
+            // dTotalPercentMoveY += dYPercentVar;
 
             // limit the total mouse position percentaje variation between -1 and 1
-            dTotalPercentMoveX = Math.Max(-1, Math.Min(1, dTotalPercentMoveX));
-            dTotalPercentMoveY = Math.Max(-1, Math.Min(1, dTotalPercentMoveY));
+            // dTotalPercentMoveX = Math.Max(-1, Math.Min(1, dTotalPercentMoveX));
+            // dTotalPercentMoveY = Math.Max(-1, Math.Min(1, dTotalPercentMoveY));
 
-            appViewModel.XOrientation= -(dTotalPercentMoveX * 360);
-            appViewModel.YOrientation = -(dTotalPercentMoveY * 360);
+            // appViewModel.XOrientation= -(dXPercentVar * 360);
+            // appViewModel.YOrientation = -(dYPercentVar * 360);
+
+            appViewModel.XOrientation= (dYPercentVar * 360);
+            appViewModel.YOrientation = (dXPercentVar * 360);
 
             lastMousePosition = currentPosition;
 

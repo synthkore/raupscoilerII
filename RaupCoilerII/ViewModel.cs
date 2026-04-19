@@ -64,6 +64,7 @@ namespace RaupCoilerII {
 
         public bool bRequireToReRender = true; // flag that indicates that has been any change in a parameter that requires to redner the model again.
         public bool bRequireToRegenerate = true; // flag that indicates that has been any change in a parameter that requires to recalculate the Raup model geometry
+        public bool bRequireToTransform = true; // flag that indicates that has been any change in a transformation parameter that requires to apply the transformation to the model
 
         // Raup model parameters
         // Raup model D parameter
@@ -358,7 +359,7 @@ namespace RaupCoilerII {
                     } else {
                         dXOrientation = value;
                     }
-                    bRequireToReRender = true;
+                    bRequireToTransform = true;
                     this.NotifyMyPropertyChanged("Xorientation");
                 }
             }//set
@@ -379,7 +380,7 @@ namespace RaupCoilerII {
                     } else {
                         dYOrientation = value;
                     }
-                    bRequireToReRender = true;
+                    bRequireToTransform = true;
                     this.NotifyMyPropertyChanged("Yorientation");
                 }
             }//set
@@ -400,7 +401,7 @@ namespace RaupCoilerII {
                     } else {
                         dZOrientation = value;
                     }
-                    bRequireToReRender = true;
+                    bRequireToTransform = true;
                     this.NotifyMyPropertyChanged("Zorientation");
                 }
             }//set
@@ -559,7 +560,8 @@ namespace RaupCoilerII {
             YOrientation = 0;
             ZOrientation = 0;
 
-            ViewPhiZenithAngle = 90;
+            // set all the view vector parameters to its default value
+            ViewPhiZenithAngle = 0;
             ViewThetaAzimuthAngle = 0;
             ViewRoDistance = 2;
 
