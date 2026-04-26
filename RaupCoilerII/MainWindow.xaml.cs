@@ -216,7 +216,7 @@ namespace RaupCoilerII {
             isDragging = false;
             OpenTkControl.ReleaseMouseCapture();
 
-            appViewModel.bRequireToRegenerate = true;
+            appViewModel.bRequireToTransform = true;
             appViewModel.bRequireToReRender = true;
 
         }//OpenTkControl_MouseLeftButtonUp
@@ -282,11 +282,9 @@ namespace RaupCoilerII {
                 if (resultado == true && dialog.SelectedColor.HasValue) {
 
                     Color color = dialog.SelectedColor.Value;
-
-                    // Aquí usas el color
                     appViewModel.MeshColor = color;
 
-                }//if
+            }//if
 
         }//btnMeshColor_Click
 
@@ -305,8 +303,6 @@ namespace RaupCoilerII {
             if (resultado == true && dialog.SelectedColor.HasValue) {
 
                 Color color = dialog.SelectedColor.Value;
-
-                // Aquí usas el color
                 appViewModel.SpiralColor = color;
 
             }//if
@@ -328,8 +324,6 @@ namespace RaupCoilerII {
             if (resultado == true && dialog.SelectedColor.HasValue) {
 
                 Color color = dialog.SelectedColor.Value;
-
-                // Aquí usas el color
                 appViewModel.AxisColor = color;
 
             }//if
@@ -370,9 +364,24 @@ namespace RaupCoilerII {
             // set all the view vector parameters to its default value
             appViewModel.ViewPhiZenithAngle = 0;
             appViewModel.ViewThetaAzimuthAngle = 0;
-            appViewModel.ViewRoDistance = 5;
+            appViewModel.ViewRoDistance = 4;
 
         }//btnResetViewOrientation_Click
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the reset light vector parameters
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void btnResetLightOrientation_Click(object sender, RoutedEventArgs e) {
+
+            // set all the view vector parameters to its default value
+            appViewModel.LightPhiZenithAngle = 0;
+            appViewModel.LightThetaAzimuthAngle = 0;
+            appViewModel.LightRoDistance = 4;
+
+        }//btnResetLightOrientation_Click
 
     }
 }

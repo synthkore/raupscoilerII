@@ -57,13 +57,15 @@ namespace RaupCoilerII {
         
         public double ViewDistanceMin { get; } = 0;
         public double ViewDistanceMax { get; } = 10;
+        public double LightDistanceMin { get; } = 0;
+        public double LightDistanceMax { get; } = 10;
 
         // properties
 
         tGeometryStyleEnum geometryStyle = tGeometryStyleEnum.Triangles;
 
         public bool bRequireToReRender = true; // flag that indicates that has been any change in a parameter that requires to redner the model again.
-        public bool bRequireToRegenerate = true; // flag that indicates that has been any change in a parameter that requires to recalculate the Raup model geometry
+        // public bool bRequireToRegenerate = true; // flag that indicates that has been any change in a parameter that requires to recalculate the Raup model geometry
         public bool bRequireToTransform = true; // flag that indicates that has been any change in a transformation parameter that requires to apply the transformation to the model
 
         // Raup model parameters
@@ -81,7 +83,7 @@ namespace RaupCoilerII {
                     } else {
                         dDparam = value;
                     }
-                    bRequireToRegenerate = true;
+                    bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Dparam");
                 }
@@ -102,7 +104,7 @@ namespace RaupCoilerII {
                     } else {
                         dWparam = value;
                     }
-                    bRequireToRegenerate = true;
+                    bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Wparam");
                 }
@@ -123,7 +125,7 @@ namespace RaupCoilerII {
                     } else {
                         dTparam = value;
                     }
-                    bRequireToRegenerate = true;
+                    bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Tparam");
                 }
@@ -144,7 +146,7 @@ namespace RaupCoilerII {
                     } else {
                         dSparam = value;
                     }
-                    bRequireToRegenerate = true;
+                    bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Sparam");
                 }
@@ -283,7 +285,7 @@ namespace RaupCoilerII {
                     } else {
                         iRevolutions = value;
                     }
-                    bRequireToRegenerate = true;
+                    bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Revolutions");
                 }
@@ -304,7 +306,7 @@ namespace RaupCoilerII {
                     } else {
                         iResolution = value;
                     }
-                    bRequireToRegenerate = true;
+                    bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Resolution");
                 }
@@ -407,7 +409,7 @@ namespace RaupCoilerII {
             }//set
         }//Zorientation
 
-        // The view vector points from the coordinates defined by the Spheric
+        // The view vector, points from the coordinates defined by the Spheric
         // coordinates (Ro,Theta,Phi) to the origin (0,0,0)
         // View vector coordinates: radius / distance to the 0,0,0 origin
         double dViewRoDistance;
@@ -423,6 +425,7 @@ namespace RaupCoilerII {
                     } else {
                         dViewRoDistance = value;
                     }
+                    if (bLinkLightToView) LightRoDistance = dViewRoDistance;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("ViewRoDistance");
                 }
@@ -443,6 +446,7 @@ namespace RaupCoilerII {
                     } else {
                         dViewPhiZenithAngle = value;
                     }
+                    if (bLinkLightToView) LightPhiZenithAngle = dViewPhiZenithAngle;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("ViewPhiZenithAngle");
                 }
@@ -463,11 +467,87 @@ namespace RaupCoilerII {
                     } else {
                         dViewThetaAzimuthAngle = value;
                     }
+                    if (bLinkLightToView) LightThetaAzimuthAngle = dViewThetaAzimuthAngle;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("ViewThetaAzimuthAngle");
                 }
             }//set
         }//ViewThetaAzimuthAngle
+
+        // The light vector, points from the coordinates defined by the Spheric
+        // coordinates (Ro,Theta,Phi) to the origin (0,0,0)
+        // Light vector coordinates: radius / distance to the 0,0,0 origin
+        double dLightRoDistance;
+        public double LightRoDistance {
+            get { return dLightRoDistance; }
+            set {
+                if (dLightRoDistance != value) {
+                    // check that received value is in range
+                    if (value > LightDistanceMax) {
+                        dLightRoDistance = LightDistanceMax;
+                    } else if (value < LightDistanceMin) {
+                        dLightRoDistance = LightDistanceMin;
+                    } else {
+                        dLightRoDistance = value;
+                    }
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("LightRoDistance");
+                }
+            }//set
+        }//ViewRoDistance
+
+        // Light vector coordinates: polar/zenith angle
+        double dLightPhiZenithAngle;
+        public double LightPhiZenithAngle {
+            get { return dLightPhiZenithAngle; }
+            set {
+                if (dLightPhiZenithAngle != value) {
+                    // check that received value is in range
+                    if (value > XOrientationMax) {
+                        dLightPhiZenithAngle = XOrientationMax;
+                    } else if (value < XOrientationMin) {
+                        dLightPhiZenithAngle = XOrientationMin;
+                    } else {
+                        dLightPhiZenithAngle = value;
+                    }
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("LightPhiZenithAngle");
+                }
+            }//set
+        }//LightPhiPolarAngle
+
+        // Light vector coordinates: azimuth angle
+        double dLightThetaAzimuthAngle;
+        public double LightThetaAzimuthAngle {
+            get { return dLightThetaAzimuthAngle; }
+            set {
+                if (dLightThetaAzimuthAngle != value) {
+                    // check that received value is in range
+                    if (value > YOrientationMax) {
+                        dLightThetaAzimuthAngle = YOrientationMax;
+                    } else if (value < YOrientationMin) {
+                        dLightThetaAzimuthAngle = YOrientationMin;
+                    } else {
+                        dLightThetaAzimuthAngle = value;
+                    }
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("LightThetaAzimuthAngle");
+                }
+            }//set
+        }//LightThetaAzimuthAngle
+
+        // Axis flag
+        bool bLinkLightToView;
+        public bool LinkLightToView {
+            get { return bLinkLightToView; }
+            set {
+                if (bLinkLightToView != value) {
+                    bLinkLightToView = value;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("LinkLightToView");
+                }//if
+            }//set
+        }//LinkLightToView
 
         // mesh color code
         Color colMeshColor;
@@ -476,7 +556,7 @@ namespace RaupCoilerII {
             set {
               if (colMeshColor != value) {
                 colMeshColor = value;
-                bRequireToRegenerate = true;
+                    bRequireToTransform = true;
                 bRequireToReRender = true;
                 this.NotifyMyPropertyChanged("MeshColor");
               }
@@ -490,7 +570,7 @@ namespace RaupCoilerII {
             set {
                 if (colAxisColor != value) {
                     colAxisColor = value;
-                    bRequireToRegenerate = true;
+                    bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("AxisColor");
                 }
@@ -504,7 +584,7 @@ namespace RaupCoilerII {
             set {
                 if (colSpiralColor != value) {
                     colSpiralColor = value;
-                    bRequireToRegenerate = true;
+                    bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("SpiralColor");
                 }
@@ -517,7 +597,7 @@ namespace RaupCoilerII {
             get { return colBackgroundColor; }
             set {
                 if (colBackgroundColor != value) {
-                    bRequireToRegenerate = true;
+                    bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("BackgroundColor");
                 }
@@ -552,6 +632,8 @@ namespace RaupCoilerII {
             Spiral = false;
             Axis = true;
 
+            Axis3D = true;
+
             Revolutions = 6;
             Resolution = 36;
             RingsRev = 16;
@@ -563,7 +645,15 @@ namespace RaupCoilerII {
             // set all the view vector parameters to its default value
             ViewPhiZenithAngle = 0;
             ViewThetaAzimuthAngle = 0;
-            ViewRoDistance = 2;
+            ViewRoDistance = 4;
+
+
+            // set all the view vector parameters to its default value
+            LightPhiZenithAngle = 0;
+            LightThetaAzimuthAngle = 0;
+            LightRoDistance = 4;
+
+            bLinkLightToView = true;
 
             MeshColor = System.Windows.Media.Color.FromRgb(0, 255, 0);
             AxisColor = System.Windows.Media.Color.FromRgb(255, 0, 0);

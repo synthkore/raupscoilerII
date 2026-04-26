@@ -43,6 +43,7 @@ namespace RaupCoilerII {
         private float viewYAngle = 0f;
         private float viewZAngle = 0f;
         private float viewDist = 0f;
+        // view vector endpoint coordinates
         private float viewX = 0f;
         private float viewY = 0f;
         private float viewZ = 0f;
@@ -50,7 +51,9 @@ namespace RaupCoilerII {
         // light coordinates
         private float lightXAngle = 0f;
         private float lightYAngle = 0f;
+        private float lightZAngle = 0f;
         private float lightDist = 0f;
+        // light vector endpoint coordinates
         private float lightX = 0f;
         private float lightY = 0f;
         private float lightZ = 0f;
@@ -234,7 +237,7 @@ namespace RaupCoilerII {
             //    appViewModel.bRequireToRegenerate = false;
             //}
 
-            appViewModel.bRequireToRegenerate = true;
+            appViewModel.bRequireToTransform = true;
             appViewModel.bRequireToReRender = true;
 
         }//OpenTkControl_Loaded
@@ -330,12 +333,13 @@ namespace RaupCoilerII {
                 // view spheric coordinates
                 viewXAngle = MathHelper.DegreesToRadians((float)appViewModel.ViewThetaAzimuthAngle);
                 viewYAngle = MathHelper.DegreesToRadians((float)appViewModel.ViewPhiZenithAngle);
-                viewZAngle = 0;
+                viewZAngle = MathHelper.DegreesToRadians((float)appViewModel.ViewThetaAzimuthAngle);
                 viewDist = (float)appViewModel.ViewRoDistance;
                 // light spheric coordinates
-                lightXAngle = 0;//MathHelper.DegreesToRadians(miViewModel.lightXAngle);// * (float)(2 * Math.PI / (float)360);
-                lightYAngle = 0;//MathHelper.DegreesToRadians(miViewModel.lightYAngle);// * (float)(2 * Math.PI / (float)360);
-                lightDist = 10;// miViewModel.lightDist;
+                lightXAngle = MathHelper.DegreesToRadians((float)appViewModel.LightThetaAzimuthAngle);
+                lightYAngle = MathHelper.DegreesToRadians((float)appViewModel.LightPhiZenithAngle);
+                lightZAngle = MathHelper.DegreesToRadians((float)appViewModel.LightThetaAzimuthAngle);
+                lightDist = (float)appViewModel.LightRoDistance;
 
                 // calculate the coordinates of the View Vector
 
@@ -346,28 +350,25 @@ namespace RaupCoilerII {
                     up_vector = Vector3.UnitY;
                 }
 
-                // calculate the X,Y,Z endpoint of the View Vector the other endpoint is the 0,0,0
+                // calculate the X,Y,Z endpoint of the View Vector, the other endpoint is the 0,0,0
                 float projectView = (float)Math.Cos((float)viewYAngle) * (float)viewDist;
                 // Endpoint X coordinate
-                flAux = MathHelper.DegreesToRadians((float)appViewModel.ViewThetaAzimuthAngle);
                 viewX = (float)Math.Cos((float)viewXAngle) * projectView;
                 // Endpoint Y coordinate
-                flAux =  MathHelper.DegreesToRadians((float)appViewModel.ViewPhiZenithAngle);
                 viewY = (float)viewDist * (float)Math.Sin((float)viewYAngle);
                 // Endpoint Z coordinate
-                flAux = MathHelper.DegreesToRadians((float)appViewModel.ViewThetaAzimuthAngle);
-                viewZ = (float)Math.Sin(flAux) * projectView;               
+                viewZ = (float)Math.Sin(viewZAngle) * projectView;               
                 view_vector = new Vector3(viewX, viewY, viewZ);
 
-                // viewVectorDescrLbl.Text = "View (" + viewX.ToString("0.00") + "," + viewY.ToString("0.00") + "," + viewZ.ToString("0.00") + ")";
-
-                // calculate the X,Y,Z coordinates of the Light Vector
+                // calculate the X,Y,Z endpoint of the Light Vector, the other endpoint is the 0,0,0
                 float projectLight = (float)Math.Cos((float)lightYAngle) * (float)lightDist;
-                lightY = (float)lightDist * (float)Math.Sin((float)lightYAngle);
+                // Endpoint X coordinate
                 lightX = (float)Math.Cos((float)lightXAngle) * projectLight;
-                lightZ = (float)Math.Sin((float)lightXAngle) * projectLight;
+                // Endpoint Y coordinate
+                lightY = (float)lightDist * (float)Math.Sin((float)lightYAngle);
+                // Endpoint Z coordinate
+                lightZ = (float)Math.Sin(lightZAngle) * projectLight;
                 light_vector = new Vector3(lightX, lightY, lightZ);
-                // lightVectorDescrLbl.Text = "Light (" + lightX.ToString("0.00") + "," + lightY.ToString("0.00") + "," + lightZ.ToString("0.00") + ")";
 
                 Matrix4 transforMatrix;
                 Matrix4 viewMatrix = Matrix4.LookAt(view_vector,Vector3.Zero,up_vector);

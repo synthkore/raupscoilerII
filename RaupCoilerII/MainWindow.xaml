@@ -60,35 +60,30 @@
             <Button Grid.Column="1" Click="PanelSplitButton_Click"/>
             <!-- Column 2: the column with the tools -->
             <TabControl Grid.Column="2" Margin="2,2,2,2">
-                <!-- Model TabPage controls-->
+                <!--######################################################### Model TabPage controls #########################################################-->
                 <TabItem Header="Model" HorizontalAlignment="Right" Margin="0,-2,-2,0" Width="50">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="4*"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="8*"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="33*"/>
-                            <ColumnDefinition Width="49*"/>
+                            <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <!-- Column 0 Grid -->
-                        <Grid Grid.Column="0" Grid.ColumnSpan="5">
+                        <!--############ Column 0 Model TabPage Grid ############ -->
+                        <Grid Grid.Column="0" Margin="0,0,245,0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="6*"/>
-                                <ColumnDefinition Width="43*"/>
+                                <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="250"/>
                                 <RowDefinition  Height="280"/>
                             </Grid.RowDefinitions>
                             <!-- Grid in Column 0: Row 0: Raup parameters panel -->
-                            <GroupBox Header="Raup" Grid.Row="0" Margin="2,2,2,2" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2">
+                            <GroupBox Header="Raup" Grid.Row="0" Margin="2,2,2,2" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="187*"/>
+                                        <ColumnDefinition Width="42*"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
                                         <RowDefinition/>
@@ -97,28 +92,28 @@
                                         <RowDefinition/>
                                     </Grid.RowDefinitions>
                                     <!-- D parameter -->
-                                    <WrapPanel Margin="2,2,2,2" Grid.Row="0">
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="0" Grid.ColumnSpan="2">
                                         <Label Content="D:"/>
                                         <TextBox TextWrapping="Wrap" Text="{Binding Dparam, Mode=TwoWay, Converter={StaticResource stringToDoubleConverter},ConverterParameter=3}" Width="120" Style="{StaticResource VerticalCenteredTextBox}" />
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
                                         <ScrollBar Value="{Binding Dparam, Mode=TwoWay}" Minimum="{x:Static local:ViewModel.DparamMin}" Maximum="{x:Static local:ViewModel.DparamMax}" ViewportSize="0.01" Orientation="Horizontal" Margin="2,2,0,2" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="0.025" LargeChange="0.1" />
                                     </WrapPanel>
                                     <!-- W parameter -->
-                                    <WrapPanel Margin="2,2,2,2" Grid.Row="1">
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="1" Grid.ColumnSpan="2">
                                         <Label Content="W:"/>
                                         <TextBox TextWrapping="Wrap" Text="{Binding Wparam, Mode=TwoWay, Converter={StaticResource stringToDoubleConverter},ConverterParameter=3}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
                                         <ScrollBar Value="{Binding Wparam, Mode=TwoWay}" Minimum="{Binding WparamMin}" Maximum="{Binding WparamMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="2" LargeChange="5"/>
                                     </WrapPanel>
                                     <!-- T parameter -->
-                                    <WrapPanel Margin="2,2,2,2" Grid.Row="2">
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="2" Grid.ColumnSpan="2">
                                         <Label Content="T:"/>
                                         <TextBox TextWrapping="Wrap" Text="{Binding Tparam, Mode=TwoWay, Converter={StaticResource stringToDoubleConverter},ConverterParameter=3}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
                                         <ScrollBar Value="{Binding Tparam, Mode=TwoWay}" Minimum="{Binding TparamMin}" Maximum="{Binding TparamMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="0.1" LargeChange="1"/>
                                     </WrapPanel>
                                     <!-- S parameter -->
-                                    <WrapPanel Margin="2,2,2,2" Grid.Row="3">
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="3" Grid.ColumnSpan="2">
                                         <Label Content="S:"/>
                                         <TextBox TextWrapping="Wrap" Text="{Binding Sparam, Mode=TwoWay, Converter={StaticResource stringToDoubleConverter},ConverterParameter=3}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
@@ -127,7 +122,7 @@
                                 </Grid>
                             </GroupBox>
                             <!-- Grid in Column 0:  Row 1: Mesh panel -->
-                            <GroupBox Header="Mesh" Grid.Column="0" Grid.Row="1" Margin="2,2,2,95" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2">
+                            <GroupBox Header="Mesh" Grid.Column="0" Grid.Row="1" Margin="2,2,2,95" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="227*"/>
@@ -163,8 +158,8 @@
                                 </Grid>
                             </GroupBox>
                         </Grid>
-                        <!-- Column 1 Grid -->
-                        <Grid Grid.Column="5">
+                        <!--############ Column 1 Model TabPage Grid ############ -->
+                        <Grid Margin="245,0,0,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="415"/>
                                 <RowDefinition Height="255"/>
@@ -215,55 +210,114 @@
                         </Grid>
                     </Grid>
                 </TabItem>
+                <!--######################################################### View & Light TabPage controls #########################################################-->
                 <!-- View TabPage controls-->
                 <TabItem Header="View">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
-                            <ColumnDefinition Width="6*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="220"/>
-                            <RowDefinition Height="255"/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <!-- Column 1 Row 0:Drawing options -->
-                        <!-- Column 1 Row 1: Orientation -->
-                        <GroupBox Header="Orientation" Grid.Row="0" Margin="2,2,2,2" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                    <RowDefinition Height="28"/>
-                                </Grid.RowDefinitions>
-                                <!--- X Axis -->
-                                <WrapPanel Margin="2,4,2,2" Grid.Row="0">
-                                    <Label Content="Phi (zenith angle):" Width="130"/>
-                                    <TextBox TextWrapping="Wrap" Text="{Binding ViewPhiZenithAngle,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="130" Style="{StaticResource VerticalCenteredTextBox}"/>
-                                    <!-- binding in the controls width to take the same width than the parent Grid -->
-                                    <ScrollBar Value="{Binding ViewPhiZenithAngle, Mode=TwoWay}" Minimum="{Binding XOrientationMin}" Maximum="{Binding XOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
-                                </WrapPanel>
-                                <!--- Y Axis -->
-                                <WrapPanel Margin="2,2,2,2" Grid.Row="1">
-                                    <Label Content="Theta (azimuth angle):" Width="130"/>
-                                    <TextBox TextWrapping="Wrap" Text="{Binding ViewThetaAzimuthAngle,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="130" Style="{StaticResource VerticalCenteredTextBox}"/>
-                                    <!-- binding in the controls width to take the same width than the parent Grid -->
-                                    <ScrollBar Value="{Binding ViewThetaAzimuthAngle, Mode=TwoWay}" Minimum="{Binding YOrientationMin}" Maximum="{Binding YOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
-                                </WrapPanel>
-                                <!--- Distance -->
-                                <WrapPanel Margin="2,2,2,2" Grid.Row="2">
-                                    <Label Content="Ro (radius distance):" Width="130"/>
-                                    <TextBox TextWrapping="Wrap" Text="{Binding ViewRoDistance,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="130" Style="{StaticResource VerticalCenteredTextBox}"/>
-                                    <!-- binding in the controls width to take the same width than the parent Grid -->
-                                    <ScrollBar Value="{Binding ViewRoDistance, Mode=TwoWay}" Minimum="{Binding ViewDistanceMin}" Maximum="{Binding ViewDistanceMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
-                                </WrapPanel>
-                                <Button x:Name="btnResetViewOrientation" Grid.Row="3" Height="22" Content="Reset" Click="btnResetViewOrientation_Click" Width="140" />
-                            </Grid>
-                        </GroupBox>
+                        <!--############ Column 0 View & Light TabPage Grid ############ -->
+                        <Grid Grid.Column="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="93*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition  Height="220"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <GroupBox Header="View Orientation" Grid.Row="0" Grid.Column="0" Margin="2,2,247,2" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition Height="28"/>
+                                    </Grid.RowDefinitions>
+                                    <!--- View coordinates Phi (zenith angle) -->
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="0">
+                                        <Label Content="Phi (zenith):" Width="110"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding ViewPhiZenithAngle,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding ViewPhiZenithAngle, Mode=TwoWay}" Minimum="{Binding XOrientationMin}" Maximum="{Binding XOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                    <!--- View coordinates Theta (azimuth angle) -->
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="1">
+                                        <Label Content="Theta (azimuth):" Width="110"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding ViewThetaAzimuthAngle,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding ViewThetaAzimuthAngle, Mode=TwoWay}" Minimum="{Binding YOrientationMin}" Maximum="{Binding YOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                    <!--- View coordinates Ro (radius distance)-->
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="2">
+                                        <Label Content="Ro (radius):" Width="110"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding ViewRoDistance,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding ViewRoDistance, Mode=TwoWay}" Minimum="{Binding ViewDistanceMin}" Maximum="{Binding ViewDistanceMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                    <Button x:Name="btnResetViewOrientation" Grid.Row="3" Height="22" Content="Reset" Click="btnResetViewOrientation_Click" Width="140" />
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
+                        <!--############ Column 1 View & Light TabPage Grid ############ -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="250"/>
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <GroupBox Header="Light Orientation" Grid.Row="0" Margin="247,2,2,2" BorderBrush="Black" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition Height="27"/>
+                                        <RowDefinition Height="28"/>
+                                    </Grid.RowDefinitions>
+                                    <!--- Light coordinates Phi (zenith angle) -->
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="0">
+                                        <Label Content="Phi (zenith):" Width="110"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding LightPhiZenithAngle,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding LightPhiZenithAngle, Mode=TwoWay}" Minimum="{Binding XOrientationMin}" Maximum="{Binding XOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                    <!--- Light coordinates Theta (azimuth angle) -->
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="1">
+                                        <Label Content="Theta (azimuth):" Width="110"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding LightThetaAzimuthAngle,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding LightThetaAzimuthAngle, Mode=TwoWay}" Minimum="{Binding YOrientationMin}" Maximum="{Binding YOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                    <!--- Light coordinates Ro (radius distance)-->
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="2">
+                                        <Label Content="Ro (radius):" Width="110"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding LightRoDistance,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding LightRoDistance, Mode=TwoWay}" Minimum="{Binding LightDistanceMin}" Maximum="{Binding LightDistanceMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                    <CheckBox Content="Link light to view" Grid.Row="3" IsChecked="{Binding LinkLightToView}" Margin="2,2,2,2" />
+                                    <Button x:Name="btnResetLightOrientation" Grid.Row="4" Height="22" Content="Reset" Click="btnResetLightOrientation_Click" Width="140" />
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
                     </Grid>
+
+
+
                 </TabItem>
                 <!-- Section TabPage controls-->
                 <TabItem Header="Section">
