@@ -383,5 +383,17 @@ namespace RaupCoilerII {
 
         }//btnResetLightOrientation_Click
 
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the export menu option.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void menuExportItem_Click(object sender, RoutedEventArgs e) {
+
+            ShellModel.export("exportado.obj");
+
+        }//menuExportItem_Click
+
     }
 }

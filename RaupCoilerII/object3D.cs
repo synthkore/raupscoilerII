@@ -30,8 +30,8 @@ namespace RaupCoilerII {
         // meshes that will keep the copy of the model geometry. The information will be copied to
         // from that buffers to the OpenGL buffers. Every time that the mesh requires to be transformed 
         // its TransformedMesh will be transformed and then copied to the OpnGL buffers
-        protected List<Mesh> originaldMesh = null;
-        protected List<Mesh> transformedMesh = null;
+        protected List<Mesh> liOriginaldMesh = null;
+        protected List<Mesh> liTransformedMesh = null;
 
         public Int32 iVerticesCter = 0; // the total number of vertex indices used to draw the geometry ( they may be repeated )
         public Int32 iFacesCter = 0; // the total number of faces in the geometry
@@ -49,7 +49,7 @@ namespace RaupCoilerII {
         public virtual void Initialize() { }
         public virtual void TransformUpdateVAO(){ }
 
-  
+
         /*******************************************************************************
         * @brief Auxiliar method that clones the received mesh into a new mesh
         * @return the cloned mesh.
@@ -57,28 +57,28 @@ namespace RaupCoilerII {
         public static Mesh CloneMesh(Mesh source) {
             var dest = new Mesh(source.Name, source.PrimitiveType);
 
-            // Vértices
+            // Vertexs
             dest.Vertices.AddRange(source.Vertices);
 
-            // Normales
+            // Normals
             dest.Normals.AddRange(source.Normals);
 
-            // Tangentes y bitangentes
+            // Tangent and bitangent
             dest.Tangents.AddRange(source.Tangents);
             dest.BiTangents.AddRange(source.BiTangents);
 
-            // Coordenadas de textura
+            // Texture coordinates
             for (int i = 0; i < source.TextureCoordinateChannelCount; i++) {
                 dest.TextureCoordinateChannels[i] = new List<Assimp.Vector3D>(source.TextureCoordinateChannels[i]);
                 dest.UVComponentCount[i] = source.UVComponentCount[i];
             }
 
-            // Colores por vértice
+            // Vertexs colors
             for (int i = 0; i < source.VertexColorChannelCount; i++) {
                 dest.VertexColorChannels[i] = new List<Color4D>(source.VertexColorChannels[i]);
             }
 
-            // Caras (índices)
+            // Faces defeiniti (with vertex indexs)
             foreach (var face in source.Faces) {
                 var newFace = new Face();
                 newFace.Indices.AddRange(face.Indices);
@@ -117,6 +117,367 @@ namespace RaupCoilerII {
 
         }//object3D
 
+
+        /*******************************************************************************
+        * @brief generates all the vertexs of the shell geometry.
+        * 
+        * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
+        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
+        * @param[in] iTotalNumOfRings the total number of rings in the model
+        *******************************************************************************/
+        public void GenerateShellVertexs(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+            Assimp.Vector3D vectorAux1;
+            int iAux = 0;
+            float fAngle = 0;
+            float fAngleRads = 0;
+            float fAngleDelta = 0;
+            float fXAux, fYAux, fZAux;
+            float fRadius = 0;
+            int iRing = 0;
+            int iVertexIndex = 0;
+
+            fAngleDelta = 360f / (float)iVertexsPerRing;
+
+            fZAux = 0;
+            fRadius = 0.5f;
+            for (iRing = 0; iRing < iTotalNumOfRings; iRing++) {
+
+                // first initialize all the vertices
+                fRadius = fRadius + 0.1f;
+                fAngle = 0;
+                for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+
+                    fAngleRads = MathHelper.DegreesToRadians((float)fAngle);
+
+                    fXAux = (float)Math.Cos((double)fAngleRads) * fRadius;
+                    fYAux = (float)Math.Sin((double)fAngleRads) * fRadius;
+
+                    vectorAux1 = new Assimp.Vector3D(fXAux, fYAux, fZAux);
+
+                    model_mesh.Vertices.Add(vectorAux1);
+
+                    fAngle = fAngle + fAngleDelta;
+
+                }//for
+
+                fZAux = fZAux + 0.15f;
+
+            }//for (iRings=0;
+
+        }//GenerateShellVertexs
+
+        /*******************************************************************************
+        * @brief generates the normals for all the vertices of the shell geometry.
+        * 
+        * @param[in|out] model_mesh with all the geometry information. Here is where
+        * the generated vertex, normals, and faces information is stored
+        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring
+        * @param[in] iTotalNumOfRings the total number of rings in the shell model
+        *******************************************************************************/
+        public void GenerateShellNormals(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+            Assimp.Vector3D vectorAux1;
+            Assimp.Vector3D vectorAux2;
+            Assimp.Vector3D vertexNormal;
+            int iAux = 0;
+            float fXAux, fYAux, fZAux;
+            float fXAux2, fYAux2, fZAux2;
+            int iRing = 0;
+            int iVertexIndex = 0;
+
+            fZAux = 0;
+            for (iRing = 0; iRing < (iTotalNumOfRings - 1); iRing++) {
+
+                iAux = iRing * iVertexsPerRing;
+
+                // calculate all the normals of vertexs of the ring
+                for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing - 1; iVertexIndex++) {
+
+                    // Indexs of a regular face of the ring:
+                    // iAux = iRing * iVertexsPerRing            +                    +
+                    //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 + <iAux + iVertexIndex + 1
+                    //                                           +  +                 +
+                    //                                           +      +     face 1  +
+                    //                                           +          +         + 
+                    //                                           +  face 2      +     +
+                    //                                           +                 +  +
+                    //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
+                    //                                           +                    +
+
+                    fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
+                    fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
+                    fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
+
+                    // get the vector that joins the current vertex with the equivalente vertex in the next face
+                    fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].X;
+                    fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Y;
+                    fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Z;
+
+                    vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+
+                    // get the vector that joins the current vertex with the equivalente vertex in the next face
+                    fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].X;
+                    fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Y;
+                    fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Z;
+
+                    vectorAux2 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+
+                    // calculate the normal of that vertex and add it to the vertex list
+                    vertexNormal = new Assimp.Vector3D();
+                    vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
+                    vertexNormal.Normalize();
+
+                    model_mesh.Normals.Add(vertexNormal);
+
+                }// for (iVertexIndex = 0
+
+                // calculate the normal of the last vertex of the ring 
+                fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
+                fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
+                fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                fXAux2 = model_mesh.Vertices[iAux].X;
+                fYAux2 = model_mesh.Vertices[iAux].Y;
+                fZAux2 = model_mesh.Vertices[iAux].Z;
+
+                vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].X;
+                fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Y;
+                fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Z;
+
+                vectorAux2 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+
+                // calculate the normal of that vertex and add it to the vertex list
+                vertexNormal = new Assimp.Vector3D();
+                vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
+                vertexNormal.Normalize();
+
+                model_mesh.Normals.Add(vertexNormal);
+
+            }//for (iRing = 0;
+
+            iAux = iRing * iVertexsPerRing;
+
+            // calculate all the normals of vertexs of the last ring
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing - 1; iVertexIndex++) {
+
+                fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
+                fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
+                fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].X;
+                fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Y;
+                fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Z;
+
+                vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                fXAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].X;
+                fYAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Y;
+                fZAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Z;
+
+                vectorAux2 = new Assimp.Vector3D(fXAux2 - fXAux, fYAux2 - fYAux, fZAux2 - fZAux);
+
+                // calculate the normal of that vertex and add it to the vertex list
+                vertexNormal = new Assimp.Vector3D();
+                vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
+                vertexNormal.Normalize();
+
+                model_mesh.Normals.Add(vertexNormal);
+
+            }//for
+
+            // calculate the normal of the last vertex of the last ring
+
+            fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
+            fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
+            fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
+
+            // get the vector that joins the current vertex with the equivalente vertex in the next face
+            fXAux2 = model_mesh.Vertices[iAux].X;
+            fYAux2 = model_mesh.Vertices[iAux].Y;
+            fZAux2 = model_mesh.Vertices[iAux].Z;
+
+            vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+
+            // get the vector that joins the current vertex with the equivalente vertex in the next face
+            fXAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].X;
+            fYAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Y;
+            fZAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Z;
+
+            vectorAux2 = new Assimp.Vector3D(fXAux2 - fXAux, fYAux2 - fYAux, fZAux2 - fZAux);
+
+            // calculate the normal of that vertex and add it to the vertex list
+            vertexNormal = new Assimp.Vector3D();
+            vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
+            vertexNormal.Normalize();
+
+            model_mesh.Normals.Add(vertexNormal);
+
+        }//GenerateShellNormals
+
+        /*******************************************************************************
+        * @brief fills the faces information by setting the indexs of the vertex that 
+        * define all the faces of the shell geometry.
+        * 
+        * @param[in|out] model_mesh with all the geometry information. Here is where
+        * the generated vertex, normals, and faces information is stored
+        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
+        * @param[in] iTotalNumOfRings the total number of rings in the shell model
+        *******************************************************************************/
+        public void GenerateShellFaces(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+            Assimp.Face faceAux;
+            int iRing = 0;
+            int iVertexIndex = 0;
+            int iAux = 0;
+
+            // Indexs of a regular face of the ring:
+            // iAux = iRing * iVertexsPerRing            +                    +
+            //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 + <iAux + iVertexIndex + 1
+            //                                           +  +                 +
+            //                                           +      +     face 1  +
+            //                                           +          +         + 
+            //                                           +  face 2      +     +
+            //                                           +                 +  +
+            //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
+            //                                           +                    +
+            //  Faces must be defined in this order:
+            //   face 1: 0 1 3
+            //   face 2: 0 3 2
+
+            // generate the faces index
+            for (iRing = 0; iRing < (iTotalNumOfRings - 1); iRing++) {
+
+                iAux = iRing * iVertexsPerRing;
+
+                for (iVertexIndex = 0; iVertexIndex < (iVertexsPerRing - 1); iVertexIndex++) {
+
+                    // face 1 
+                    faceAux = new Face();
+                    faceAux.Indices.Add(iAux + iVertexIndex);
+                    faceAux.Indices.Add(iAux + iVertexIndex + 1);
+                    faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing);
+                    model_mesh.Faces.Add(faceAux);
+
+                    // face 2 
+                    faceAux = new Face();
+                    faceAux.Indices.Add(iAux + iVertexIndex );
+                    faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing);
+                    faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing);                                                                            
+                    model_mesh.Faces.Add(faceAux);
+
+                }//for (iRings=0;
+
+                // Indexs of the last face of the ring:
+                // iAux = iRing * iVertexsPerRing;           +                    +
+                //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 +   <iAux
+                //                                           +  +                 +
+                //                                           +      +    face 1   +
+                //                                           +          +         + 
+                //                                           +  face 2      +     +
+                //                                           +                 +  +
+                //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 +   <iAux +  iVertexsPerRing 
+                //                                           +                    +
+                //  Faces must be defined in this order:
+                //   face 1: 0 1 3
+                //   face 2: 0 3 2
+
+                // last face 1 of the ring
+                faceAux = new Face();
+                faceAux.Indices.Add(iAux + iVertexIndex);
+                faceAux.Indices.Add(iAux);
+                faceAux.Indices.Add(iAux + iVertexsPerRing);
+                model_mesh.Faces.Add(faceAux);
+
+                // last face 2 of the ring
+                faceAux = new Face();
+                faceAux.Indices.Add(iAux + iVertexIndex);
+                faceAux.Indices.Add(iAux + iVertexsPerRing);
+                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing);                                               
+                model_mesh.Faces.Add(faceAux);
+
+            }//for (iRing = 0; iRing < iNumberOfRings; iRing++) {
+
+        }//GenerateShellFaces
+
+        /*******************************************************************************
+        * @brief method that generates/loads the shell model according to the parameters
+        * set by the user
+        *******************************************************************************/
+        public void GenerateShellModel(ref Scene scene) {
+            Mesh model_mesh;
+            Assimp.Vector3D vectorAux1;
+            Assimp.Vector3D vectorAux2;
+            Assimp.Vector3D vertexNormal;
+            Assimp.Face faceAux;
+            int iAux = 0;
+            float fAngle = 0;
+            float fAngleRads = 0;
+            float  fAngleDelta = 0;
+            float fXAux,fYAux, fZAux;
+            float fXAux2, fYAux2, fZAux2;
+            float fRadius = 0;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 8;
+            int iRing = 0;
+            int iVertexIndex = 0;
+            
+            model_mesh = new Mesh("Shell", Assimp.PrimitiveType.Triangle);
+
+            scene.Meshes.Add(model_mesh);
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
+
+            GenerateShellVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+
+            GenerateShellNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+
+            GenerateShellFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+
+
+        }//GenerateShellModel
+
+
+        /*******************************************************************************
+        * @brief exports the mesh of the object into a file with the specified name.
+        * 
+        * @param[in] strFileName with the name of the file where the object geometry data
+        * will be exported.
+        *******************************************************************************/
+        public int export(string strFileName) {
+            int retVal = 0;
+
+            var context = new AssimpContext();
+
+            // 1. Crear escena
+            var scene = new Scene();
+
+            // 2. Añadir la malla
+            scene.Meshes.Add(liTransformedMesh[0]);
+
+            // 3. Crear nodo raíz
+            scene.RootNode = new Node("RootNode");
+
+            // Asociar la malla al nodo (índice 0 porque es la primera)
+            scene.RootNode.MeshIndices.Add(0);
+
+            // 4. (Opcional pero recomendable) añadir un material
+            var material = new Assimp.Material();
+            scene.Materials.Add(material);
+            liTransformedMesh[0].MaterialIndex = 0;
+
+            // 5. Exportar (elige formato: "obj", "fbx", "stl", etc.)
+            context.ExportFile(scene, strFileName, "obj");
+           
+
+            return retVal;
+
+        }//object3D
+
         /*******************************************************************************
         * @brief method that generates/loads the object geometry and stores it into a 
         * mesh object
@@ -140,6 +501,7 @@ namespace RaupCoilerII {
                                     PostProcessSteps.FlipUVs |
                                     PostProcessSteps.GenerateNormals;
 
+            /*
             // use the AssimpNet Scheme object to load the model from the file
             //scene = importer.ImportFile("cono.obj", postProcessSteps); // 290
             scene = importer.ImportFile("TestOGL.obj", postProcessSteps); // 290
@@ -148,37 +510,41 @@ namespace RaupCoilerII {
                 Console.WriteLine("Error al cargar el modelo");
                 return;
             }
+            */
+
+            scene = new Scene();
+            GenerateShellModel(ref scene);
 
             objModelScale = 1.0f;
 
-            originaldMesh = new List<Mesh>();
-            originaldMesh.Add(new Mesh()); // create a new empty mesh object at index 0
-            originaldMesh[0] = object3D.CloneMesh(scene.Meshes[0]);// clone the object in the index 0 mesh
+            liOriginaldMesh = new List<Mesh>();
+            liOriginaldMesh.Add(new Mesh()); // create a new empty mesh object at index 0
+            liOriginaldMesh[0] = object3D.CloneMesh(scene.Meshes[0]);// clone the object in the index 0 mesh
 
-            transformedMesh = new List<Mesh>();
-            transformedMesh.Add(new Mesh()); // create a new empty mesh object at index 0
-            transformedMesh[0] = object3D.CloneMesh(originaldMesh[0]);// clone the object in the index 0 mesh
+            liTransformedMesh = new List<Mesh>();
+            liTransformedMesh.Add(new Mesh()); // create a new empty mesh object at index 0
+            liTransformedMesh[0] = object3D.CloneMesh(liOriginaldMesh[0]);// clone the object in the index 0 mesh
 
             // process the model mesh to center it on 0,0,0 
 
             // get the Max and Min coordinates of the model vertices
-            iVerticesCter = transformedMesh[0].Vertices.Count();
+            iVerticesCter = liTransformedMesh[0].Vertices.Count();
             for (iAux = 0; iAux < iVerticesCter; iAux++) {
                 // update the maximum and mínimum coordinates values if necessary
-                if (transformedMesh[0].Vertices[iAux].X > flMaxX) {
-                    flMaxX = transformedMesh[0].Vertices[iAux].X;
-                } else if (transformedMesh[0].Vertices[iAux].X < flMinX) {
-                    flMinX = transformedMesh[0].Vertices[iAux].X;
+                if (liTransformedMesh[0].Vertices[iAux].X > flMaxX) {
+                    flMaxX = liTransformedMesh[0].Vertices[iAux].X;
+                } else if (liTransformedMesh[0].Vertices[iAux].X < flMinX) {
+                    flMinX = liTransformedMesh[0].Vertices[iAux].X;
                 }
-                if (transformedMesh[0].Vertices[iAux].Y > flMaxY) {
-                    flMaxY = transformedMesh[0].Vertices[iAux].Y;
-                } else if (transformedMesh[0].Vertices[iAux].Y < flMinY) {
-                    flMinY = transformedMesh[0].Vertices[iAux].Y;
+                if (liTransformedMesh[0].Vertices[iAux].Y > flMaxY) {
+                    flMaxY = liTransformedMesh[0].Vertices[iAux].Y;
+                } else if (liTransformedMesh[0].Vertices[iAux].Y < flMinY) {
+                    flMinY = liTransformedMesh[0].Vertices[iAux].Y;
                 }
-                if (transformedMesh[0].Vertices[iAux].Z > flMaxZ) {
-                    flMaxZ = transformedMesh[0].Vertices[iAux].Z;
-                } else if (transformedMesh[0].Vertices[iAux].Z < flMinZ) {
-                    flMinZ = transformedMesh[0].Vertices[iAux].Z;
+                if (liTransformedMesh[0].Vertices[iAux].Z > flMaxZ) {
+                    flMaxZ = liTransformedMesh[0].Vertices[iAux].Z;
+                } else if (liTransformedMesh[0].Vertices[iAux].Z < flMinZ) {
+                    flMinZ = liTransformedMesh[0].Vertices[iAux].Z;
                 }
             }//for
 
@@ -193,8 +559,8 @@ namespace RaupCoilerII {
             // apply the transformations over each vertex of the mesh and store it in the list that will be used to update the VAO ( VBO and EBO )
             for (iAux = 0; iAux < iVerticesCter; iAux++) {
                 // first apply the transformations
-                transformedMesh[0].Vertices[iAux] = tranlsationMatrix * transformedMesh[0].Vertices[iAux];
-                transformedMesh[0].Normals[iAux] = tranlsationMatrix * transformedMesh[0].Normals[iAux];
+                liTransformedMesh[0].Vertices[iAux] = tranlsationMatrix * liTransformedMesh[0].Vertices[iAux];
+                liTransformedMesh[0].Normals[iAux] = tranlsationMatrix * liTransformedMesh[0].Normals[iAux];
             }//for
 
         }//Initialize
@@ -248,11 +614,11 @@ namespace RaupCoilerII {
             modelCoordNColors = new List<float>();
 
             // apply the obtained rotation matrix over the vertices and the normals of the model           
-            iVerticesCter = transformedMesh[0].Vertices.Count();
+            iVerticesCter = liTransformedMesh[0].Vertices.Count();
             for (iAux = 0; iAux < iVerticesCter; iAux++) {
                 // first apply the transformations
-                transformedMesh[0].Vertices[iAux] = rotationMatrix * transformedMesh[0].Vertices[iAux];
-                transformedMesh[0].Normals[iAux] = rotationMatrix * transformedMesh[0].Normals[iAux];
+                liTransformedMesh[0].Vertices[iAux] = rotationMatrix * liTransformedMesh[0].Vertices[iAux];
+                liTransformedMesh[0].Normals[iAux] = rotationMatrix * liTransformedMesh[0].Normals[iAux];
             }//for
 
             // get the Max and Min coordinates of the model vertices
@@ -290,24 +656,24 @@ namespace RaupCoilerII {
 
                 // each face has 3 vertices + 3 colors + 3 normals
                 // vertex coords centered in the middle (flMax... - flMin...) / 2;
-                modelCoordNColors.Add((float)transformedMesh[0].Vertices[iAux].X);
-                modelCoordNColors.Add((float)transformedMesh[0].Vertices[iAux].Y);
-                modelCoordNColors.Add((float)transformedMesh[0].Vertices[iAux].Z);
+                modelCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].X);
+                modelCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].Y);
+                modelCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].Z);
                 // color
                 modelCoordNColors.Add(((float)refAppViewModel.MeshColor.R) / 255);
                 modelCoordNColors.Add(((float)refAppViewModel.MeshColor.G) / 255);
                 modelCoordNColors.Add(((float)refAppViewModel.MeshColor.B) / 255);
                 // normal
-                modelCoordNColors.Add((float)transformedMesh[0].Normals[iAux].X);
-                modelCoordNColors.Add((float)transformedMesh[0].Normals[iAux].Y);
-                modelCoordNColors.Add((float)transformedMesh[0].Normals[iAux].Z);
+                modelCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].X);
+                modelCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].Y);
+                modelCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].Z);
             }//for
 
             // faces indexs list for the EBO
             // add to the list of the indexs of the vertexs that define the faces of the mode
             modelFaceIdxs = new List<uint>();
-            iFacesCter = transformedMesh[0].Faces.Count();
-            foreach (var face in transformedMesh[0].Faces) {
+            iFacesCter = liTransformedMesh[0].Faces.Count();
+            foreach (var face in liTransformedMesh[0].Faces) {
                 // each face has 3 index because we us PostProcessSteps.Triangulate
                 modelFaceIdxs.Add((uint)face.Indices[0]);
                 modelFaceIdxs.Add((uint)face.Indices[1]);
@@ -403,7 +769,7 @@ namespace RaupCoilerII {
             }
 
             // modelOriginalZYXAxis is a list of 3 mehses. Each mesh corresponds to an axis. 
-            originaldMesh = scene.Meshes;
+            liOriginaldMesh = scene.Meshes;
 
             objModelScale = 0.15f;
             objModelTransX = -0.5f;
@@ -435,7 +801,7 @@ namespace RaupCoilerII {
             iVerticesCter = 0;
             for (iAux = 0; iAux < 3; iAux++) {
 
-                mesh = originaldMesh[iAux];
+                mesh = liOriginaldMesh[iAux];
 
                 // assign a different color to each mesh of the object ( each mesh is an arrow of the axis)
                 if (iAux == 0) { fR = 0; fG = 0; fB = 1; }
@@ -470,7 +836,7 @@ namespace RaupCoilerII {
             iVertexCounterAux = 0;
             for (iAux = 0; iAux < 3; iAux++) {
 
-                mesh = originaldMesh[iAux];
+                mesh = liOriginaldMesh[iAux];
                 iFacesCter = iFacesCter + mesh.Faces.Count();
 
                 for (iAux2 = 0; iAux2 < mesh.Faces.Count(); iAux2++) {

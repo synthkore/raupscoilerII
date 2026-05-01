@@ -634,9 +634,9 @@ namespace RaupCoilerII {
 
             Axis3D = true;
 
-            Revolutions = 6;
-            Resolution = 36;
-            RingsRev = 16;
+            Revolutions = 2;
+            Resolution = 16;
+            RingsRev = 4;
 
             XOrientation = 0;
             YOrientation = 0;

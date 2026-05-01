@@ -31,7 +31,7 @@
                 </MenuItem>
                 <MenuItem Header="Save">
                 </MenuItem>
-                <MenuItem Header="Export">
+                <MenuItem Header="Export" Click="menuExportItem_Click">
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="Help">

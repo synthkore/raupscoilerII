@@ -74,7 +74,7 @@ namespace RaupCoilerII {
 
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
-            GL.FrontFace(FrontFaceDirection.Ccw); // o Cw según tu modelo
+            GL.FrontFace(FrontFaceDirection.Ccw); // o Cw según tu modelo          
 
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
@@ -115,7 +115,8 @@ namespace RaupCoilerII {
 
                         out vec3 FragPos;
                         out vec3 Color;
-                        out vec3 Normal;
+                        // flat out vec3 Normal;
+                        flat out vec3 Normal;
 
                         void main()
                         {
@@ -132,7 +133,8 @@ namespace RaupCoilerII {
 
                         in vec3 FragPos;
                         in vec3 Color;
-                        in vec3 Normal;
+                        // flat in vec3 Normal;
+                        flat in vec3 Normal;
 
                         out vec4 FragColor;
 
@@ -424,8 +426,10 @@ namespace RaupCoilerII {
 
                 // ###### render the Model ######
                 GL.BindVertexArray(ShellModel.objectVAO);
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                GL.LineWidth(3.0f);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);// PolygonMode.Line);// Fill);
                 GL.DrawElements(BeginMode.Triangles, ShellModel.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                
                 // clear the context
                 GL.BindVertexArray(0);
 
