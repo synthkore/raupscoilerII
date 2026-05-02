@@ -115,8 +115,8 @@ namespace RaupCoilerII {
 
                         out vec3 FragPos;
                         out vec3 Color;
-                        // flat out vec3 Normal;
                         flat out vec3 Normal;
+                        // out vec3 Normal;
 
                         void main()
                         {
@@ -133,8 +133,8 @@ namespace RaupCoilerII {
 
                         in vec3 FragPos;
                         in vec3 Color;
-                        // flat in vec3 Normal;
                         flat in vec3 Normal;
+                        // in vec3 Normal;
 
                         out vec4 FragColor;
 
