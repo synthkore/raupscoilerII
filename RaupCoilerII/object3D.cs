@@ -202,7 +202,7 @@ namespace RaupCoilerII {
             fAngleDelta = 360f / (float)iVertexsPerRing;
 
             fZAux = 0;
-            fRadius = 0.02f;
+            fRadius = 0.2f;
             for (iRing = 0; iRing < iTotalNumOfRings; iRing++) {
 
                 // first initialize all the vertices
@@ -450,7 +450,7 @@ namespace RaupCoilerII {
                     vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
                     vertexNormal.Normalize();
 
-                    model_mesh.Normals.Add(vertexNormal); // inverted normal
+                    model_mesh.Normals.Add(-vertexNormal); // inverted normal
 
                  }// for (iVertexIndex = 0
 
@@ -478,7 +478,7 @@ namespace RaupCoilerII {
                 vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
                 vertexNormal.Normalize();
 
-                model_mesh.Normals.Add(vertexNormal); // inverted normal
+                model_mesh.Normals.Add(-vertexNormal); // inverted normal
 
             }//for (iRing = 0;
 
@@ -510,7 +510,7 @@ namespace RaupCoilerII {
                 vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
                 vertexNormal.Normalize();
 
-                model_mesh.Normals.Add(vertexNormal); // inverted normal
+                model_mesh.Normals.Add(-vertexNormal); // inverted normal
 
             }//for
 
@@ -539,7 +539,7 @@ namespace RaupCoilerII {
             vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
             vertexNormal.Normalize();
 
-            model_mesh.Normals.Add(vertexNormal); // inverted normal
+            model_mesh.Normals.Add(-vertexNormal); // inverted normal
 
         }//GenerateInerShellNormals
 
@@ -581,7 +581,8 @@ namespace RaupCoilerII {
             //   face 2: 2 0 3
             // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
             // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
-            // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3.
+            // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
+            // should have the same normal value.
 
             // keep the index of the shell outer mesh first stored face
             iOuterShellFirstFaceIdx = model_mesh.Normals.Count();
@@ -624,7 +625,8 @@ namespace RaupCoilerII {
                 //   face 2: 2 0 3
                 // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
                 // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
-                // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3.
+                // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
+                // should have the same normal value.
 
                 // last face 1 of the ring
                 faceAux = new Face();
@@ -678,11 +680,12 @@ namespace RaupCoilerII {
             //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
             //                                           +                    +
             //  Faces must be defined in this order:
-            //   face 1: 0 1 3
-            //   face 2: 2 0 3
+            //   face 1: 3 1 0
+            //   face 2: 3 0 2
             // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
             // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
-            // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3.
+            // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
+            // should have the same normal value.
 
             // keep the index of the shell inner mesh first stored face
             iInnerShellFirstFaceIdx = model_mesh.Normals.Count();
@@ -696,20 +699,22 @@ namespace RaupCoilerII {
 
                     // face 1 
                     faceAux = new Face();
-                    faceAux.Indices.Add(iAux + iVertexIndex); // v 0 
+                    faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  
                     faceAux.Indices.Add(iAux + iVertexIndex + 1); // v 1
-                    faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
+                    faceAux.Indices.Add(iAux + iVertexIndex); // v 0 <= "provoking index" ( despite idx 0 and idx 2 are not the same index, they have the same normal, so the color of the faces is properly shown )
+
                     model_mesh.Faces.Add(faceAux);
 
                     // face 2 
                     faceAux = new Face();
-                    faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing); // v 2
-                    faceAux.Indices.Add(iAux + iVertexIndex); // v 0                    
-                    faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
+                    faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3 
+                    faceAux.Indices.Add(iAux + iVertexIndex); // v 0
+                    faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing); // v 2  <= "provoking index" ( despite idx 0 and idx 2 are not the same index, they have the same normal, so the color of the faces is properly shown )
+
                     model_mesh.Faces.Add(faceAux);
 
                 }//for (iRings=0;
-  
+
                 // Indexs of the last face of the ring:
                 // iAux = iRing * iVertexsPerRing;           +                    +
                 //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 +   <iAux
@@ -721,24 +726,25 @@ namespace RaupCoilerII {
                 //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 +   <iAux +  iVertexsPerRing 
                 //                                           +                    +
                 //  Faces must be defined in this order:
-                //   face 1: 0 1 3
-                //   face 2: 2 0 3
+                //   face 1: 3 1 0
+                //   face 2: 3 0 2
                 // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
                 // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
-                // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3.
+                // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
+                // should have the same normal value.
 
                 // last face 1 of the ring
                 faceAux = new Face();
-                faceAux.Indices.Add(iAux + iVertexIndex);// v 0
+                faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3
                 faceAux.Indices.Add(iAux);// v 1
-                faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3  <= "provoking index"
+                faceAux.Indices.Add(iAux + iVertexIndex);// v 0 <= "provoking index" ( despite idx 0 and idx 2 are not the same index, they have the same normal, so the color of the faces is properly shown )
                 model_mesh.Faces.Add(faceAux);
 
                 // last face 2 of the ring
                 faceAux = new Face();
-                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing);// v 2 
+                faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3 
                 faceAux.Indices.Add(iAux + iVertexIndex);// v 0
-                faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3  <= "provoking index"
+                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing);// v 2  <= "provoking index" ( despite idx 0 and idx 2 are not the same index, they have the same normal, so the color of the faces is properly shown )
                 model_mesh.Faces.Add(faceAux);
 
             }//for (iRing = 0; iRing < iNumberOfRings; iRing++) {
