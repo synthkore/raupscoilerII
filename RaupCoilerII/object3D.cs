@@ -100,12 +100,34 @@ namespace RaupCoilerII {
         public Vector3 cameraUp;
         public Vector3 cameraForward;
 
+        // outer shell mesh indexes
         public int iOuterShellFirstVertexIdx;
         public int iOuterShellFirstNormalIdx;
         public int iOuterShellFirstFaceIdx;
+        public int iOuterShellLastVertexIdx;
+        public int iOuterShellLastNormalIdx;
+        public int iOuterShellLastFaceIdx;
+        // inner shell mesh indexes
         public int iInnerShellFirstVertexIdx;
         public int iInnerShellFirstNormalIdx;
         public int iInnerShellFirstFaceIdx;
+        public int iInnerShellLastVertexIdx;
+        public int iInnerShellLastNormalIdx;
+        public int iInnerShellLastFaceIdx;
+        // beginning cover indexes
+        public int iShellBeginCoverFirstVertexIdx;
+        public int iShellBeginCoverFirstNormalIdx;
+        public int iShellBeginCoverFirstFaceIdx;
+        public int iShellBeginCoverLastVertexIdx;
+        public int iShellBeginCoverLastNormalIdx;
+        public int iShellBeginCoverLastFaceIdx;
+        // enidng cover indexes
+        public int iShellEndCoverFirstVertexIdx;
+        public int iShellEndCoverFirstNormalIdx;
+        public int iShellEndCoverFirstFaceIdx;
+        public int iShellEndCoverLastVertexIdx;
+        public int iShellEndCoverLastNormalIdx;
+        public int iShellEndCoverLastFaceIdx;
 
         /*******************************************************************************
         * @brief Constructor with pararameters.
@@ -122,8 +144,32 @@ namespace RaupCoilerII {
             iOuterShellFirstVertexIdx = 0;
             iOuterShellFirstNormalIdx = 0;
             iOuterShellFirstFaceIdx = 0;
+            iInnerShellFirstVertexIdx = 0;
+            iInnerShellFirstNormalIdx = 0;
+            iInnerShellFirstFaceIdx = 0;
 
-        }//object3D
+            iOuterShellLastVertexIdx = 0;
+            iOuterShellLastNormalIdx = 0;
+            iOuterShellLastFaceIdx = 0;
+            iInnerShellLastVertexIdx = 0;
+            iInnerShellLastNormalIdx = 0;
+            iInnerShellLastFaceIdx = 0;
+
+            iShellBeginCoverFirstVertexIdx = 0;
+            iShellBeginCoverFirstNormalIdx = 0;
+            iShellBeginCoverFirstFaceIdx = 0;
+            iShellBeginCoverLastVertexIdx = 0;
+            iShellBeginCoverLastNormalIdx = 0;
+            iShellBeginCoverLastFaceIdx = 0;
+            
+            iShellEndCoverFirstVertexIdx = 0;
+            iShellEndCoverFirstNormalIdx = 0;
+            iShellEndCoverFirstFaceIdx = 0;
+            iShellEndCoverLastVertexIdx = 0;
+            iShellEndCoverLastNormalIdx = 0;
+            iShellEndCoverLastFaceIdx = 0;
+
+         }//object3D
 
         /*******************************************************************************
         * @brief generates all the vertexs of the outer shell geometry ( the faces that
@@ -174,6 +220,9 @@ namespace RaupCoilerII {
                 fZAux = fZAux + 0.15f;
 
             }//for (iRings=0;
+
+            // keep the index of the shell outer mesh last stored vertex
+            iOuterShellLastVertexIdx = model_mesh.Vertices.Count() - 1;
 
         }//GenerateOuterShellVertexs
 
@@ -227,8 +276,97 @@ namespace RaupCoilerII {
 
             }//for (iRings=0;
 
+            // keep the index of the shell inner mesh last stored vertex
+            iInnerShellLastVertexIdx = model_mesh.Vertices.Count()-1;
+
         }//GenerateInnerShellVertexs
- 
+
+        /*******************************************************************************
+        * @brief creates the vertex used to define the beggining edge of the shell that
+        * covers the space between the the outer and the inner shell. The vertexs of the 
+        * begining cover are the same vertexs than the first ring of the outer and inner
+        * shell mesh.
+        * 
+        * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
+        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
+        * @param[in] iTotalNumOfRings the total number of rings in the model
+        *******************************************************************************/
+        public void GenerateShellBeginCoverVertexs(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+            int iVertexIndex = 0;
+            int iAux = 0;
+            Assimp.Vector3D v3Daux;
+
+            // keep the index of the shell begin cover first stored vertex
+            iShellBeginCoverFirstVertexIdx = model_mesh.Vertices.Count();
+
+            // store the vertexs of the first ring of the outer shell mesh in the list of vertexs
+            // to use them to define the outer side of the faces of the begin cover
+            iAux = iOuterShellFirstVertexIdx;
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+
+                v3Daux = model_mesh.Vertices[iAux + iVertexIndex];
+                model_mesh.Vertices.Add(v3Daux);
+
+            }//for
+
+            // store the vertexs of the first ring of the inner shell mesh in the list of vertexs
+            // to use them to define the innser side of the faces of the begin cover
+            iAux = iInnerShellFirstVertexIdx;
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+
+                v3Daux = model_mesh.Vertices[iAux + iVertexIndex];
+                model_mesh.Vertices.Add(v3Daux);
+
+            }//for
+
+            // keep the index of the shell begin cover last stored vertex
+            iShellBeginCoverLastVertexIdx = model_mesh.Vertices.Count()-1;
+
+        }//GenerateShellBeginCoverVertexs
+
+        /*******************************************************************************
+        * @brief creates the vertex used to define the ending edge of the shell that
+        * covers the space between the the outer and the inner shell. The vertexs of the 
+        * ending cover are the same vertexs than the last ring of the outer and inner
+        * shell mesh.
+        * 
+        * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
+        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
+        * @param[in] iTotalNumOfRings the total number of rings in the model
+        *******************************************************************************/
+        public void GenerateShellEndCoverVertexs(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+            int iVertexIndex = 0;
+            int iAux = 0;
+            Assimp.Vector3D v3Daux;
+
+            // keep the index of the shell end cover first stored vertex
+            iShellEndCoverFirstVertexIdx = model_mesh.Vertices.Count();
+
+            // store the vertexs of the last ring of the outer shell mesh in the list of vertexs
+            // to use them to define the outer side of the faces of the end cover
+            iAux = iOuterShellLastVertexIdx - ( iVertexsPerRing - 1);
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+
+                v3Daux = model_mesh.Vertices[iAux + iVertexIndex];
+                model_mesh.Vertices.Add(v3Daux);
+
+            }//for
+
+            // store the vertexs of the last ring of the inner shell mesh in the list of vertexs
+            // to use them to define the innser side of the faces of the end cover
+            iAux = iInnerShellLastVertexIdx - ( iVertexsPerRing - 1);
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+
+                v3Daux = model_mesh.Vertices[iAux + iVertexIndex];
+                model_mesh.Vertices.Add(v3Daux);
+
+            }//for
+
+            // keep the index of the shell end cover last stored vertex
+            iShellEndCoverLastVertexIdx = model_mesh.Vertices.Count() - 1;
+
+        }//GenerateShellEndCoverVertexs
+
         /*******************************************************************************
         * @brief generates the normals for all the vertices of the outer shell geometry.
         * ( the faces that point outside ).
@@ -239,25 +377,25 @@ namespace RaupCoilerII {
         * @param[in] iTotalNumOfRings the total number of rings in the shell model
         *******************************************************************************/
         public void GenerateOuterShellNormals(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
-            Assimp.Vector3D vectorAux1;
-            Assimp.Vector3D vectorAux2;
+            Assimp.Vector3D vertexAux1;
+            Assimp.Vector3D vertexAux2;
+            Assimp.Vector3D vectorEdge1;
+            Assimp.Vector3D vectorEdge2;
             Assimp.Vector3D vertexNormal;
             int iAux = 0;
-            float fXAux, fYAux, fZAux;
-            float fXAux2, fYAux2, fZAux2;
             int iRing = 0;
             int iVertexIndex = 0;
 
             // keep the index of the shell outer mesh first stored normal
             iOuterShellFirstNormalIdx = model_mesh.Normals.Count();
 
-            fZAux = 0;
+
             for (iRing = 0; iRing < (iTotalNumOfRings - 1); iRing++) {
 
                 iAux = iOuterShellFirstVertexIdx + iRing * iVertexsPerRing;
 
                 // calculate all the normals of vertexs of the ring
-                for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing - 1; iVertexIndex++) {
+                for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
                     // Indexs of a regular face of the ring:
                     // iAux = iRing * iVertexsPerRing            +                    +
@@ -270,119 +408,57 @@ namespace RaupCoilerII {
                     //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
                     //                                           +                    +
 
-                    fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
-                    fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
-                    fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
+                    vertexAux1 = model_mesh.Vertices[iAux + iVertexIndex];
 
                     // get the vector that joins the current vertex with the equivalente vertex in the next face
-                    fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].X;
-                    fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Y;
-                    fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Z;
+                    vertexAux2 = model_mesh.Vertices[iAux + ((iVertexIndex + 1) % iVertexsPerRing)];
 
-                    vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+                    vectorEdge1 = vertexAux1 - vertexAux2;
 
                     // get the vector that joins the current vertex with the equivalente vertex in the next face
-                    fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].X;
-                    fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Y;
-                    fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Z;
+                    vertexAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing];
 
-                    vectorAux2 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+                    vectorEdge2 = vertexAux1 - vertexAux2;
 
                     // calculate the normal of that vertex and add it to the vertex list
                     vertexNormal = new Assimp.Vector3D();
-                    vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
+                    vertexNormal = Assimp.Vector3D.Cross(vectorEdge1, vectorEdge2);
                     vertexNormal.Normalize();
 
                     model_mesh.Normals.Add(vertexNormal);
 
                 }// for (iVertexIndex = 0
 
-                // calculate the normal of the last vertex of the ring 
-                fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
-                fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
-                fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
-
-                // get the vector that joins the current vertex with the equivalente vertex in the next face
-                fXAux2 = model_mesh.Vertices[iAux].X;
-                fYAux2 = model_mesh.Vertices[iAux].Y;
-                fZAux2 = model_mesh.Vertices[iAux].Z;
-
-                vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
-
-                // get the vector that joins the current vertex with the equivalente vertex in the next face
-                fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].X;
-                fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Y;
-                fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Z;
-
-                vectorAux2 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
-
-                // calculate the normal of that vertex and add it to the vertex list
-                vertexNormal = new Assimp.Vector3D();
-                vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
-                vertexNormal.Normalize();
-
-                model_mesh.Normals.Add(vertexNormal);
-
             }//for (iRing = 0;
 
             iAux = iOuterShellFirstVertexIdx + iRing * iVertexsPerRing;
 
             // calculate all the normals of vertexs of the last ring
-            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing - 1; iVertexIndex++) {
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
-                fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
-                fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
-                fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
+                vertexAux1 = model_mesh.Vertices[iAux + iVertexIndex];
 
                 // get the vector that joins the current vertex with the equivalente vertex in the next face
-                fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].X;
-                fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Y;
-                fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Z;
+                vertexAux2 = model_mesh.Vertices[iAux + ((iVertexIndex + 1) % iVertexsPerRing)];
 
-                vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+                vectorEdge1 = vertexAux1 - vertexAux2;
 
                 // get the vector that joins the current vertex with the equivalente vertex in the next face
-                fXAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].X;
-                fYAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Y;
-                fZAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Z;
+                vertexAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing];
 
-                vectorAux2 = new Assimp.Vector3D(fXAux2 - fXAux, fYAux2 - fYAux, fZAux2 - fZAux);
+                vectorEdge2 = vertexAux2 - vertexAux1;
 
                 // calculate the normal of that vertex and add it to the vertex list
                 vertexNormal = new Assimp.Vector3D();
-                vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
+                vertexNormal = Assimp.Vector3D.Cross(vectorEdge1, vectorEdge2);
                 vertexNormal.Normalize();
 
                 model_mesh.Normals.Add(vertexNormal);
 
             }//for
 
-            // calculate the normal of the last vertex of the last ring
-
-            fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
-            fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
-            fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
-
-            // get the vector that joins the current vertex with the equivalente vertex in the next face
-            fXAux2 = model_mesh.Vertices[iAux].X;
-            fYAux2 = model_mesh.Vertices[iAux].Y;
-            fZAux2 = model_mesh.Vertices[iAux].Z;
-
-            vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
-
-            // get the vector that joins the current vertex with the equivalente vertex in the next face
-            fXAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].X;
-            fYAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Y;
-            fZAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Z;
-
-            vectorAux2 = new Assimp.Vector3D(fXAux2 - fXAux, fYAux2 - fYAux, fZAux2 - fZAux);
-
-            // calculate the normal of that vertex and add it to the vertex list
-            vertexNormal = new Assimp.Vector3D();
-            vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
-            vertexNormal.Normalize();
-
-            model_mesh.Normals.Add(vertexNormal);
+            // keep the index of the shell outer mesh last stored normal
+            iOuterShellLastNormalIdx = model_mesh.Normals.Count()-1;
 
         }//GenerateOuterShellNormals
 
@@ -396,25 +472,24 @@ namespace RaupCoilerII {
         * @param[in] iTotalNumOfRings the total number of rings in the shell model
         *******************************************************************************/
         public void GenerateInnerShellNormals(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
-            Assimp.Vector3D vectorAux1;
-            Assimp.Vector3D vectorAux2;
+            Assimp.Vector3D vertexAux1;
+            Assimp.Vector3D vertexAux2;
+            Assimp.Vector3D vectorEdge1;
+            Assimp.Vector3D vectorEdge2;
             Assimp.Vector3D vertexNormal;
             int iAux = 0;
-            float fXAux, fYAux, fZAux;
-            float fXAux2, fYAux2, fZAux2;
             int iRing = 0;
             int iVertexIndex = 0;
 
             // keep the index of the shell inner mesh first stored normal
             iInnerShellFirstNormalIdx = model_mesh.Normals.Count();
 
-            fZAux = 0;
-            for (iRing = 0; iRing < (iTotalNumOfRings - 1); iRing++) {
+            for (iRing = 0; iRing < (iTotalNumOfRings -1) ; iRing++) {
 
                 iAux = iInnerShellFirstVertexIdx + iRing * iVertexsPerRing;
 
                 // calculate all the normals of vertexs of the ring
-                for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing - 1; iVertexIndex++) {
+                for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
                     // Indexs of a regular face of the ring:
                     // iAux = iRing * iVertexsPerRing            +                    +
@@ -427,121 +502,183 @@ namespace RaupCoilerII {
                     //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
                     //                                           +                    +
 
-                    fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
-                    fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
-                    fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
+                    vertexAux1 = model_mesh.Vertices[iAux + iVertexIndex];
 
                     // get the vector that joins the current vertex with the equivalente vertex in the next face
-                    fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].X;
-                    fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Y;
-                    fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Z;
+                    vertexAux2 = model_mesh.Vertices[iAux + ((iVertexIndex + 1) % iVertexsPerRing)];
 
-                    vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+                    vectorEdge1 = vertexAux1 - vertexAux2;
 
                     // get the vector that joins the current vertex with the equivalente vertex in the next face
-                    fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].X;
-                    fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Y;
-                    fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Z;
+                    vertexAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing];
 
-                    vectorAux2 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+                    vectorEdge2 = vertexAux1 - vertexAux2;
 
                     // calculate the normal of that vertex and add it to the vertex list
                     vertexNormal = new Assimp.Vector3D();
-                    vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
+                    vertexNormal = Assimp.Vector3D.Cross(vectorEdge1, vectorEdge2);
                     vertexNormal.Normalize();
 
                     model_mesh.Normals.Add(-vertexNormal); // inverted normal
 
                  }// for (iVertexIndex = 0
 
-                // calculate the normal of the last vertex of the ring 
-                fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
-                fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
-                fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
-
-                // get the vector that joins the current vertex with the equivalente vertex in the next face
-                fXAux2 = model_mesh.Vertices[iAux].X;
-                fYAux2 = model_mesh.Vertices[iAux].Y;
-                fZAux2 = model_mesh.Vertices[iAux].Z;
-
-                vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
-
-                // get the vector that joins the current vertex with the equivalente vertex in the next face
-                fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].X;
-                fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Y;
-                fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing].Z;
-
-                vectorAux2 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
-
-                // calculate the normal of that vertex and add it to the vertex list
-                vertexNormal = new Assimp.Vector3D();
-                vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
-                vertexNormal.Normalize();
-
-                model_mesh.Normals.Add(-vertexNormal); // inverted normal
-
             }//for (iRing = 0;
 
             iAux = iInnerShellFirstVertexIdx + iRing * iVertexsPerRing;
 
             // calculate all the normals of vertexs of the last ring
-            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing - 1; iVertexIndex++) {
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
-                fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
-                fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
-                fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
+                vertexAux1 = model_mesh.Vertices[iAux + iVertexIndex];
 
                 // get the vector that joins the current vertex with the equivalente vertex in the next face
-                fXAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].X;
-                fYAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Y;
-                fZAux2 = model_mesh.Vertices[iAux + iVertexIndex + 1].Z;
+                vertexAux2 = model_mesh.Vertices[iAux + ((iVertexIndex + 1) % iVertexsPerRing)];
 
-                vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
+                vectorEdge1 = vertexAux1 - vertexAux2;
 
                 // get the vector that joins the current vertex with the equivalente vertex in the next face
-                fXAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].X;
-                fYAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Y;
-                fZAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Z;
+                vertexAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing];
 
-                vectorAux2 = new Assimp.Vector3D(fXAux2 - fXAux, fYAux2 - fYAux, fZAux2 - fZAux);
+                vectorEdge2 = vertexAux2 - vertexAux1;
 
                 // calculate the normal of that vertex and add it to the vertex list
                 vertexNormal = new Assimp.Vector3D();
-                vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
+                vertexNormal = Assimp.Vector3D.Cross(vectorEdge1, vectorEdge2);
                 vertexNormal.Normalize();
 
                 model_mesh.Normals.Add(-vertexNormal); // inverted normal
 
             }//for
 
-            // calculate the normal of the last vertex of the last ring
-
-            fXAux = model_mesh.Vertices[iAux + iVertexIndex].X;
-            fYAux = model_mesh.Vertices[iAux + iVertexIndex].Y;
-            fZAux = model_mesh.Vertices[iAux + iVertexIndex].Z;
-
-            // get the vector that joins the current vertex with the equivalente vertex in the next face
-            fXAux2 = model_mesh.Vertices[iAux].X;
-            fYAux2 = model_mesh.Vertices[iAux].Y;
-            fZAux2 = model_mesh.Vertices[iAux].Z;
-
-            vectorAux1 = new Assimp.Vector3D(fXAux - fXAux2, fYAux - fYAux2, fZAux - fZAux2);
-
-            // get the vector that joins the current vertex with the equivalente vertex in the next face
-            fXAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].X;
-            fYAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Y;
-            fZAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing].Z;
-
-            vectorAux2 = new Assimp.Vector3D(fXAux2 - fXAux, fYAux2 - fYAux, fZAux2 - fZAux);
-
-            // calculate the normal of that vertex and add it to the vertex list
-            vertexNormal = new Assimp.Vector3D();
-            vertexNormal = Assimp.Vector3D.Cross(vectorAux1, vectorAux2);
-            vertexNormal.Normalize();
-
-            model_mesh.Normals.Add(-vertexNormal); // inverted normal
+            // keep the index of the shell inner mesh last stored normal
+            iInnerShellLastNormalIdx = model_mesh.Normals.Count()-1;
 
         }//GenerateInerShellNormals
+
+        /*******************************************************************************
+        * @brief generates the normals for all the vertices of the shell begin cover
+        * 
+        * @param[in|out] model_mesh with all the geometry information. Here is where
+        * the generated vertex, normals, and faces information is stored
+        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring
+        * @param[in] iTotalNumOfRings the total number of rings in the shell model
+        *******************************************************************************/
+        public void GenerateShellBeginCoverNormals(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+            Assimp.Vector3D vertexAux1;
+            Assimp.Vector3D vertexAux2;
+            Assimp.Vector3D vectorEdge1;
+            Assimp.Vector3D vectorEdge2;
+            Assimp.Vector3D vertexNormal;
+            int iAux = 0;
+            int iVertexIndex = 0;
+
+            // keep the index of the shell begin cover first stored normal
+            iShellBeginCoverFirstNormalIdx = model_mesh.Normals.Count();
+
+            iAux = iShellBeginCoverFirstVertexIdx;
+
+            // calculate all the normals of vertexs of the ring
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+
+                // Indexs of a regular face of the ring:
+                // iAux = iRing * iVertexsPerRing            +                    +
+                //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 + <iAux + iVertexIndex + 1
+                //                                           +  +                 +
+                //                                           +      +     face 1  +
+                //                                           +          +         + 
+                //                                           +  face 2      +     +
+                //                                           +                 +  +
+                //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
+                //                                           +                    +
+
+                vertexAux1 = model_mesh.Vertices[iAux + iVertexIndex];
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                vertexAux2 = model_mesh.Vertices[iAux + ((iVertexIndex + 1) % iVertexsPerRing)];
+
+                vectorEdge1 = vertexAux1 - vertexAux2;
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                vertexAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing];
+
+                vectorEdge2 = vertexAux1 - vertexAux2;
+
+                // calculate the normal of that vertex and add it to the vertex list
+                vertexNormal = new Assimp.Vector3D();
+                vertexNormal = Assimp.Vector3D.Cross(vectorEdge1, vectorEdge2);
+                vertexNormal.Normalize();
+
+                model_mesh.Normals.Add(vertexNormal);
+
+            }// for (iVertexIndex = 0
+
+            // keep the index of the shell begin cover last stored normal
+            iShellBeginCoverLastNormalIdx = model_mesh.Normals.Count()-1;
+
+        }//GenerateShellBeginCoverNormals
+
+        /*******************************************************************************
+        * @brief generates the normals for all the vertices of the shell end cover
+        * 
+        * @param[in|out] model_mesh with all the geometry information. Here is where
+        * the generated vertex, normals, and faces information is stored
+        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring
+        * @param[in] iTotalNumOfRings the total number of rings in the shell model
+        *******************************************************************************/
+        public void GenerateShellEndCoverNormals(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+            Assimp.Vector3D vertexAux1;
+            Assimp.Vector3D vertexAux2;
+            Assimp.Vector3D vectorEdge1;
+            Assimp.Vector3D vectorEdge2;
+            Assimp.Vector3D vertexNormal;
+            int iAux = 0;
+            int iVertexIndex = 0;
+
+            // keep the index of the shell end cover first stored normal
+            iShellEndCoverFirstNormalIdx = model_mesh.Normals.Count();
+
+            iAux = iShellEndCoverFirstVertexIdx;
+
+            // calculate all the normals of vertexs of the ring
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+
+                // Indexs of a regular face of the ring:
+                // iAux = iRing * iVertexsPerRing            +                    +
+                //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 + <iAux + iVertexIndex + 1
+                //                                           +  +                 +
+                //                                           +      +     face 1  +
+                //                                           +          +         + 
+                //                                           +  face 2      +     +
+                //                                           +                 +  +
+                //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
+                //
+
+                vertexAux1 = model_mesh.Vertices[iAux + iVertexIndex];
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                vertexAux2 = model_mesh.Vertices[iAux + ((iVertexIndex + 1) % iVertexsPerRing)];
+
+                vectorEdge1 = vertexAux1 - vertexAux2;
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                vertexAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing];
+
+                vectorEdge2 = vertexAux1 - vertexAux2;
+
+                // calculate the normal of that vertex and add it to the vertex list
+                vertexNormal = new Assimp.Vector3D();
+                vertexNormal = Assimp.Vector3D.Cross(vectorEdge1, vectorEdge2);
+                vertexNormal.Normalize();
+
+                model_mesh.Normals.Add(vertexNormal);
+
+            }// for (iVertexIndex = 0
+
+            // keep the index of the shell end cover last stored normal
+            iShellEndCoverLastNormalIdx = model_mesh.Normals.Count()-1;
+
+        }//GenerateShellEndCoverNormals
 
         /*******************************************************************************
         * @brief fills the faces information by setting the indexs of the vertex that 
@@ -643,6 +780,9 @@ namespace RaupCoilerII {
                 model_mesh.Faces.Add(faceAux);
 
             }//for (iRing = 0; iRing < iNumberOfRings; iRing++) {
+
+            // keep the index of the shell outer mesh last stored face
+            iOuterShellLastFaceIdx = model_mesh.Normals.Count()-1;
 
         }//GenerateOuterShellFaces
 
@@ -749,7 +889,213 @@ namespace RaupCoilerII {
 
             }//for (iRing = 0; iRing < iNumberOfRings; iRing++) {
 
+            // keep the index of the shell inner mesh last stored face
+            iInnerShellLastFaceIdx = model_mesh.Normals.Count() - 1;
+
         }//GenerateInnerShellFaces
+
+        /*******************************************************************************
+         * @brief defines the faces indices of the shell begin cover.
+         * 
+         * IMPORTANT: when using flat face coluring, OpenGL uses the color of the last 
+         * vertex that defines the face to assign the color to the triangle. That vertex 
+         * is called the  "provoking index" because is the one that "provokes" the color 
+         * in the flat face. To grant that faces are properly coloured when using flat 
+         * ilumination the "provoking index" must be properly set!. In order that the 
+         * two triangles that defien a quad faces are shown with the same color both 
+         * triangle/faces should use the same vertex as provoking index.
+         * 
+         * @param[in|out] model_mesh with all the geometry information. Here is where
+         * the generated vertex, normals, and faces information is stored
+         * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
+         * @param[in] iTotalNumOfRings the total number of rings in the shell model
+         *******************************************************************************/
+        public void GenerateShellBeginCoverFaces(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+            Assimp.Face faceAux;
+            int iRing = 0;
+            int iVertexIndex = 0;
+            int iAux = 0;
+
+            // Indexs of a regular face of the ring:
+            // iAux = iRing * iVertexsPerRing            +                    +
+            //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 + <iAux + iVertexIndex + 1
+            //                                           +  +                 +
+            //                                           +      +     face 1  +
+            //                                           +          +         + 
+            //                                           +  face 2      +     +
+            //                                           +                 +  +
+            //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
+            //                                           +                    +
+            //  Faces must be defined in this order:
+            //   face 1: 0 1 3
+            //   face 2: 2 0 3
+            // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
+            // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
+            // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
+            // should have the same normal value.
+
+            // keep the index of the shell begin cover first stored face
+            iShellBeginCoverFirstFaceIdx = model_mesh.Normals.Count();
+
+            iAux = iShellBeginCoverFirstVertexIdx;
+
+            // generate the faces index
+            for (iVertexIndex = 0; iVertexIndex < (iVertexsPerRing - 1); iVertexIndex++) {
+
+                // face 1 
+                faceAux = new Face();
+                faceAux.Indices.Add(iAux + iVertexIndex); // v 0 
+                faceAux.Indices.Add(iAux + iVertexIndex + 1); // v 1
+                faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
+                model_mesh.Faces.Add(faceAux);
+
+                // face 2 
+                faceAux = new Face();
+                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing); // v 2
+                faceAux.Indices.Add(iAux + iVertexIndex); // v 0                    
+                faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
+                model_mesh.Faces.Add(faceAux);
+
+            }//for (iRings=0;
+
+            // Indexs of the last face of the ring:
+            // iAux = iRing * iVertexsPerRing;           +                    +
+            //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 +   <iAux
+            //                                           +  +                 +
+            //                                           +      +    face 1   +
+            //                                           +          +         + 
+            //                                           +  face 2      +     +
+            //                                           +                 +  +
+            //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 +   <iAux +  iVertexsPerRing 
+            //                                           +                    +
+            //  Faces must be defined in this order:
+            //   face 1: 0 1 3
+            //   face 2: 2 0 3
+            // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
+            // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
+            // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
+            // should have the same normal value.
+
+            // last face 1 of the ring
+            faceAux = new Face();
+            faceAux.Indices.Add(iAux + iVertexIndex);// v 0
+            faceAux.Indices.Add(iAux);// v 1
+            faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3  <= "provoking index"
+            model_mesh.Faces.Add(faceAux);
+
+            // last face 2 of the ring
+            faceAux = new Face();
+            faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing);// v 2 
+            faceAux.Indices.Add(iAux + iVertexIndex);// v 0
+            faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3  <= "provoking index"
+            model_mesh.Faces.Add(faceAux);
+
+            // keep the index of the shell begin cover last stored face
+            iShellBeginCoverLastFaceIdx = model_mesh.Normals.Count() - 1;
+
+        }//GenerateShellBeginCoverFaces
+
+        /*******************************************************************************
+        * @brief defines the faces indices of the shell end cover.
+        * 
+        * IMPORTANT: when using flat face coluring, OpenGL uses the color of the last 
+        * vertex that defines the face to assign the color to the triangle. That vertex 
+        * is called the  "provoking index" because is the one that "provokes" the color 
+        * in the flat face. To grant that faces are properly coloured when using flat 
+        * ilumination the "provoking index" must be properly set!. In order that the 
+        * two triangles that defien a quad faces are shown with the same color both 
+        * triangle/faces should use the same vertex as provoking index.
+        * 
+        * @param[in|out] model_mesh with all the geometry information. Here is where
+        * the generated vertex, normals, and faces information is stored
+        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
+        * @param[in] iTotalNumOfRings the total number of rings in the shell model
+        *******************************************************************************/
+        public void GenerateShellEndCoverFaces(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+            Assimp.Face faceAux;
+            int iRing = 0;
+            int iVertexIndex = 0;
+            int iAux = 0;
+
+            // Indexs of a regular face of the ring:
+            // iAux = iRing * iVertexsPerRing            +                    +
+            //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 + <iAux + iVertexIndex + 1
+            //                                           +  +                 +
+            //                                           +      +     face 1  +
+            //                                           +          +         + 
+            //                                           +  face 2      +     +
+            //                                           +                 +  +
+            //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
+            //                                           +                    +
+            //  Faces must be defined in this order:
+            //   face 1: 0 1 3
+            //   face 2: 2 0 3
+            // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
+            // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
+            // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
+            // should have the same normal value.
+
+            // keep the index of the shell end cover first stored face
+            iShellEndCoverFirstFaceIdx = model_mesh.Normals.Count();
+
+            iAux = iShellEndCoverFirstVertexIdx;
+
+            // generate the faces index
+            for (iVertexIndex = 0; iVertexIndex < (iVertexsPerRing - 1); iVertexIndex++) {
+
+                // face 1 
+                faceAux = new Face();
+                faceAux.Indices.Add(iAux + iVertexIndex); // v 0 
+                faceAux.Indices.Add(iAux + iVertexIndex + 1); // v 1
+                faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
+                model_mesh.Faces.Add(faceAux);
+
+                // face 2 
+                faceAux = new Face();
+                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing); // v 2
+                faceAux.Indices.Add(iAux + iVertexIndex); // v 0                    
+                faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
+                model_mesh.Faces.Add(faceAux);
+
+            }//for (iRings=0;
+
+            // Indexs of the last face of the ring:
+            // iAux = iRing * iVertexsPerRing;           +                    +
+            //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 +   <iAux
+            //                                           +  +                 +
+            //                                           +      +    face 1   +
+            //                                           +          +         + 
+            //                                           +  face 2      +     +
+            //                                           +                 +  +
+            //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 +   <iAux +  iVertexsPerRing 
+            //                                           +                    +
+            //  Faces must be defined in this order:
+            //   face 1: 0 1 3
+            //   face 2: 2 0 3
+            // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
+            // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
+            // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
+            // should have the same normal value.
+
+            // last face 1 of the ring
+            faceAux = new Face();
+            faceAux.Indices.Add(iAux + iVertexIndex);// v 0
+            faceAux.Indices.Add(iAux);// v 1
+            faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3  <= "provoking index"
+            model_mesh.Faces.Add(faceAux);
+
+            // last face 2 of the ring
+            faceAux = new Face();
+            faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing);// v 2 
+            faceAux.Indices.Add(iAux + iVertexIndex);// v 0
+            faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3  <= "provoking index"
+            model_mesh.Faces.Add(faceAux);
+
+            // keep the index of the shell end cover last stored face
+            iShellEndCoverLastFaceIdx = model_mesh.Normals.Count() - 1;
+
+        }//GenerateShellEndCoverFaces
+
 
         /*******************************************************************************
         * @brief method that generates/loads the shell model according to the parameters
@@ -782,10 +1128,18 @@ namespace RaupCoilerII {
 
             GenerateOuterShellVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
             GenerateInnerShellVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            // GenerateShellBeginCoverVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            // GenerateShellEndCoverVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+
             GenerateOuterShellNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
             GenerateInnerShellNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            GenerateShellBeginCoverNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            // GenerateShellEndCoverNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+
             GenerateOuterShellFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
             GenerateInnerShellFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            // GenerateShellBeginCoverFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            // GenerateShellEndCoverFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
 
         }//GenerateShellModel
 
