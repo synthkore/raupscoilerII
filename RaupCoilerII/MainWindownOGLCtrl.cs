@@ -275,12 +275,22 @@ namespace RaupCoilerII {
             //     appViewModel.bRequireToRegenerate = false;
             // }//if
 
+            if (appViewModel.bRequireToRegenerate) {
+
+                ShellModel.InitializeGeometry();
+
+                appViewModel.bRequireToRegenerate = false;
+                appViewModel.bRequireToTransform = true;
+                appViewModel.bRequireToReRender = true;
+
+            }//if
+
             if (appViewModel.bRequireToTransform) {
 
                 ShellModel.TransformUpdateVAO();
-
-                appViewModel.bRequireToReRender = true;
+                
                 appViewModel.bRequireToTransform = false;
+                appViewModel.bRequireToReRender = true;               
 
             }//if
 

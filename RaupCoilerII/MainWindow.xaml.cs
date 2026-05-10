@@ -140,11 +140,11 @@ namespace RaupCoilerII {
             InitializeOpenGL();
 
             ZYXaxis = new cZYXaxis(appViewModel);
-            ZYXaxis.Initialize();
+            ZYXaxis.InitializeGeometry();
             ZYXaxis.TransformUpdateVAO();
 
             ShellModel = new cShellModel(appViewModel);
-            ShellModel.Initialize();
+            ShellModel.InitializeGeometry();
             ShellModel.TransformUpdateVAO();
 
             // force "international" culture

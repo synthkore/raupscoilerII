@@ -65,7 +65,7 @@ namespace RaupCoilerII {
         tGeometryStyleEnum geometryStyle = tGeometryStyleEnum.Triangles;
 
         public bool bRequireToReRender = true; // flag that indicates that has been any change in a parameter that requires to redner the model again.
-        // public bool bRequireToRegenerate = true; // flag that indicates that has been any change in a parameter that requires to recalculate the Raup model geometry
+        public bool bRequireToRegenerate = true; // flag that indicates that has been any change in a parameter that requires to recalculate the Raup model geometry
         public bool bRequireToTransform = true; // flag that indicates that has been any change in a transformation parameter that requires to apply the transformation to the model
 
         // Raup model parameters
@@ -83,7 +83,8 @@ namespace RaupCoilerII {
                     } else {
                         dDparam = value;
                     }
-                    bRequireToTransform = true;
+                    bRequireToRegenerate = true;
+                    // bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Dparam");
                 }
@@ -104,7 +105,8 @@ namespace RaupCoilerII {
                     } else {
                         dWparam = value;
                     }
-                    bRequireToTransform = true;
+                    bRequireToRegenerate = true;
+                    // bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Wparam");
                 }
@@ -125,7 +127,8 @@ namespace RaupCoilerII {
                     } else {
                         dTparam = value;
                     }
-                    bRequireToTransform = true;
+                    bRequireToRegenerate = true;
+                    // bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Tparam");
                 }
@@ -146,7 +149,8 @@ namespace RaupCoilerII {
                     } else {
                         dSparam = value;
                     }
-                    bRequireToTransform = true;
+                    bRequireToRegenerate = true;
+                    // bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Sparam");
                 }
@@ -285,7 +289,8 @@ namespace RaupCoilerII {
                     } else {
                         iRevolutions = value;
                     }
-                    bRequireToTransform = true;
+                    bRequireToRegenerate = true;
+                    // bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Revolutions");
                 }
@@ -306,7 +311,8 @@ namespace RaupCoilerII {
                     } else {
                         iResolution = value;
                     }
-                    bRequireToTransform = true;
+                    bRequireToRegenerate = true;
+                    // bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Resolution");
                 }
@@ -327,6 +333,8 @@ namespace RaupCoilerII {
                     } else {
                         iRingsRev = value;
                     }
+                    bRequireToRegenerate = true;
+                    // bRequireToTransform = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("RingsRev");
                 }
@@ -556,7 +564,7 @@ namespace RaupCoilerII {
             set {
               if (colMeshColor != value) {
                 colMeshColor = value;
-                    bRequireToTransform = true;
+                bRequireToTransform = true;
                 bRequireToReRender = true;
                 this.NotifyMyPropertyChanged("MeshColor");
               }
@@ -635,7 +643,7 @@ namespace RaupCoilerII {
             Axis3D = true;
 
             Revolutions = 1;
-            Resolution = 8;
+            Resolution = 8;// 8;
             RingsRev = 4;
 
             XOrientation = 0;

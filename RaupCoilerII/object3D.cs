@@ -44,7 +44,7 @@ namespace RaupCoilerII {
         public float objModelTransY = 0f;
         public float objModelTransZ = 0f;
 
-        public virtual void Initialize() { }
+        public virtual void InitializeGeometry() { }
         public virtual void TransformUpdateVAO(){ }
 
         /*******************************************************************************
@@ -181,7 +181,6 @@ namespace RaupCoilerII {
         *******************************************************************************/
         public void GenerateOuterShellVertexs(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
             Assimp.Vector3D vectorAux1;
-            int iAux = 0;
             float fAngle = 0;
             float fAngleRads = 0;
             float fAngleDelta = 0;
@@ -236,7 +235,6 @@ namespace RaupCoilerII {
         *******************************************************************************/
         public void GenerateInnerShellVertexs(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
             Assimp.Vector3D vectorAux1;
-            int iAux = 0;
             float fAngle = 0;
             float fAngleRads = 0;
             float fAngleDelta = 0;
@@ -344,7 +342,7 @@ namespace RaupCoilerII {
 
             // store the vertexs of the last ring of the outer shell mesh in the list of vertexs
             // to use them to define the outer side of the faces of the end cover
-            iAux = iOuterShellLastVertexIdx - ( iVertexsPerRing - 1);
+            iAux = iOuterShellLastVertexIdx - iVertexsPerRing + 1;
             for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
                 v3Daux = model_mesh.Vertices[iAux + iVertexIndex];
@@ -354,7 +352,7 @@ namespace RaupCoilerII {
 
             // store the vertexs of the last ring of the inner shell mesh in the list of vertexs
             // to use them to define the innser side of the faces of the end cover
-            iAux = iInnerShellLastVertexIdx - ( iVertexsPerRing - 1);
+            iAux = iInnerShellLastVertexIdx - iVertexsPerRing + 1;
             for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
                 v3Daux = model_mesh.Vertices[iAux + iVertexIndex];
@@ -399,12 +397,12 @@ namespace RaupCoilerII {
 
                     // Indexs of a regular face of the ring:
                     // iAux = iRing * iVertexsPerRing            +                    +
-                    //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 + <iAux + iVertexIndex + 1
-                    //                                           +  +                 +
-                    //                                           +      +     face 1  +
-                    //                                           +          +         + 
-                    //                                           +  face 2      +     +
-                    //                                           +                 +  +
+                    //                   iAux + iVertexIndex>  + O ------------------ 1 + <iAux + iVertexIndex + 1
+                    //                                           |  +                 +
+                    //                                           |      +     face 1  +
+                    //                                           |          +         + 
+                    //                                           |  face 2      +     +
+                    //                                           |                 +  +
                     //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
                     //                                           +                    +
 
@@ -435,6 +433,17 @@ namespace RaupCoilerII {
 
             // calculate all the normals of vertexs of the last ring
             for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+
+                // Indexs of the last face of the ring:
+                // iAux = iRing * iVertexsPerRing              +                    +
+                //   iAux + iVertexIndex - iVertexsPerRing > + O  +  +  +  +  +  +  1 + < iAux + iVertexIndex + 1 - iVertexsPerRing 
+                //                                             |  +                 +
+                //                                             |      +     face 1  +
+                //                                             |          +         + 
+                //                                             |  face 2      +     +
+                //                                             |                 +  +
+                //                     iAux + iVertexIndex > + 2  ------------------  3 + < iAux + iVertexIndex + 1
+                //     
 
                 vertexAux1 = model_mesh.Vertices[iAux + iVertexIndex];
 
@@ -493,12 +502,12 @@ namespace RaupCoilerII {
 
                     // Indexs of a regular face of the ring:
                     // iAux = iRing * iVertexsPerRing            +                    +
-                    //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 + <iAux + iVertexIndex + 1
-                    //                                           +  +                 +
-                    //                                           +      +     face 1  +
-                    //                                           +          +         + 
-                    //                                           +  face 2      +     +
-                    //                                           +                 +  +
+                    //                   iAux + iVertexIndex>  + O ------------------ 1 + <iAux + iVertexIndex + 1
+                    //                                           |  +                 +
+                    //                                           |      +     face 1  +
+                    //                                           |          +         + 
+                    //                                           |  face 2      +     +
+                    //                                           |                 +  +
                     //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
                     //                                           +                    +
 
@@ -529,6 +538,17 @@ namespace RaupCoilerII {
 
             // calculate all the normals of vertexs of the last ring
             for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+
+                // Indexs of the last face of the ring:
+                // iAux = iRing * iVertexsPerRing              +                    +
+                //   iAux + iVertexIndex - iVertexsPerRing > + O  +  +  +  +  +  +  1 + < iAux + iVertexIndex + 1 - iVertexsPerRing 
+                //                                             |  +                 +
+                //                                             |      +     face 1  +
+                //                                             |          +         + 
+                //                                             |  face 2      +     +
+                //                                             |                 +  +
+                //                     iAux + iVertexIndex > + 2 ------------------ 3 + < iAux + iVertexIndex + 1
+                //     
 
                 vertexAux1 = model_mesh.Vertices[iAux + iVertexIndex];
 
@@ -576,19 +596,18 @@ namespace RaupCoilerII {
             // keep the index of the shell begin cover first stored normal
             iShellBeginCoverFirstNormalIdx = model_mesh.Normals.Count();
 
+            // calculate all the normals of the vertexs of the outer ring of the begin cover
             iAux = iShellBeginCoverFirstVertexIdx;
-
-            // calculate all the normals of vertexs of the ring
             for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
                 // Indexs of a regular face of the ring:
                 // iAux = iRing * iVertexsPerRing            +                    +
-                //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 + <iAux + iVertexIndex + 1
-                //                                           +  +                 +
-                //                                           +      +     face 1  +
-                //                                           +          +         + 
-                //                                           +  face 2      +     +
-                //                                           +                 +  +
+                //                   iAux + iVertexIndex>  + O ------------------ 1 + <iAux + iVertexIndex + 1
+                //                                           |  +                 +
+                //                                           |      +     face 1  +
+                //                                           |          +         + 
+                //                                           |  face 2      +     +
+                //                                           |                 +  +
                 //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
                 //                                           +                    +
 
@@ -607,6 +626,43 @@ namespace RaupCoilerII {
                 // calculate the normal of that vertex and add it to the vertex list
                 vertexNormal = new Assimp.Vector3D();
                 vertexNormal = Assimp.Vector3D.Cross(vectorEdge1, vectorEdge2);
+                vertexNormal.Normalize();
+
+                model_mesh.Normals.Add(vertexNormal);
+
+            }// for (iVertexIndex = 0
+
+            // calculate all the normals of the vertexs of the outer ring of the begin cover. The vertexs of the 
+            // inner ring of the begin cover are stored just after the vertex of the
+            iAux = iShellBeginCoverFirstVertexIdx + iVertexsPerRing;
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+
+                // Indexs of the last face of the ring:
+                // iAux = iRing * iVertexsPerRing              +                    +
+                //   iAux + iVertexIndex - iVertexsPerRing > + O  +  +  +  +  +  +  1 + < iAux + iVertexIndex + 1 - iVertexsPerRing 
+                //                                             |  +                 +
+                //                                             |      +     face 1  +
+                //                                             |          +         + 
+                //                                             |  face 2      +     +
+                //                                             |                 +  +
+                //                     iAux + iVertexIndex > + 2 ------------------ 3 + < iAux + iVertexIndex + 1
+                //     
+
+                vertexAux1 = model_mesh.Vertices[iAux + iVertexIndex];
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                vertexAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing];
+
+                vectorEdge1 = vertexAux2 - vertexAux1;
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                vertexAux2 = model_mesh.Vertices[iAux + ((iVertexIndex + 1) % iVertexsPerRing)];
+
+                vectorEdge2 = vertexAux2 - vertexAux1;
+
+                // calculate the normal of that vertex and add it to the vertex list
+                vertexNormal = new Assimp.Vector3D();
+                vertexNormal = Assimp.Vector3D.Cross(vectorEdge2, vectorEdge1);
                 vertexNormal.Normalize();
 
                 model_mesh.Normals.Add(vertexNormal);
@@ -638,40 +694,76 @@ namespace RaupCoilerII {
             // keep the index of the shell end cover first stored normal
             iShellEndCoverFirstNormalIdx = model_mesh.Normals.Count();
 
+            // calculate all the normals of vertexs of the outer ring of the end cover
             iAux = iShellEndCoverFirstVertexIdx;
-
-            // calculate all the normals of vertexs of the ring
             for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
                 // Indexs of a regular face of the ring:
                 // iAux = iRing * iVertexsPerRing            +                    +
-                //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 + <iAux + iVertexIndex + 1
-                //                                           +  +                 +
-                //                                           +      +     face 1  +
-                //                                           +          +         + 
-                //                                           +  face 2      +     +
-                //                                           +                 +  +
+                //                   iAux + iVertexIndex>  + O ------------------ 1 + <iAux + iVertexIndex + 1
+                //                                           |  +                 +
+                //                                           |      +     face 1  +
+                //                                           |          +         + 
+                //                                           |  face 2      +     +
+                //                                           |                 +  +
                 //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
-                //
+                //                                           +                    +
 
                 vertexAux1 = model_mesh.Vertices[iAux + iVertexIndex];
 
                 // get the vector that joins the current vertex with the equivalente vertex in the next face
                 vertexAux2 = model_mesh.Vertices[iAux + ((iVertexIndex + 1) % iVertexsPerRing)];
 
-                vectorEdge1 = vertexAux1 - vertexAux2;
+                vectorEdge1 = vertexAux2 - vertexAux1;
 
                 // get the vector that joins the current vertex with the equivalente vertex in the next face
                 vertexAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing];
 
-                vectorEdge2 = vertexAux1 - vertexAux2;
+                vectorEdge2 = vertexAux2 - vertexAux1;
 
                 // calculate the normal of that vertex and add it to the vertex list
                 vertexNormal = new Assimp.Vector3D();
                 vertexNormal = Assimp.Vector3D.Cross(vectorEdge1, vectorEdge2);
                 vertexNormal.Normalize();
 
-                model_mesh.Normals.Add(vertexNormal);
+                model_mesh.Normals.Add(-vertexNormal);
+
+            }// for (iVertexIndex = 0
+
+            // calculate all the normals of the vertexs of the inner ring of the end cover. The vertexs of the 
+            // inner ring of the begin cover are stored just after the vertex of the
+            iAux = iShellEndCoverFirstVertexIdx + iVertexsPerRing;
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+
+                // Indexs of the last face of the ring:
+                // iAux = iRing * iVertexsPerRing              +                    +
+                //   iAux + iVertexIndex - iVertexsPerRing > + O  +  +  +  +  +  +  1 + < iAux + iVertexIndex + 1 - iVertexsPerRing 
+                //                                             |  +                 +
+                //                                             |      +     face 1  +
+                //                                             |          +         + 
+                //                                             |  face 2      +     +
+                //                                             |                 +  +
+                //                     iAux + iVertexIndex > + 2 ------------------ 3 + < iAux + iVertexIndex + 1
+                //     
+
+                vertexAux1 = model_mesh.Vertices[iAux + iVertexIndex];
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                vertexAux2 = model_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing];
+
+                vectorEdge1 = vertexAux1 - vertexAux2;
+
+                // get the vector that joins the current vertex with the equivalente vertex in the next face
+                vertexAux2 = model_mesh.Vertices[iAux + ((iVertexIndex + 1) % iVertexsPerRing)];
+
+                vectorEdge2 = vertexAux2 - vertexAux1;
+
+                // calculate the normal of that vertex and add it to the vertex list
+                vertexNormal = new Assimp.Vector3D();
+                vertexNormal = Assimp.Vector3D.Cross(vectorEdge1, vectorEdge2);
+                vertexNormal.Normalize();
+
+                model_mesh.Normals.Add(-vertexNormal);
 
             }// for (iVertexIndex = 0
 
@@ -722,7 +814,7 @@ namespace RaupCoilerII {
             // should have the same normal value.
 
             // keep the index of the shell outer mesh first stored face
-            iOuterShellFirstFaceIdx = model_mesh.Normals.Count();
+            iOuterShellFirstFaceIdx = model_mesh.Faces.Count();
 
             // generate the faces index
             for (iRing = 0; iRing < (iTotalNumOfRings - 1); iRing++) {
@@ -782,7 +874,7 @@ namespace RaupCoilerII {
             }//for (iRing = 0; iRing < iNumberOfRings; iRing++) {
 
             // keep the index of the shell outer mesh last stored face
-            iOuterShellLastFaceIdx = model_mesh.Normals.Count()-1;
+            iOuterShellLastFaceIdx = model_mesh.Faces.Count()-1;
 
         }//GenerateOuterShellFaces
 
@@ -828,7 +920,7 @@ namespace RaupCoilerII {
             // should have the same normal value.
 
             // keep the index of the shell inner mesh first stored face
-            iInnerShellFirstFaceIdx = model_mesh.Normals.Count();
+            iInnerShellFirstFaceIdx = model_mesh.Faces.Count();
 
             // generate the faces index
             for (iRing = 0; iRing < (iTotalNumOfRings - 1); iRing++) {
@@ -890,7 +982,7 @@ namespace RaupCoilerII {
             }//for (iRing = 0; iRing < iNumberOfRings; iRing++) {
 
             // keep the index of the shell inner mesh last stored face
-            iInnerShellLastFaceIdx = model_mesh.Normals.Count() - 1;
+            iInnerShellLastFaceIdx = model_mesh.Faces.Count() - 1;
 
         }//GenerateInnerShellFaces
 
@@ -927,71 +1019,39 @@ namespace RaupCoilerII {
             //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
             //                                           +                    +
             //  Faces must be defined in this order:
-            //   face 1: 0 1 3
-            //   face 2: 2 0 3
+            //   face 1: 1 0 3
+            //   face 2: 0 2 3
             // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
             // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
             // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
             // should have the same normal value.
 
             // keep the index of the shell begin cover first stored face
-            iShellBeginCoverFirstFaceIdx = model_mesh.Normals.Count();
+            iShellBeginCoverFirstFaceIdx = model_mesh.Faces.Count();
 
             iAux = iShellBeginCoverFirstVertexIdx;
 
             // generate the faces index
-            for (iVertexIndex = 0; iVertexIndex < (iVertexsPerRing - 1); iVertexIndex++) {
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing ; iVertexIndex++) {
 
                 // face 1 
-                faceAux = new Face();
-                faceAux.Indices.Add(iAux + iVertexIndex); // v 0 
-                faceAux.Indices.Add(iAux + iVertexIndex + 1); // v 1
-                faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
+                faceAux = new Face();                
+                faceAux.Indices.Add(iAux + ((iVertexIndex + 1) % iVertexsPerRing)); // v 1                
+                faceAux.Indices.Add(iAux + iVertexIndex); // v 0
+                faceAux.Indices.Add(iAux + ((iVertexIndex+1)% iVertexsPerRing) + iVertexsPerRing); // v 3  
                 model_mesh.Faces.Add(faceAux);
 
                 // face 2 
                 faceAux = new Face();
-                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing); // v 2
-                faceAux.Indices.Add(iAux + iVertexIndex); // v 0                    
-                faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
+                faceAux.Indices.Add(iAux + iVertexIndex); // v 0
+                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing); // v  2                
+                faceAux.Indices.Add(iAux + ((iVertexIndex + 1) % iVertexsPerRing) + iVertexsPerRing); // v 3
                 model_mesh.Faces.Add(faceAux);
 
             }//for (iRings=0;
 
-            // Indexs of the last face of the ring:
-            // iAux = iRing * iVertexsPerRing;           +                    +
-            //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 +   <iAux
-            //                                           +  +                 +
-            //                                           +      +    face 1   +
-            //                                           +          +         + 
-            //                                           +  face 2      +     +
-            //                                           +                 +  +
-            //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 +   <iAux +  iVertexsPerRing 
-            //                                           +                    +
-            //  Faces must be defined in this order:
-            //   face 1: 0 1 3
-            //   face 2: 2 0 3
-            // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
-            // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
-            // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
-            // should have the same normal value.
-
-            // last face 1 of the ring
-            faceAux = new Face();
-            faceAux.Indices.Add(iAux + iVertexIndex);// v 0
-            faceAux.Indices.Add(iAux);// v 1
-            faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3  <= "provoking index"
-            model_mesh.Faces.Add(faceAux);
-
-            // last face 2 of the ring
-            faceAux = new Face();
-            faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing);// v 2 
-            faceAux.Indices.Add(iAux + iVertexIndex);// v 0
-            faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3  <= "provoking index"
-            model_mesh.Faces.Add(faceAux);
-
             // keep the index of the shell begin cover last stored face
-            iShellBeginCoverLastFaceIdx = model_mesh.Normals.Count() - 1;
+            iShellBeginCoverLastFaceIdx = model_mesh.Faces.Count() - 1;
 
         }//GenerateShellBeginCoverFaces
 
@@ -1028,71 +1088,41 @@ namespace RaupCoilerII {
             //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
             //                                           +                    +
             //  Faces must be defined in this order:
-            //   face 1: 0 1 3
-            //   face 2: 2 0 3
+            //   face 1: 1 0 3
+            //   face 2: 0 2 3
             // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
             // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
             // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
             // should have the same normal value.
 
             // keep the index of the shell end cover first stored face
-            iShellEndCoverFirstFaceIdx = model_mesh.Normals.Count();
+            iShellEndCoverFirstFaceIdx = model_mesh.Faces.Count();
 
             iAux = iShellEndCoverFirstVertexIdx;
 
             // generate the faces index
-            for (iVertexIndex = 0; iVertexIndex < (iVertexsPerRing - 1); iVertexIndex++) {
+            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
                 // face 1 
                 faceAux = new Face();
-                faceAux.Indices.Add(iAux + iVertexIndex); // v 0 
-                faceAux.Indices.Add(iAux + iVertexIndex + 1); // v 1
-                faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
+                faceAux.Indices.Add(iAux + iVertexIndex); // v 0
+                faceAux.Indices.Add(iAux + ((iVertexIndex + 1) % iVertexsPerRing)); // v 1                
+                
+                faceAux.Indices.Add(iAux + ((iVertexIndex + 1) % iVertexsPerRing) + iVertexsPerRing); // v 3  
                 model_mesh.Faces.Add(faceAux);
 
                 // face 2 
                 faceAux = new Face();
-                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing); // v 2
-                faceAux.Indices.Add(iAux + iVertexIndex); // v 0                    
-                faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
+                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing); // v  2                
+                faceAux.Indices.Add(iAux + iVertexIndex); // v 0
+                
+                faceAux.Indices.Add(iAux + ((iVertexIndex + 1) % iVertexsPerRing) + iVertexsPerRing); // v 3
                 model_mesh.Faces.Add(faceAux);
 
             }//for (iRings=0;
 
-            // Indexs of the last face of the ring:
-            // iAux = iRing * iVertexsPerRing;           +                    +
-            //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 +   <iAux
-            //                                           +  +                 +
-            //                                           +      +    face 1   +
-            //                                           +          +         + 
-            //                                           +  face 2      +     +
-            //                                           +                 +  +
-            //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 +   <iAux +  iVertexsPerRing 
-            //                                           +                    +
-            //  Faces must be defined in this order:
-            //   face 1: 0 1 3
-            //   face 2: 2 0 3
-            // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
-            // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
-            // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
-            // should have the same normal value.
-
-            // last face 1 of the ring
-            faceAux = new Face();
-            faceAux.Indices.Add(iAux + iVertexIndex);// v 0
-            faceAux.Indices.Add(iAux);// v 1
-            faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3  <= "provoking index"
-            model_mesh.Faces.Add(faceAux);
-
-            // last face 2 of the ring
-            faceAux = new Face();
-            faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing);// v 2 
-            faceAux.Indices.Add(iAux + iVertexIndex);// v 0
-            faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3  <= "provoking index"
-            model_mesh.Faces.Add(faceAux);
-
             // keep the index of the shell end cover last stored face
-            iShellEndCoverLastFaceIdx = model_mesh.Normals.Count() - 1;
+            iShellEndCoverLastFaceIdx = model_mesh.Faces.Count() - 1;
 
         }//GenerateShellEndCoverFaces
 
@@ -1128,18 +1158,18 @@ namespace RaupCoilerII {
 
             GenerateOuterShellVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
             GenerateInnerShellVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            // GenerateShellBeginCoverVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            // GenerateShellEndCoverVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            GenerateShellBeginCoverVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            GenerateShellEndCoverVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
 
             GenerateOuterShellNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
             GenerateInnerShellNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
             GenerateShellBeginCoverNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            // GenerateShellEndCoverNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            GenerateShellEndCoverNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
 
             GenerateOuterShellFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
             GenerateInnerShellFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            // GenerateShellBeginCoverFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            // GenerateShellEndCoverFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            GenerateShellBeginCoverFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            GenerateShellEndCoverFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
 
         }//GenerateShellModel
 
@@ -1183,7 +1213,7 @@ namespace RaupCoilerII {
         * @brief method that generates/loads the object geometry and stores it into a 
         * mesh object
         *******************************************************************************/
-        public override void Initialize() {
+        public override void InitializeGeometry() {
             var importer = new AssimpContext();
             // Acceder al primer Mesh (malla) del archivo
             int iAux = 0;
@@ -1447,7 +1477,7 @@ namespace RaupCoilerII {
         * @brief method that generates/loads the object geometry and stores it into a 
         * mesh object
         *******************************************************************************/
-        public override void Initialize() {
+        public override void InitializeGeometry() {
             var importer = new AssimpContext();
             // Mesh mesh = null;
             Scene scene = null;
