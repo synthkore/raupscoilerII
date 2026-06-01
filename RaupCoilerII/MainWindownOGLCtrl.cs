@@ -4,12 +4,16 @@ using System.Linq;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Principal;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Assimp;
 using OpenTK.Core;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Wpf;
 
 namespace RaupCoilerII {
@@ -30,7 +34,7 @@ namespace RaupCoilerII {
     /*****************************************************************************
     * @brief Partial class with the methods and properties related to the Open GL control.
     ***************************************************************************/
-    public partial class MainWindow : Window {
+    public partial class MainWindow : System.Windows.Window {
 
         // Open GL related parameters
         private int shaderProgram;
@@ -72,8 +76,9 @@ namespace RaupCoilerII {
             GL.Enable(EnableCap.DepthTest);
             GL.DepthFunc(DepthFunction.Lequal);
 
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Back);
+            // GL.Enable(EnableCap.CullFace);// GL.Disable(EnableCap.CullFace);
+            GL.Disable(EnableCap.CullFace);
+            //GL.CullFace(CullFaceMode.Back);
             GL.FrontFace(FrontFaceDirection.Ccw); // o Cw según tu modelo          
 
             GL.Enable(EnableCap.Blend);
@@ -86,7 +91,7 @@ namespace RaupCoilerII {
         ***************************************************************************/
         private void InitializeOpenTK() {
 
-            // initialize the OpenGL WPF control
+            // initialize the OpenGL WPF control           
             var settings = new GLWpfControlSettings {
                 MajorVersion = 4,
                 MinorVersion = 6
@@ -269,12 +274,6 @@ namespace RaupCoilerII {
             Vector3 light_vector = new Vector3();
             Vector3 view_vector = new Vector3();
 
-            // only regenerate the model geometry if any geometry related parameter has changed
-            // if (appViewModel.bRequireToRegenerate) {
-            //     TransformShellSpiralAxisGeometry();
-            //     appViewModel.bRequireToRegenerate = false;
-            // }//if
-
             if (appViewModel.bRequireToRegenerate) {
 
                 ShellModel.InitializeGeometry();
@@ -388,13 +387,13 @@ namespace RaupCoilerII {
 
                 // get the camera/view Righ Up and Forward axis in orde to use it on model rotations
                 Matrix4 invView = Matrix4.Invert(viewMatrix);
-                ShellModel.cameraRight = new Vector3(invView.M11, invView.M12, invView.M13);
-                ShellModel.cameraUp = new Vector3(invView.M21, invView.M22, invView.M23);
+                ShellModel.cameraRightVector = new Vector3(invView.M11, invView.M12, invView.M13);
+                ShellModel.cameraUpVector = new Vector3(invView.M21, invView.M22, invView.M23);
                 ShellModel.cameraForward = new Vector3(invView.M31, invView.M32, invView.M33);
                 // normalize the vectors
                 ShellModel.cameraForward.Normalize();
-                ShellModel.cameraRight.Normalize();
-                ShellModel.cameraUp.Normalize();
+                ShellModel.cameraRightVector.Normalize();
+                ShellModel.cameraUpVector.Normalize();
                 // cameraForwared is negative becuase camera looks to -Z
                 ShellModel.cameraForward = -ShellModel.cameraForward;
 
@@ -437,7 +436,7 @@ namespace RaupCoilerII {
                 // ###### render the Model ######
                 GL.BindVertexArray(ShellModel.objectVAO);
                 GL.LineWidth(3.0f);
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);// PolygonMode.Line);// Fill);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);// Fill);
                 GL.DrawElements(BeginMode.Triangles, ShellModel.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
                 
                 // clear the context

@@ -9,6 +9,7 @@ using OpenTK.Core;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Wpf;
+using System.Diagnostics;
 
 namespace RaupCoilerII {
 
@@ -33,7 +34,7 @@ namespace RaupCoilerII {
 
         public Int32 iVerticesCter = 0; // the total number of vertex indices used to draw the geometry ( they may be repeated )
         public Int32 iFacesCter = 0; // the total number of faces in the geometry
-        public Int32 iIndicesFacesCter = 0; // the total number of vertex INDEXs used to the define the object faces, some of the index may be repeated, because different faces may share some vertices. It is required by the DrawElements to know how many face indexs is goint to process.
+        public Int32 iIndicesFacesCter = 0; // the total number of vertex INDEXs used to the define the object faces, some of the index may be repeated, because different faces may share some vertices. It is required by the DrawElements to know how many face indexs is going to process in the EBO.
 
         // model parameters
         public float objModelAngleX = 0f;
@@ -96,8 +97,8 @@ namespace RaupCoilerII {
     public class cShellModel : object3D {
 
         // the three vectors defined by the view vector
-        public Vector3 cameraRight;
-        public Vector3 cameraUp;
+        public Vector3 cameraRightVector; // the Right Vector of the camera 
+        public Vector3 cameraUpVector;// the Up Vector of the camera 
         public Vector3 cameraForward;
 
         // outer shell mesh indexes
@@ -137,8 +138,8 @@ namespace RaupCoilerII {
         public cShellModel(ViewModel _refViewModel) {
 
             refAppViewModel = _refViewModel;
-            cameraRight = new Vector3();
-            cameraUp = new Vector3();
+            cameraRightVector = new Vector3();
+            cameraUpVector = new Vector3();
             cameraForward = new Vector3();
 
             iOuterShellFirstVertexIdx = 0;
@@ -176,10 +177,8 @@ namespace RaupCoilerII {
         * point outside ).
         * 
         * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
-        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
-        * @param[in] iTotalNumOfRings the total number of rings in the model
         *******************************************************************************/
-        public void GenerateOuterShellVertexs(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateOuterShellVertexs(ref Mesh model_mesh) {
             Assimp.Vector3D vectorAux1;
             float fAngle = 0;
             float fAngleRads = 0;
@@ -188,6 +187,11 @@ namespace RaupCoilerII {
             float fRadius = 0;
             int iRing = 0;
             int iVertexIndex = 0;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // keep the index of the shell outer mesh first stored vertex
             iOuterShellFirstVertexIdx = model_mesh.Vertices.Count();
@@ -196,7 +200,7 @@ namespace RaupCoilerII {
 
             fZAux = 0;
             fRadius = 0.5f;
-            for (iRing = 0; iRing < iTotalNumOfRings; iRing++) {
+            for (iRing = 0; iRing < iNumberOfRings; iRing++) {
 
                 // first initialize all the vertices
                 fRadius = fRadius + 0.1f;
@@ -220,7 +224,7 @@ namespace RaupCoilerII {
 
             }//for (iRings=0;
 
-            // keep the index of the shell outer mesh last stored vertex
+            // keep the index of the shell inner mesh last stored vertex
             iOuterShellLastVertexIdx = model_mesh.Vertices.Count() - 1;
 
         }//GenerateOuterShellVertexs
@@ -230,10 +234,8 @@ namespace RaupCoilerII {
         * point inside ).
         * 
         * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
-        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
-        * @param[in] iTotalNumOfRings the total number of rings in the model
         *******************************************************************************/
-        public void GenerateInnerShellVertexs(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateInnerShellVertexs(ref Mesh model_mesh) {
             Assimp.Vector3D vectorAux1;
             float fAngle = 0;
             float fAngleRads = 0;
@@ -242,6 +244,11 @@ namespace RaupCoilerII {
             float fRadius = 0;
             int iRing = 0;
             int iVertexIndex = 0;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // keep the index of the shell inner mesh first stored vertex
             iInnerShellFirstVertexIdx = model_mesh.Vertices.Count();
@@ -250,7 +257,7 @@ namespace RaupCoilerII {
 
             fZAux = 0;
             fRadius = 0.2f;
-            for (iRing = 0; iRing < iTotalNumOfRings; iRing++) {
+            for (iRing = 0; iRing < iNumberOfRings; iRing++) {
 
                 // first initialize all the vertices
                 fRadius = fRadius + 0.1f;
@@ -286,13 +293,16 @@ namespace RaupCoilerII {
         * shell mesh.
         * 
         * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
-        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
-        * @param[in] iTotalNumOfRings the total number of rings in the model
         *******************************************************************************/
-        public void GenerateShellBeginCoverVertexs(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateShellBeginCoverVertexs(ref Mesh model_mesh) {
             int iVertexIndex = 0;
             int iAux = 0;
             Assimp.Vector3D v3Daux;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // keep the index of the shell begin cover first stored vertex
             iShellBeginCoverFirstVertexIdx = model_mesh.Vertices.Count();
@@ -329,13 +339,16 @@ namespace RaupCoilerII {
         * shell mesh.
         * 
         * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
-        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
-        * @param[in] iTotalNumOfRings the total number of rings in the model
         *******************************************************************************/
-        public void GenerateShellEndCoverVertexs(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateShellEndCoverVertexs(ref Mesh model_mesh) {
             int iVertexIndex = 0;
             int iAux = 0;
             Assimp.Vector3D v3Daux;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // keep the index of the shell end cover first stored vertex
             iShellEndCoverFirstVertexIdx = model_mesh.Vertices.Count();
@@ -371,10 +384,8 @@ namespace RaupCoilerII {
         * 
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
-        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring
-        * @param[in] iTotalNumOfRings the total number of rings in the shell model
         *******************************************************************************/
-        public void GenerateOuterShellNormals(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateOuterShellNormals(ref Mesh model_mesh) {
             Assimp.Vector3D vertexAux1;
             Assimp.Vector3D vertexAux2;
             Assimp.Vector3D vectorEdge1;
@@ -383,12 +394,16 @@ namespace RaupCoilerII {
             int iAux = 0;
             int iRing = 0;
             int iVertexIndex = 0;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // keep the index of the shell outer mesh first stored normal
             iOuterShellFirstNormalIdx = model_mesh.Normals.Count();
 
-
-            for (iRing = 0; iRing < (iTotalNumOfRings - 1); iRing++) {
+            for (iRing = 0; iRing < (iNumberOfRings - 1); iRing++) {
 
                 iAux = iOuterShellFirstVertexIdx + iRing * iVertexsPerRing;
 
@@ -477,10 +492,8 @@ namespace RaupCoilerII {
         * 
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
-        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring
-        * @param[in] iTotalNumOfRings the total number of rings in the shell model
         *******************************************************************************/
-        public void GenerateInnerShellNormals(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateInnerShellNormals(ref Mesh model_mesh) {
             Assimp.Vector3D vertexAux1;
             Assimp.Vector3D vertexAux2;
             Assimp.Vector3D vectorEdge1;
@@ -489,11 +502,16 @@ namespace RaupCoilerII {
             int iAux = 0;
             int iRing = 0;
             int iVertexIndex = 0;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // keep the index of the shell inner mesh first stored normal
             iInnerShellFirstNormalIdx = model_mesh.Normals.Count();
 
-            for (iRing = 0; iRing < (iTotalNumOfRings -1) ; iRing++) {
+            for (iRing = 0; iRing < (iNumberOfRings - 1) ; iRing++) {
 
                 iAux = iInnerShellFirstVertexIdx + iRing * iVertexsPerRing;
 
@@ -581,10 +599,8 @@ namespace RaupCoilerII {
         * 
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
-        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring
-        * @param[in] iTotalNumOfRings the total number of rings in the shell model
         *******************************************************************************/
-        public void GenerateShellBeginCoverNormals(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateShellBeginCoverNormals(ref Mesh model_mesh) {
             Assimp.Vector3D vertexAux1;
             Assimp.Vector3D vertexAux2;
             Assimp.Vector3D vectorEdge1;
@@ -592,6 +608,11 @@ namespace RaupCoilerII {
             Assimp.Vector3D vertexNormal;
             int iAux = 0;
             int iVertexIndex = 0;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // keep the index of the shell begin cover first stored normal
             iShellBeginCoverFirstNormalIdx = model_mesh.Normals.Count();
@@ -679,10 +700,8 @@ namespace RaupCoilerII {
         * 
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
-        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring
-        * @param[in] iTotalNumOfRings the total number of rings in the shell model
         *******************************************************************************/
-        public void GenerateShellEndCoverNormals(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateShellEndCoverNormals(ref Mesh model_mesh) {
             Assimp.Vector3D vertexAux1;
             Assimp.Vector3D vertexAux2;
             Assimp.Vector3D vectorEdge1;
@@ -690,6 +709,11 @@ namespace RaupCoilerII {
             Assimp.Vector3D vertexNormal;
             int iAux = 0;
             int iVertexIndex = 0;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // keep the index of the shell end cover first stored normal
             iShellEndCoverFirstNormalIdx = model_mesh.Normals.Count();
@@ -786,14 +810,17 @@ namespace RaupCoilerII {
         * 
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
-        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
-        * @param[in] iTotalNumOfRings the total number of rings in the shell model
         *******************************************************************************/
-        public void GenerateOuterShellFaces(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateOuterShellFaces(ref Mesh model_mesh) {
             Assimp.Face faceAux;
             int iRing = 0;
             int iVertexIndex = 0;
             int iAux = 0;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // Indexs of a regular face of the ring:
             // iAux = iRing * iVertexsPerRing            +                    +
@@ -817,7 +844,7 @@ namespace RaupCoilerII {
             iOuterShellFirstFaceIdx = model_mesh.Faces.Count();
 
             // generate the faces index
-            for (iRing = 0; iRing < (iTotalNumOfRings - 1); iRing++) {
+            for (iRing = 0; iRing < (iNumberOfRings - 1); iRing++) {
 
                 iAux = iOuterShellFirstVertexIdx + iRing * iVertexsPerRing;
 
@@ -892,14 +919,17 @@ namespace RaupCoilerII {
         * 
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
-        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
-        * @param[in] iTotalNumOfRings the total number of rings in the shell model
         *******************************************************************************/
-        public void GenerateInnerShellFaces(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateInnerShellFaces(ref Mesh model_mesh) {
             Assimp.Face faceAux;
             int iRing = 0;
             int iVertexIndex = 0;
             int iAux = 0;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // Indexs of a regular face of the ring:
             // iAux = iRing * iVertexsPerRing            +                    +
@@ -923,7 +953,7 @@ namespace RaupCoilerII {
             iInnerShellFirstFaceIdx = model_mesh.Faces.Count();
 
             // generate the faces index
-            for (iRing = 0; iRing < (iTotalNumOfRings - 1); iRing++) {
+            for (iRing = 0; iRing < (iNumberOfRings - 1); iRing++) {
 
                 iAux = iInnerShellFirstVertexIdx + iRing * iVertexsPerRing;
 
@@ -999,14 +1029,16 @@ namespace RaupCoilerII {
          * 
          * @param[in|out] model_mesh with all the geometry information. Here is where
          * the generated vertex, normals, and faces information is stored
-         * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
-         * @param[in] iTotalNumOfRings the total number of rings in the shell model
          *******************************************************************************/
-        public void GenerateShellBeginCoverFaces(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateShellBeginCoverFaces(ref Mesh model_mesh) {
             Assimp.Face faceAux;
-            int iRing = 0;
             int iVertexIndex = 0;
             int iAux = 0;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // Indexs of a regular face of the ring:
             // iAux = iRing * iVertexsPerRing            +                    +
@@ -1068,14 +1100,16 @@ namespace RaupCoilerII {
         * 
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
-        * @param[in] iVertexsPerRing the number of vertex that compose each shell ring.
-        * @param[in] iTotalNumOfRings the total number of rings in the shell model
         *******************************************************************************/
-        public void GenerateShellEndCoverFaces(ref Mesh model_mesh, int iVertexsPerRing, int iTotalNumOfRings) {
+        public void GenerateShellEndCoverFaces(ref Mesh model_mesh) {
             Assimp.Face faceAux;
-            int iRing = 0;
             int iVertexIndex = 0;
             int iAux = 0;
+            int iVertexsPerRing = 0;
+            int iNumberOfRings = 0;
+
+            iVertexsPerRing = refAppViewModel.Resolution;
+            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // Indexs of a regular face of the ring:
             // iAux = iRing * iVertexsPerRing            +                    +
@@ -1133,43 +1167,31 @@ namespace RaupCoilerII {
         *******************************************************************************/
         public void GenerateShellModel(ref Scene scene) {
             Mesh model_mesh;
-            Assimp.Vector3D vectorAux1;
-            Assimp.Vector3D vectorAux2;
-            Assimp.Vector3D vertexNormal;
-            Assimp.Face faceAux;
-            int iAux = 0;
-            float fAngle = 0;
-            float fAngleRads = 0;
-            float  fAngleDelta = 0;
-            float fXAux,fYAux, fZAux;
-            float fXAux2, fYAux2, fZAux2;
-            float fRadius = 0;
-            int iVertexsPerRing = 0;
-            int iNumberOfRings = 8;
-            int iRing = 0;
-            int iVertexIndex = 0;
             
             model_mesh = new Mesh("Shell", Assimp.PrimitiveType.Triangle);
 
             scene.Meshes.Add(model_mesh);
 
-            iVertexsPerRing = refAppViewModel.Resolution;
-            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
+            // reset all the counters
+            iVerticesCter = 0;
+            iFacesCter = 0;
+            iIndicesFacesCter = 0;
 
-            GenerateOuterShellVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            GenerateInnerShellVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            GenerateShellBeginCoverVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            GenerateShellEndCoverVertexs(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-
-            GenerateOuterShellNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            GenerateInnerShellNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            GenerateShellBeginCoverNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            GenerateShellEndCoverNormals(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-
-            GenerateOuterShellFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            GenerateInnerShellFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            GenerateShellBeginCoverFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
-            GenerateShellEndCoverFaces(ref model_mesh, iVertexsPerRing, iNumberOfRings);
+            // generate the vertexs and add them to the geometry
+            GenerateOuterShellVertexs(ref model_mesh);
+            GenerateInnerShellVertexs(ref model_mesh);
+            GenerateShellBeginCoverVertexs(ref model_mesh);
+            GenerateShellEndCoverVertexs(ref model_mesh);
+            // generate the normals and add them to the geometry
+            GenerateOuterShellNormals(ref model_mesh);
+            GenerateInnerShellNormals(ref model_mesh);
+            GenerateShellBeginCoverNormals(ref model_mesh);
+            GenerateShellEndCoverNormals(ref model_mesh);
+            // generate the faces combining their vertex indexs
+            GenerateOuterShellFaces(ref model_mesh);
+            GenerateInnerShellFaces(ref model_mesh);
+            GenerateShellBeginCoverFaces(ref model_mesh);
+            GenerateShellEndCoverFaces(ref model_mesh);
 
         }//GenerateShellModel
 
@@ -1314,43 +1336,43 @@ namespace RaupCoilerII {
             // ### update the content of the lists that will be used to intialize the VAO ( VBO and EBO ) 
             // with the model data while apply the transformations set by the user
 
-            // calculate the model rotation matrix that allows to rotate the model arround the current view vector ( the camera vectors ) 
-            // with the angles set by the user when clicking an draggin over OGL render control. This rotation is achived using
-            // Quaternions from the OpenTK.Mathematics lib wich also allow rotating the object arround each axis and then combining
-            // then in a single rotation matrix.
-            OpenTK.Mathematics.Quaternion rotCameraUpAxis = OpenTK.Mathematics.Quaternion.FromAxisAngle(cameraUp, MathHelper.DegreesToRadians((float)-refAppViewModel.YOrientation));
-            OpenTK.Mathematics.Quaternion rotCamerarRightAxis = OpenTK.Mathematics.Quaternion.FromAxisAngle(cameraRight, MathHelper.DegreesToRadians((float)-refAppViewModel.XOrientation));
+            // calculate the model rotation matrix that allows to rotate the model arround the current view vector with the 
+            // angles set by the user when clicking an draggin over OGL render control. The view vector is defined by the CameraUp
+            // and the CameraRight vectors. The rotation is achived using Quaternions from the OpenTK.Mathematics lib wich also
+            // allow rotating the object arround each axis and then combining then in a single rotation matrix.
+            // OpenTK.Mathematics.Quaternion rotArroundCamUpAxis = OpenTK.Mathematics.Quaternion.FromAxisAngle(cameraUpVector, MathHelper.DegreesToRadians((float)-refAppViewModel.YOrientation));
+            // OpenTK.Mathematics.Quaternion rotArroundCamRightAxis = OpenTK.Mathematics.Quaternion.FromAxisAngle(cameraRightVector, MathHelper.DegreesToRadians((float)-refAppViewModel.XOrientation));
             // commbine both axis rotations into a single Quaternion
-            OpenTK.Mathematics.Quaternion rotCombined = rotCameraUpAxis * rotCamerarRightAxis;
+            // OpenTK.Mathematics.Quaternion rotCombined = rotArroundCamUpAxis * rotArroundCamRightAxis;
             // nomralize the combined Quaternion
-            rotCombined = rotCombined.Normalized();
+            // rotCombined = rotCombined.Normalized();
             // get the rotation matrix that corresponds to the obtained Quaternion
-            OpenTK.Mathematics.Matrix4 rotMatrix = Matrix4.CreateFromQuaternion(rotCombined);
+            // OpenTK.Mathematics.Matrix4 rotMatrix = Matrix4.CreateFromQuaternion(rotCombined);
 
             // to multiply the OpenTK Rotation Matrix4 with the Assimp.net vertices we must convert the
             // obtained OpenTK.Mathematics.Matrix4 matrix to an Assimp.Matrix4x4 matrix.            
-            rotationMatrix = new Assimp.Matrix4x4(
-                rotMatrix.M11, rotMatrix.M12, rotMatrix.M13, rotMatrix.M14,
-                rotMatrix.M21, rotMatrix.M22, rotMatrix.M23, rotMatrix.M24,
-                rotMatrix.M31, rotMatrix.M32, rotMatrix.M33, rotMatrix.M34,
-                rotMatrix.M41, rotMatrix.M42, rotMatrix.M43, rotMatrix.M44
-            );
-
-            // reset the rotation angles previously set by the user when clickng and draggin on the screen.
-            refAppViewModel.XOrientation = 0;
-            refAppViewModel.YOrientation = 0;
-            refAppViewModel.ZOrientation = 0;
+            // rotationMatrix = new Assimp.Matrix4x4(
+            //     rotMatrix.M11, rotMatrix.M12, rotMatrix.M13, rotMatrix.M14,
+            //     rotMatrix.M21, rotMatrix.M22, rotMatrix.M23, rotMatrix.M24,
+            //     rotMatrix.M31, rotMatrix.M32, rotMatrix.M33, rotMatrix.M34,
+            //     rotMatrix.M41, rotMatrix.M42, rotMatrix.M43, rotMatrix.M44
+            // );
+            // 
+            // // reset the rotation angles previously set by the user when clickng and draggin on the screen.
+            // refAppViewModel.XOrientation = 0;
+            // refAppViewModel.YOrientation = 0;
+            // refAppViewModel.ZOrientation = 0;
 
             // 3 vertex floats   + 3 color floats  + 3 normal floats
             modelCoordNColors = new List<float>();
 
             // apply the obtained rotation matrix over the vertices and the normals of the model           
-            iVerticesCter = liTransformedMesh[0].Vertices.Count();
-            for (iAux = 0; iAux < iVerticesCter; iAux++) {
-                // first apply the transformations
-                liTransformedMesh[0].Vertices[iAux] = rotationMatrix * liTransformedMesh[0].Vertices[iAux];
-                liTransformedMesh[0].Normals[iAux] = rotationMatrix * liTransformedMesh[0].Normals[iAux];
-            }//for
+            // iVerticesCter = liTransformedMesh[0].Vertices.Count();
+            // for (iAux = 0; iAux < iVerticesCter; iAux++) {
+            //     // first apply the transformations
+            //     liTransformedMesh[0].Vertices[iAux] = rotationMatrix * liTransformedMesh[0].Vertices[iAux];
+            //     liTransformedMesh[0].Normals[iAux] = rotationMatrix * liTransformedMesh[0].Normals[iAux];
+            // }//for
 
             // get the Max and Min coordinates of the model vertices
             // for (iAux = 0; iAux < iModelTotalVertices; iAux++) {
@@ -1391,9 +1413,10 @@ namespace RaupCoilerII {
                 modelCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].Y);
                 modelCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].Z);
                 // color
-                modelCoordNColors.Add(((float)refAppViewModel.MeshColor.R) / 255);
-                modelCoordNColors.Add(((float)refAppViewModel.MeshColor.G) / 255);
-                modelCoordNColors.Add(((float)refAppViewModel.MeshColor.B) / 255);
+                modelCoordNColors.Add(((float)refAppViewModel.MeshColor.R) / 255f);
+                modelCoordNColors.Add(((float)refAppViewModel.MeshColor.G) / 255f);
+                modelCoordNColors.Add(((float)refAppViewModel.MeshColor.B) / 255f);
+
                 // normal
                 modelCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].X);
                 modelCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].Y);

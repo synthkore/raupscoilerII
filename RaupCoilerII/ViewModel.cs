@@ -42,11 +42,11 @@ namespace RaupCoilerII {
         public double SparamMin { get; }  = 0;
 
         public int RevolutionsMax { get; } = 36;
-        public int RevolutionsMin { get; } = 1;
+        public int RevolutionsMin { get; } = 2;
         public int ResolutionMax { get; } = 144;
         public int ResolutionMin { get; } = 3;
         public int RingsRevMax { get; } = 360;
-        public int RingsRevMin { get; } = 4;
+        public int RingsRevMin { get; } = 1;
 
         public double XOrientationMin { get; } = -360;
         public double XOrientationMax { get; } = 360;

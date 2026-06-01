@@ -1,5 +1,7 @@
 ﻿using OpenTK.Graphics.ES11;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
 using OpenTK.Wpf;
 using System;
 using System.Collections.Generic;
@@ -16,6 +18,18 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+
+
+/*******************************************************************************
+* @note All the applicatoin 3D objects are implemented using the "object3D" class. The
+* 3d objects in the application are:
+*  - Shell model mesh
+*  - Shell axis
+*  - Shell spiral
+*  - ZYX axis
+
+*******************************************************************************/
+
 
 namespace RaupCoilerII {
 
@@ -180,7 +194,7 @@ namespace RaupCoilerII {
         * @param[in] sender reference to the object that raises the event
         * @param[in] e the information related to the event
         *******************************************************************************/
-        private void OpenTkControl_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+        private void OpenTkControl_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
 
             if (e.ClickCount == 2) {
 
@@ -211,13 +225,10 @@ namespace RaupCoilerII {
         * @param[in] sender reference to the object that raises the event
         * @param[in] e the information related to the event
         *******************************************************************************/
-        private void OpenTkControl_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+        private void OpenTkControl_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e) {
 
             isDragging = false;
             OpenTkControl.ReleaseMouseCapture();
-
-            appViewModel.bRequireToTransform = true;
-            appViewModel.bRequireToReRender = true;
 
         }//OpenTkControl_MouseLeftButtonUp
 
@@ -249,19 +260,10 @@ namespace RaupCoilerII {
             dYPercentVar = deltaY / dHeight;
             dXPercentVar = deltaX / dWidth;
 
-            // acumulate the mouse position variation percentaje
-            // dTotalPercentMoveX += dXPercentVar;
-            // dTotalPercentMoveY += dYPercentVar;
-
-            // limit the total mouse position percentaje variation between -1 and 1
-            // dTotalPercentMoveX = Math.Max(-1, Math.Min(1, dTotalPercentMoveX));
-            // dTotalPercentMoveY = Math.Max(-1, Math.Min(1, dTotalPercentMoveY));
-
-            // appViewModel.XOrientation= -(dXPercentVar * 360);
-            // appViewModel.YOrientation = -(dYPercentVar * 360);
-
-            appViewModel.XOrientation= (dYPercentVar * 360);
-            appViewModel.YOrientation = (dXPercentVar * 360);
+            // apply the percentaje of mouse position variation to acumulate a proportional variatione in the 
+            // ViewPhiZenithAngle and ViewThetaAzimuthAngle angles
+            appViewModel.ViewPhiZenithAngle = appViewModel.ViewPhiZenithAngle + (dYPercentVar * 360);
+            appViewModel.ViewThetaAzimuthAngle = appViewModel.ViewThetaAzimuthAngle + (dXPercentVar * 360);
 
             lastMousePosition = currentPosition;
 

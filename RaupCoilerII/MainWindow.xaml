@@ -146,7 +146,7 @@
                                         <Label Content="Resolution:"/>
                                         <TextBox TextWrapping="Wrap" Text="{Binding Resolution,Converter={StaticResource doubleToIntConverter}, Mode=TwoWay}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
-                                        <ScrollBar Value="{Binding Resolution, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Minimum="{Binding RevolutionsMin}" Maximum="{Binding RevolutionsMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                        <ScrollBar Value="{Binding Resolution, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Minimum="{Binding ResolutionMin}" Maximum="{Binding ResolutionMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
                                     </WrapPanel>
                                     <!-- RingsRev  -->
                                     <WrapPanel Margin="2,2,0,2" Grid.Row="2">
@@ -315,9 +315,6 @@
                             </GroupBox>
                         </Grid>
                     </Grid>
-
-
-
                 </TabItem>
                 <!-- Section TabPage controls-->
                 <TabItem Header="Section">
