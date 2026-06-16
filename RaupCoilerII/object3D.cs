@@ -10,6 +10,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Wpf;
 using System.Diagnostics;
+using System.Windows.Markup;
 
 namespace RaupCoilerII {
 
@@ -130,6 +131,9 @@ namespace RaupCoilerII {
         public int iShellEndCoverLastNormalIdx;
         public int iShellEndCoverLastFaceIdx;
 
+        // list that stores the vertices of the generating ring/shape
+        List<Assimp.Vector2D> li2DVertexsGenCurve;
+
         /*******************************************************************************
         * @brief Constructor with pararameters.
         * @param[in] _refViewModel reference to the VieModel object that will be used 
@@ -170,7 +174,47 @@ namespace RaupCoilerII {
             iShellEndCoverLastNormalIdx = 0;
             iShellEndCoverLastFaceIdx = 0;
 
+            li2DVertexsGenCurve = null;
+
          }//object3D
+
+        /*******************************************************************************
+        * @brief initializes the list of the vertices of the generating curve/ring 
+        * used to generate the shell 3D model. The generating curve/ring is initialized
+        * according to the configured parameters.
+        *******************************************************************************/
+        public void GetGeneratingCurveVertices() {
+            Assimp.Vector2D vector2DAux1;
+            float fCurrRingVertexAngleRad = 0;
+            float fXAux, fYAux, fZAux;
+            float fXAux2, fYAux2, fZAux2;
+            float flAngleVerticesRad = 0; // angle between successive vertices of the ring, in radians
+            int iVertexIndex = 0;
+            int iNumVerticesGenCurve = 0;
+
+            // create the generating curve according to the selected method
+            li2DVertexsGenCurve = new List<Vector2D>();
+            
+            // original method
+            iNumVerticesGenCurve = refAppViewModel.Resolution;
+            flAngleVerticesRad = (2.0f * (float)Math.PI) / (float)refAppViewModel.Resolution;
+
+            fCurrRingVertexAngleRad = 0;
+            for (iVertexIndex = 0; iVertexIndex < iNumVerticesGenCurve; iVertexIndex++) {
+               
+                // generate current ring vertex X, and Y coordinates for the genrating shape
+                fXAux = ((float)Math.Cos((double)fCurrRingVertexAngleRad) * (float)refAppViewModel.IniRadius) ;
+                fYAux = ((float)Math.Sin((double)fCurrRingVertexAngleRad) * (float)refAppViewModel.IniRadius * (float)refAppViewModel.Sparam);
+                
+                // store the current vertex of the generated shape into the list
+                vector2DAux1 = new Assimp.Vector2D(fXAux, fYAux);
+                li2DVertexsGenCurve.Add(vector2DAux1);
+
+                fCurrRingVertexAngleRad = fCurrRingVertexAngleRad + flAngleVerticesRad;
+
+            }//for
+
+        }//GetGeneratingCurveVertices
 
         /*******************************************************************************
         * @brief generates all the vertexs of the outer shell geometry ( the faces that
@@ -180,47 +224,61 @@ namespace RaupCoilerII {
         *******************************************************************************/
         public void GenerateOuterShellVertexs(ref Mesh model_mesh) {
             Assimp.Vector3D vectorAux1;
-            float fAngle = 0;
-            float fAngleRads = 0;
-            float fAngleDelta = 0;
             float fXAux, fYAux, fZAux;
-            float fRadius = 0;
+            float fXAux2, fYAux2, fZAux2;
             int iRing = 0;
             int iVertexIndex = 0;
-            int iVertexsPerRing = 0;
-            int iNumberOfRings = 0;
+            int iVerticesPerGenCurve = 0; // the number of vertices on each shell ring
+            int iTotalNumberOfRings = 0; // the total number of rings in the shell model
+            float flAngleRingsRad = 0; // angle between each successive ring/generating curve, in radians
+            float flThetaRad = 0;// theta angle used to generate the complete shell model, in radians
+            float flRc = 0;
 
-            iVertexsPerRing = refAppViewModel.Resolution;
-            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
+            float fAux = 0;
+
+
+            // calculate some parameters that will be used to generate the shell 3D model
+            iTotalNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev; // rings in the complete model: is the number of rings per revolution multiplied by the number of revolutions
+            flAngleRingsRad = ((float)refAppViewModel.Revolutions * (2.0f * (float)Math.PI)) / (float)iTotalNumberOfRings;
+            iVerticesPerGenCurve = li2DVertexsGenCurve.Count();
 
             // keep the index of the shell outer mesh first stored vertex
             iOuterShellFirstVertexIdx = model_mesh.Vertices.Count();
 
-            fAngleDelta = 360f / (float)iVertexsPerRing;
+            // calculate the Rc value according to the confiugred D and fRadius parameter
+            flRc = (float)refAppViewModel.IniRadius * (1.0f + (float)refAppViewModel.Dparam) / (1.0f - (float)refAppViewModel.Dparam);
 
-            fZAux = 0;
-            fRadius = 0.5f;
-            for (iRing = 0; iRing < iNumberOfRings; iRing++) {
+            flThetaRad = 0;
+            for (iRing = 0; iRing < iTotalNumberOfRings; iRing++) {
 
-                // first initialize all the vertices
-                fRadius = fRadius + 0.1f;
-                fAngle = 0;
-                for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+                // caluclate the W^(𝜃/2π) for the current Theta value
+                fAux = (float)Math.Pow((double)refAppViewModel.Wparam, (double)(flThetaRad / (double)(2.0f * Math.PI)));// W^(1/refAppViewModel.RingsRev)
 
-                    fAngleRads = MathHelper.DegreesToRadians((float)fAngle);
+                // scale the current "flThetaRad" ring: calculate all the vertices of the current ring of the shell
+                for (iVertexIndex = 0; iVertexIndex < iVerticesPerGenCurve; iVertexIndex++) {
 
-                    fXAux = (float)Math.Cos((double)fAngleRads) * fRadius;
-                    fYAux = (float)Math.Sin((double)fAngleRads) * fRadius;
+                    // apply the "Raup & Michelson" model parameters on the generating curve
+                    fXAux = ((float)li2DVertexsGenCurve[iVertexIndex].X + flRc) * fAux;
+                    fYAux = ((float)li2DVertexsGenCurve[iVertexIndex].Y * fAux) + (flRc * (float)refAppViewModel.Tparam * (fAux - 1));
+                    fZAux = 0;
 
-                    vectorAux1 = new Assimp.Vector3D(fXAux, fYAux, fZAux);
+                    // apply the corresponding "flThetaRad" rotation over the transformed generating curve. This converts
+                    // from polar coordinates to cartesian coordinates.
+                    fXAux2 = (fXAux * (float)Math.Cos(flThetaRad)) + (fZAux * (float)Math.Sin(flThetaRad));
+                    fYAux2 = fYAux;
+                    fZAux2 = -(fXAux * (float)Math.Sin(flThetaRad)) + (fZAux * (float)Math.Cos(flThetaRad));
 
+                    // store the calculated vertex inoto the mesh structure
+                    vectorAux1 = new Assimp.Vector3D(fXAux2, fYAux2, fZAux2);
                     model_mesh.Vertices.Add(vectorAux1);
-
-                    fAngle = fAngle + fAngleDelta;
 
                 }//for
 
-                fZAux = fZAux + 0.15f;
+                // increase the Theta angle of the following shell model ring
+                flThetaRad = flThetaRad + flAngleRingsRad;
+
+                // apply the W param on the next ring radius
+                // fCurrRingRadius = fCurrRingRadius * flWRing;
 
             }//for (iRings=0;
 
@@ -256,7 +314,7 @@ namespace RaupCoilerII {
             fAngleDelta = 360f / (float)iVertexsPerRing;
 
             fZAux = 0;
-            fRadius = 0.2f;
+            fRadius = 0.45f;
             for (iRing = 0; iRing < iNumberOfRings; iRing++) {
 
                 // first initialize all the vertices
@@ -1177,21 +1235,26 @@ namespace RaupCoilerII {
             iFacesCter = 0;
             iIndicesFacesCter = 0;
 
+            // call the function that generates the shell model generating curve vertices according to the configured parameters
+            GetGeneratingCurveVertices();
+
             // generate the vertexs and add them to the geometry
             GenerateOuterShellVertexs(ref model_mesh);
-            GenerateInnerShellVertexs(ref model_mesh);
-            GenerateShellBeginCoverVertexs(ref model_mesh);
-            GenerateShellEndCoverVertexs(ref model_mesh);
+            // GenerateInnerShellVertexs(ref model_mesh);
+            // GenerateShellBeginCoverVertexs(ref model_mesh);
+            // GenerateShellEndCoverVertexs(ref model_mesh);
+
             // generate the normals and add them to the geometry
             GenerateOuterShellNormals(ref model_mesh);
-            GenerateInnerShellNormals(ref model_mesh);
-            GenerateShellBeginCoverNormals(ref model_mesh);
-            GenerateShellEndCoverNormals(ref model_mesh);
+            // GenerateInnerShellNormals(ref model_mesh);
+            // GenerateShellBeginCoverNormals(ref model_mesh);
+            // GenerateShellEndCoverNormals(ref model_mesh);
+
             // generate the faces combining their vertex indexs
             GenerateOuterShellFaces(ref model_mesh);
-            GenerateInnerShellFaces(ref model_mesh);
-            GenerateShellBeginCoverFaces(ref model_mesh);
-            GenerateShellEndCoverFaces(ref model_mesh);
+            // GenerateInnerShellFaces(ref model_mesh);
+            // GenerateShellBeginCoverFaces(ref model_mesh);
+            // GenerateShellEndCoverFaces(ref model_mesh);
 
         }//GenerateShellModel
 

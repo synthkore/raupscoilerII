@@ -38,7 +38,7 @@ namespace RaupCoilerII {
         public double WparamMin { get; } = 1;
         public double TparamMax { get; } = 10;
         public double TparamMin { get; } = 0;
-        public double SparamMax { get; } = 2;
+        public double SparamMax { get; } = 5;
         public double SparamMin { get; }  = 0;
 
         public int RevolutionsMax { get; } = 36;
@@ -274,7 +274,43 @@ namespace RaupCoilerII {
             }//set
         }//Axis
 
+        // Autoscale flag to enable or disable scaling the shell model to the frustrum volume ( x,y,z: -1 x,y,z: +1 )
+        bool bAutoscale;
+        public bool Autoscale {
+            get { return bAutoscale; }
+            set {
+                if (bAutoscale != value) {
+                    bAutoscale = value;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("Autoscale");
+                }//if
+            }//set
+        }//Autoscale
+
         // Mesh parameters
+
+        // Shell initial radius value
+        double dIniRadius;
+        public double IniRadius {
+            get { return dIniRadius; }
+            set {
+                if (dIniRadius != value) {
+                    // check that received value is in range
+                    if (value > 0.5) {
+                        dIniRadius = SparamMax;
+                    } else if (value < 0.0001) {
+                        dIniRadius = 0.0001;
+                    } else {
+                        dIniRadius = value;
+                    }
+                    bRequireToRegenerate = true;
+                    // bRequireToTransform = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("IniRadius");
+                }
+            }//set
+        }//IniRadius        
+
         // Revolutions
         int iRevolutions;
         public int Revolutions {
@@ -639,12 +675,14 @@ namespace RaupCoilerII {
             Triangles = true;
             Spiral = false;
             Axis = true;
+            Autoscale = true;
 
             Axis3D = true;
 
-            Revolutions = 1;
-            Resolution = 8;// 8;
-            RingsRev = 4;
+            Revolutions = 3;
+            Resolution = 36;
+            RingsRev = 36;
+            IniRadius = 0.1;
 
             XOrientation = 0;
             YOrientation = 0;

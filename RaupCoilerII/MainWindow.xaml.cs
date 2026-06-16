@@ -20,6 +20,11 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 
+/* JBR notas
+   Meter transparencia de la concha
+   Botón de reset o desplegable con parámetros por defecot
+*/
+
 /*******************************************************************************
 * @note All the applicatoin 3D objects are implemented using the "object3D" class. The
 * 3d objects in the application are:
@@ -28,6 +33,7 @@ using System.Windows.Shapes;
 *  - Shell spiral
 *  - ZYX axis
 
+* Geometric Analysis of Shell Coiling: General Problems
 *******************************************************************************/
 
 
@@ -268,6 +274,30 @@ namespace RaupCoilerII {
             lastMousePosition = currentPosition;
 
         }//OpenTkControl_MouseMove
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user moves the mouse
+        * wheel over the Open GL control.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void OpenTkControl_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e) {
+            int delta = e.Delta;
+            double dMaxVariation;
+            double dVariation;
+            double dWheelClickVariation = 3;
+
+            // a delta value of 120 corresponds to a single mouse wheel click, so 240 means to clicks. 
+            // other advanced mouse models have greater ressolution and the click value may be lower
+            // than 120, like 100, 80, 60...
+
+            // each mouse whell click will be translated to a dWheelClickVariation percentaje of the
+            // distance range between the maximum ViewDistanceMax and minimum ViewDistanceMin
+            dMaxVariation = (appViewModel.ViewDistanceMax - appViewModel.ViewDistanceMin);
+            dVariation = dMaxVariation * ((double)delta * dWheelClickVariation / (double)(120.0f * 100.0f));
+            appViewModel.ViewRoDistance = appViewModel.ViewRoDistance - dVariation;
+
+        }//OpenTkControl_MouseWheel
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user clicks over

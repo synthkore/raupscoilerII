@@ -55,7 +55,7 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <!-- Column 0: the OpenGL WPF control used to render the model -->
-            <glWpfControl:GLWpfControl x:Name="OpenTkControl" Render="OpenTkControl_OnRender" Loaded="OpenTkControl_Loaded" SizeChanged="OpenTkControl_SizeChanged" MouseLeftButtonDown="OpenTkControl_MouseLeftButtonDown" MouseLeftButtonUp="OpenTkControl_MouseLeftButtonUp" MouseMove="OpenTkControl_MouseMove" />
+            <glWpfControl:GLWpfControl x:Name="OpenTkControl" Render="OpenTkControl_OnRender" Loaded="OpenTkControl_Loaded" SizeChanged="OpenTkControl_SizeChanged" MouseLeftButtonDown="OpenTkControl_MouseLeftButtonDown" MouseLeftButtonUp="OpenTkControl_MouseLeftButtonUp" MouseMove="OpenTkControl_MouseMove" MouseWheel="OpenTkControl_MouseWheel" />
             <!-- Column 1: with the button used to hide or show the rirght panel as if it was a splitter -->
             <Button Grid.Column="1" Click="PanelSplitButton_Click"/>
             <!-- Column 2: the column with the tools -->
@@ -103,7 +103,7 @@
                                         <Label Content="W:"/>
                                         <TextBox TextWrapping="Wrap" Text="{Binding Wparam, Mode=TwoWay, Converter={StaticResource stringToDoubleConverter},ConverterParameter=3}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
-                                        <ScrollBar Value="{Binding Wparam, Mode=TwoWay}" Minimum="{Binding WparamMin}" Maximum="{Binding WparamMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="2" LargeChange="5"/>
+                                        <ScrollBar Value="{Binding Wparam, Mode=TwoWay}" Minimum="{Binding WparamMin}" Maximum="{Binding WparamMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" LargeChange="5"/>
                                     </WrapPanel>
                                     <!-- T parameter -->
                                     <WrapPanel Margin="2,2,2,2" Grid.Row="2" Grid.ColumnSpan="2">
@@ -161,11 +161,10 @@
                         <!--############ Column 1 Model TabPage Grid ############ -->
                         <Grid Margin="245,0,0,0">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="415"/>
-                                <RowDefinition Height="255"/>
+                                <RowDefinition Height="450"/>
                             </Grid.RowDefinitions>
                             <!-- Column 1 Row 0:Drawing options -->
-                            <GroupBox Header="Drawing" Grid.Row="0" Margin="2,2,2,2" BorderBrush="Black" BorderThickness="1">
+                            <GroupBox Header="Drawing" Grid.Row="0" Margin="2,2,2,13" BorderBrush="Black" BorderThickness="1">
                                 <StackPanel>
                                     <!-- BEGIN GroupBox: Shell mesh geometry options -->
                                     <GroupBox Header="Geometry" Margin="2,0,2,0" BorderBrush="Black" BorderThickness="1" Height="158" Width="220">
@@ -204,6 +203,8 @@
                                         </StackPanel>
                                     </GroupBox>
                                     <!-- END GroupBox: color selection buttons -->
+                                    <!-- BEGIN CheckBoxes Spiral, Axis -->
+                                    <CheckBox Content="Autoscale" IsChecked="{Binding Autoscale}" Margin="8,8,4,4" />
                                 </StackPanel>
                             </GroupBox>
                             <!-- Column 1 Row 1: Orientation -->

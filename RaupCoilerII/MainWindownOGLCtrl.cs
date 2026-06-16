@@ -76,9 +76,8 @@ namespace RaupCoilerII {
             GL.Enable(EnableCap.DepthTest);
             GL.DepthFunc(DepthFunction.Lequal);
 
-            // GL.Enable(EnableCap.CullFace);// GL.Disable(EnableCap.CullFace);
-            GL.Disable(EnableCap.CullFace);
-            //GL.CullFace(CullFaceMode.Back);
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Back);
             GL.FrontFace(FrontFaceDirection.Ccw); // o Cw según tu modelo          
 
             GL.Enable(EnableCap.Blend);
@@ -436,7 +435,7 @@ namespace RaupCoilerII {
                 // ###### render the Model ######
                 GL.BindVertexArray(ShellModel.objectVAO);
                 GL.LineWidth(3.0f);
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);// Fill);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);// PolygonMode.Line);// PolygonMode.Fill);
                 GL.DrawElements(BeginMode.Triangles, ShellModel.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
                 
                 // clear the context
