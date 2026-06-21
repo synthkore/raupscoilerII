@@ -11,6 +11,7 @@ using OpenTK.Mathematics;
 using OpenTK.Wpf;
 using System.Diagnostics;
 using System.Windows.Markup;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace RaupCoilerII {
 
@@ -131,6 +132,12 @@ namespace RaupCoilerII {
         public int iShellEndCoverLastNormalIdx;
         public int iShellEndCoverLastFaceIdx;
 
+        // scale factors to apply to fit the shell model to the appliction
+        // frustrum. They are applied when teh autoscale option is checked
+        public float flAutoScaleX;
+        public float flAutoScaleY;
+        public float flAutoScaleZ;
+
         // list that stores the vertices of the generating ring/shape
         List<Assimp.Vector2D> li2DVertexsGenCurve;
 
@@ -174,9 +181,174 @@ namespace RaupCoilerII {
             iShellEndCoverLastNormalIdx = 0;
             iShellEndCoverLastFaceIdx = 0;
 
+             flAutoScaleX = 1.0f;
+             flAutoScaleY = 1.0f;
+             flAutoScaleZ = 1.0f;
+
             li2DVertexsGenCurve = null;
 
          }//object3D
+
+
+        /*******************************************************************************
+        * @brief mehtod that updates the factors used to fit the shell model into the 
+        * screen when the AutoScale option is checked. 
+        * 
+        * @note the shell generation curve should have been configured previsously calling
+        * that mehtod because it is used here.
+        *******************************************************************************/
+        public void CalculateAutoScaleFactors() {
+            Assimp.Vector3D vectorAux1;
+            List<Assimp.Vector3D> liAuxVec3DSmall = null; // vertices of the smallest coil turn
+            List<Assimp.Vector3D> liAuxVec3DBig = null; // vertices of the largest coil turn
+            float fXAux, fYAux, fZAux;
+            float fXAux2, fYAux2, fZAux2;
+            int iRing = 0;
+            int iVertexIndex = 0;
+            int iVerticesPerGenCurve = 0; // the number of vertices on each shell ring
+            float flThetaRad = 0;// theta angle used to generate the complete shell model, in radians
+            float flThetatLastTurn = 0;// the Theta angle at which starts the last coil turn
+            float flRc = 0;
+            float fAux = 0;
+            // auxiliar variables used to get the maximum and minimum value of the smallest turn
+            float flSmallMinX, flSmallMaxX;
+            float flSmallMinY, flSmallMaxY;
+            float flSmallMinZ, flSmallMaxZ;
+            float flSmallXRange; // difference between flSmallMaxX and flSmallMinX
+            float flSmallYRange; // difference between flSmallMaxY and flSmallMinY
+            float flSmallZRange; // difference between flSmallMaxZ and flSmallMinZ
+            // auxiliar variables used to get the maximum and minimum value of the largest turn
+            float flBigMinX, flBigMaxX;
+            float flBigMinY, flBigMaxY;
+            float flBigMinZ, flBigMaxZ;
+            float flBigXRange; // difference between flSmallMaxX and flSmallMinX
+            float flBigYRange; // difference between flSmallMaxY and flSmallMinY
+            float flBigZRange; // difference between flSmallMaxZ and flSmallMinZ
+
+            if (refAppViewModel.Autoscale == false) {
+
+                // no autoscale applied
+                flAutoScaleX = 1.0f;
+                flAutoScaleY = 1.0f;
+                flAutoScaleZ = 1.0f;
+
+            } else {
+
+                // get the maximum and minimum X,Y,Z coordinates of the first (smallest)
+                // and last(biggest) generating curves. To get the max and min coordinates
+                // simpli rotate 90º the generating curve on the first ant the last turn
+                liAuxVec3DSmall = new List<Assimp.Vector3D>();
+                liAuxVec3DBig = new List<Assimp.Vector3D>();
+
+                // calculate some parameters that will be used to generate the shell 3D model
+                iVerticesPerGenCurve = li2DVertexsGenCurve.Count();
+
+                // calculate the Rc value according to the confiugred D and fRadius parameter
+                flRc = (float)refAppViewModel.IniRadius * (1.0f + (float)refAppViewModel.Dparam) / (1.0f - (float)refAppViewModel.Dparam);
+
+                // calucalte the theta angle (in rads) at which starts the last ( largest turn )
+                flThetatLastTurn = (refAppViewModel.Revolutions - 1) * (2.0f * (float)Math.PI);
+
+                // get the X,Y,Z of 4 rings of the first turn (smallest) separated on 90º each one
+                flThetaRad = 0;
+                for (iRing = 0; iRing < 4; iRing++) {
+
+                    // caluclate the W^(𝜃/2π) for the current Theta value
+                    fAux = (float)Math.Pow((double)refAppViewModel.Wparam, (double)(flThetaRad / (double)(2.0f * Math.PI)));// W^(1/refAppViewModel.RingsRev)
+
+                    // scale the current "flThetaRad" ring: calculate all the vertices of the current ring of the shell
+                    for (iVertexIndex = 0; iVertexIndex < iVerticesPerGenCurve; iVertexIndex++) {
+
+                        // apply the "Raup & Michelson" model parameters on the generating curve
+                        fXAux = ((float)li2DVertexsGenCurve[iVertexIndex].X + flRc) * fAux;
+                        fYAux = ((float)li2DVertexsGenCurve[iVertexIndex].Y * fAux) + (flRc * (float)refAppViewModel.Tparam * (fAux - 1));
+                        fZAux = 0;
+
+                        // apply the corresponding "flThetaRad" rotation over the transformed generating curve. This 
+                        // converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
+                        fXAux2 = (fXAux * (float)Math.Cos(flThetaRad)) + (fZAux * (float)Math.Sin(flThetaRad));
+                        fYAux2 = fYAux;
+                        fZAux2 = -(fXAux * (float)Math.Sin(flThetaRad)) + (fZAux * (float)Math.Cos(flThetaRad));
+
+                        // store the calculated vertex X,Y,Z inot the tempora list
+                        vectorAux1 = new Assimp.Vector3D(fXAux2, fYAux2, fZAux2);
+                        liAuxVec3DSmall.Add(vectorAux1);
+
+                    }//for
+
+                    // increase the Theta angle on 90º ( π/2 in rads )
+                    flThetaRad = flThetaRad + ((float)Math.PI / 2.0f);
+
+                }//for (iRings=0;
+
+                // get the X,Y,Z of 4 rings of the last (largest) turn separated on 90º each one
+                flThetaRad = flThetatLastTurn + ((float)Math.PI / 2.0f) * (iRing % 4); // we are processing the last turn ( the largest )
+                for (iRing = 0; iRing < 4; iRing++) {
+
+                    // caluclate the W^(𝜃/2π) for the current Theta value
+                    fAux = (float)Math.Pow((double)refAppViewModel.Wparam, (double)(flThetaRad / (double)(2.0f * Math.PI)));// W^(1/refAppViewModel.RingsRev)
+
+                    // scale the current "flThetaRad" ring: calculate all the vertices of the current ring of the shell
+                    for (iVertexIndex = 0; iVertexIndex < iVerticesPerGenCurve; iVertexIndex++) {
+
+                        // apply the "Raup & Michelson" model parameters on the generating curve
+                        fXAux = ((float)li2DVertexsGenCurve[iVertexIndex].X + flRc) * fAux;
+                        fYAux = ((float)li2DVertexsGenCurve[iVertexIndex].Y * fAux) + (flRc * (float)refAppViewModel.Tparam * (fAux - 1));
+                        fZAux = 0;
+
+                        // apply the corresponding "flThetaRad" rotation over the transformed generating curve. This 
+                        // converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
+                        fXAux2 = (fXAux * (float)Math.Cos(flThetaRad)) + (fZAux * (float)Math.Sin(flThetaRad));
+                        fYAux2 = fYAux;
+                        fZAux2 = -(fXAux * (float)Math.Sin(flThetaRad)) + (fZAux * (float)Math.Cos(flThetaRad));
+
+                        // store the calculated vertex X,Y,Z inot the tempora list
+                        vectorAux1 = new Assimp.Vector3D(fXAux2, fYAux2, fZAux2);
+                        liAuxVec3DBig.Add(vectorAux1);
+
+                    }//for
+
+                    // increase the Theta angle on 90º ( π/2 in rads )
+                    flThetaRad = flThetaRad + ((float)Math.PI / 2.0f);
+
+                }//for (iRings=0;
+
+                // calculate the scale factors
+                flAutoScaleX = 1.0f;
+                flAutoScaleY = 1.0f;
+                flAutoScaleZ = 1.0f;
+              
+                // get the max and mins of the smallest coil trun
+                flSmallMaxX = liAuxVec3DSmall.Max(v => v.X);
+                flSmallMinX = liAuxVec3DSmall.Min(v => v.X);
+                flSmallMaxY = liAuxVec3DSmall.Max(v => v.Y);
+                flSmallMinY = liAuxVec3DSmall.Min(v => v.Y);
+                flSmallMaxZ = liAuxVec3DSmall.Max(v => v.Z);
+                flSmallMinZ = liAuxVec3DSmall.Min(v => v.Z);
+
+                flSmallXRange = flSmallMaxX - flSmallMinX;
+                flSmallYRange = flSmallMaxY - flSmallMinY;
+                flSmallZRange = flSmallMaxZ - flSmallMinZ;
+
+                // get the max and mins of the largest coil trun
+                flBigMaxX = liAuxVec3DBig.Max(v => v.X);
+                flBigMinX = liAuxVec3DBig.Min(v => v.X);
+                flBigMaxY = liAuxVec3DBig.Max(v => v.Y);
+                flBigMinY = liAuxVec3DBig.Min(v => v.Y);
+                flBigMaxZ = liAuxVec3DBig.Max(v => v.Z);
+                flBigMinZ = liAuxVec3DBig.Min(v => v.Z);
+
+                flBigXRange = flBigMaxX - flBigMinX;
+                flBigYRange = flBigMaxY - flBigMinY;
+                flBigZRange = flBigMaxZ - flBigMinZ;
+
+                flAutoScaleX = flSmallXRange / flBigXRange;
+                flAutoScaleY = flSmallYRange / flBigYRange;
+                flAutoScaleZ = flSmallZRange / flBigZRange;
+
+            }//if
+
+        }//CalculateAutoScaleFactors
 
         /*******************************************************************************
         * @brief initializes the list of the vertices of the generating curve/ring 
@@ -263,7 +435,7 @@ namespace RaupCoilerII {
                     fZAux = 0;
 
                     // apply the corresponding "flThetaRad" rotation over the transformed generating curve. This converts
-                    // from polar coordinates to cartesian coordinates.
+                    // from cylindrica coordinates to cartesian coordinates (theta,r,y -> x,y,z ).
                     fXAux2 = (fXAux * (float)Math.Cos(flThetaRad)) + (fZAux * (float)Math.Sin(flThetaRad));
                     fYAux2 = fYAux;
                     fZAux2 = -(fXAux * (float)Math.Sin(flThetaRad)) + (fZAux * (float)Math.Cos(flThetaRad));
@@ -1235,8 +1407,11 @@ namespace RaupCoilerII {
             iFacesCter = 0;
             iIndicesFacesCter = 0;
 
-            // call the function that generates the shell model generating curve vertices according to the configured parameters
+            // generate the shell generating curve vertices according to the configured parameters
             GetGeneratingCurveVertices();
+
+            // in case AutoScale option is checked calculate the scale factors to apply
+            CalculateAutoScaleFactors();
 
             // generate the vertexs and add them to the geometry
             GenerateOuterShellVertexs(ref model_mesh);

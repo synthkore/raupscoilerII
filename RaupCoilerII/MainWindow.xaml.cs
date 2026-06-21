@@ -22,7 +22,8 @@ using System.Windows.Shapes;
 
 /* JBR notas
    Meter transparencia de la concha
-   Botón de reset o desplegable con parámetros por defecot
+   Botón de reset o desplegable con parámetros por defeto
+   Situar siempre y con la misma escala el eje de coordenadas en una esquina
 */
 
 /*******************************************************************************
