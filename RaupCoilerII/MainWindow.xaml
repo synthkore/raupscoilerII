@@ -21,7 +21,7 @@
     <Grid Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="217*"/>
+            <ColumnDefinition Width="220*"/>
         </Grid.ColumnDefinitions>
         <Menu Height="40" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <MenuItem Header="File">
@@ -177,34 +177,12 @@
                                         </StackPanel>
                                     </GroupBox>
                                     <!-- END GroupBox: Shell mesh geometry options -->
-                                    <!-- BEGIN CheckBoxes Spiral, Axis -->
+                                    <!-- BEGIN CheckBoxes Spiral, Axis, AUtoscale -->
                                     <CheckBox Content="Spiral" IsChecked="{Binding Spiral}" Margin="8,8,4,4" />
                                     <CheckBox Content="Model axis" IsChecked="{Binding Axis}" Margin="8,2,4,4"/>
                                     <CheckBox Content="3D Axis" IsChecked="{Binding Axis3D}" Margin="8,2,4,4"/>
-                                    <!-- BEGIN GroupBox: color selection buttons -->
-                                    <GroupBox Header="Color selection" Margin="2,0,2,0" BorderBrush="Black" BorderThickness="1" Height="154" Width="220">
-                                        <StackPanel Margin="10,10,10,10" >
-                                            <StackPanel Orientation="Horizontal"  Margin="8,2,2,0" >
-                                                <Label Content="Shell:" Width="90" />
-                                                <Button x:Name="btnMeshColor" Content="" Width="85" Height="22" Click="btnMeshColor_Click" Background="{Binding MeshColor, Converter={StaticResource colorToBrushConverter}}"/>
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal" Margin="8,2,2,0" >
-                                                <Label Content="Shell axis:" Width="90"/>
-                                                <Button x:Name="btnAxisColor" Content="" Width="85" Height="22" Click="btnAxisColor_Click" Background="{Binding AxisColor, Converter={StaticResource colorToBrushConverter}}"/>
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal"  Margin="8,2,2,0" >
-                                                <Label Content="Shell spiral:" Width="90" />
-                                                <Button x:Name="btnSpiralColor" Content="" Width="85" Height="22" Click="btnSpiralColor_Click" Background="{Binding SpiralColor, Converter={StaticResource colorToBrushConverter}}"/>
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal"  Margin="8,2,2,0">
-                                                <Label Content="Background:" Width="90" />
-                                                <Button x:Name="btnBackColor" Content="" Width="85" Height="22" Click="btnBackColor_Click" Background="{Binding BackgroundColor, Converter={StaticResource colorToBrushConverter}}"/>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </GroupBox>
-                                    <!-- END GroupBox: color selection buttons -->
-                                    <!-- BEGIN CheckBoxes Spiral, Axis -->
-                                    <CheckBox Content="Autoscale" IsChecked="{Binding Autoscale}" Margin="8,8,4,4" />
+                                    <CheckBox Content="Autoscale" IsChecked="{Binding Autoscale}" Margin="8,2,4,4" />
+                                    <!-- END CheckBoxes Spiral, Axis, AUtoscale -->
                                 </StackPanel>
                             </GroupBox>
                             <!-- Column 1 Row 1: Orientation -->
@@ -213,7 +191,7 @@
                 </TabItem>
                 <!--######################################################### View & Light TabPage controls #########################################################-->
                 <!-- View TabPage controls-->
-                <TabItem Header="View">
+                <TabItem Header="View" HorizontalAlignment="Left" Width="37">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
@@ -224,15 +202,12 @@
                         <!--############ Column 0 View & Light TabPage Grid ############ -->
                         <Grid Grid.Column="0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*"/>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="93*"/>
+                                <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition  Height="220"/>
-                                <RowDefinition/>
+                                <RowDefinition  Height="677"/>
                             </Grid.RowDefinitions>
-                            <GroupBox Header="View Orientation" Grid.Row="0" Grid.Column="0" Margin="2,2,247,2" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="3">
+                            <GroupBox Header="View Orientation" Grid.Row="0" Grid.Column="0" Margin="2,2,247,400" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
@@ -241,6 +216,8 @@
                                         <RowDefinition />
                                         <RowDefinition />
                                         <RowDefinition />
+                                        <RowDefinition Height="28"/>
+                                        <RowDefinition Height="28"/>
                                         <RowDefinition Height="28"/>
                                     </Grid.RowDefinitions>
                                     <!--- View coordinates Phi (zenith angle) -->
@@ -264,7 +241,9 @@
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
                                         <ScrollBar Value="{Binding ViewRoDistance, Mode=TwoWay}" Minimum="{Binding ViewDistanceMin}" Maximum="{Binding ViewDistanceMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
                                     </WrapPanel>
-                                    <Button x:Name="btnResetViewOrientation" Grid.Row="3" Height="22" Content="Reset" Click="btnResetViewOrientation_Click" Width="140" />
+                                    <Button x:Name="btnResetOrientationToX" Grid.Row="3" Height="22" Content="Reset to X" Click="btnResetViewOrientationToX_Click" Width="140" />
+                                    <Button x:Name="btnResetOrientationToY" Grid.Row="4" Height="22" Content="Reset to Y" Click="btnResetViewOrientationToY_Click" Width="140" />
+                                    <Button x:Name="btnResetOrientationToZ" Grid.Row="5" Height="22" Content="Reset to Z" Click="btnResetViewOrientationToZ_Click" Width="140" />
                                 </Grid>
                             </GroupBox>
                         </Grid>
@@ -280,6 +259,111 @@
                             <GroupBox Header="Light Orientation" Grid.Row="0" Margin="247,2,2,2" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="52*"/>
+                                        <ColumnDefinition Width="177*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition Height="27"/>
+                                        <RowDefinition Height="28"/>
+                                    </Grid.RowDefinitions>
+                                    <!--- Light coordinates Phi (zenith angle) -->
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="0" Grid.ColumnSpan="2">
+                                        <Label Content="Phi (zenith):" Width="110"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding LightPhiZenithAngle,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding LightPhiZenithAngle, Mode=TwoWay}" Minimum="{Binding XOrientationMin}" Maximum="{Binding XOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                    <!--- Light coordinates Theta (azimuth angle) -->
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="1" Grid.ColumnSpan="2">
+                                        <Label Content="Theta (azimuth):" Width="110"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding LightThetaAzimuthAngle,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding LightThetaAzimuthAngle, Mode=TwoWay}" Minimum="{Binding YOrientationMin}" Maximum="{Binding YOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                    <!--- Light coordinates Ro (radius distance)-->
+                                    <WrapPanel Margin="2,2,2,2" Grid.Row="2" Grid.ColumnSpan="2">
+                                        <Label Content="Ro (radius):" Width="110"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding LightRoDistance,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding LightRoDistance, Mode=TwoWay}" Minimum="{Binding LightDistanceMin}" Maximum="{Binding LightDistanceMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                    <CheckBox Content="Link light to view" Grid.Row="3" IsChecked="{Binding LinkLightToView}" Margin="2,2,2,2" Grid.ColumnSpan="2" />
+                                    <Button x:Name="btnResetLightOrientation" Grid.Row="4" Height="22" Content="Reset" Click="btnResetLightOrientation_Click" Width="140" Grid.ColumnSpan="2" Margin="44,3,45,3" />
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <!--######################################################### Appearence TabPage controls #########################################################-->
+                <!-- Appearance TabPage controls-->
+                <TabItem Header="Appearance">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="6*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <!--############ Column 0 Colors ############ -->
+                        <Grid Grid.Column="0" Grid.ColumnSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition  Height="234"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <GroupBox Header="Colors" Grid.Row="0" Grid.Column="0" Margin="2,2,247,0" BorderBrush="Black" BorderThickness="1">
+                                <StackPanel>
+                                    <!--- View coordinates Phi (zenith angle) -->
+                                    <!-- BEGIN GroupBox: color selection buttons -->
+                                    <GroupBox Header="Color selection" Margin="2,0,2,0" BorderBrush="Black" BorderThickness="1" Height="154" Width="220">
+                                        <StackPanel Margin="10,10,10,10" >
+                                            <StackPanel Orientation="Horizontal"  Margin="8,2,2,0" >
+                                                <Label Content="Shell:" Width="90" />
+                                                <Button x:Name="btnMeshColor" Content="" Width="85" Height="22" Click="btnMeshColor_Click" Background="{Binding MeshColor, Converter={StaticResource colorToBrushConverter}}"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="8,2,2,0" >
+                                                <Label Content="Shell axis:" Width="90"/>
+                                                <Button x:Name="btnAxisColor" Content="" Width="85" Height="22" Click="btnAxisColor_Click" Background="{Binding AxisColor, Converter={StaticResource colorToBrushConverter}}"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal"  Margin="8,2,2,0" >
+                                                <Label Content="Shell spiral:" Width="90" />
+                                                <Button x:Name="btnSpiralColor" Content="" Width="85" Height="22" Click="btnSpiralColor_Click" Background="{Binding SpiralColor, Converter={StaticResource colorToBrushConverter}}"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal"  Margin="8,2,2,0">
+                                                <Label Content="Background:" Width="90" />
+                                                <Button x:Name="btnBackColor" Content="" Width="85" Height="22" Click="btnBackColor_Click" Background="{Binding BackgroundColor, Converter={StaticResource colorToBrushConverter}}"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <!-- END GroupBox: color selection buttons -->
+                                    <!-- MeshTransparency  -->
+                                    <WrapPanel Margin="2,6,2,2" Grid.Row="1">
+                                        <Label Content="Transparency:"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding MeshTransparency,Converter={StaticResource doubleToIntConverter}, Mode=TwoWay}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding MeshTransparency, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Minimum="1" Maximum="100" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </GroupBox>
+                        </Grid>
+                        <!--############ Column 1 Procedural ############ -->
+                        <Grid Grid.ColumnSpan="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="250"/>
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <GroupBox Header="Procedural" Grid.Row="0" Margin="247,2,2,2" BorderBrush="Black" BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
@@ -291,27 +375,13 @@
                                     </Grid.RowDefinitions>
                                     <!--- Light coordinates Phi (zenith angle) -->
                                     <WrapPanel Margin="2,2,2,2" Grid.Row="0">
-                                        <Label Content="Phi (zenith):" Width="110"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding LightPhiZenithAngle,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
-                                        <!-- binding in the controls width to take the same width than the parent Grid -->
-                                        <ScrollBar Value="{Binding LightPhiZenithAngle, Mode=TwoWay}" Minimum="{Binding XOrientationMin}" Maximum="{Binding XOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
                                     </WrapPanel>
                                     <!--- Light coordinates Theta (azimuth angle) -->
                                     <WrapPanel Margin="2,2,2,2" Grid.Row="1">
-                                        <Label Content="Theta (azimuth):" Width="110"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding LightThetaAzimuthAngle,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
-                                        <!-- binding in the controls width to take the same width than the parent Grid -->
-                                        <ScrollBar Value="{Binding LightThetaAzimuthAngle, Mode=TwoWay}" Minimum="{Binding YOrientationMin}" Maximum="{Binding YOrientationMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
                                     </WrapPanel>
                                     <!--- Light coordinates Ro (radius distance)-->
                                     <WrapPanel Margin="2,2,2,2" Grid.Row="2">
-                                        <Label Content="Ro (radius):" Width="110"/>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding LightRoDistance,Converter={StaticResource stringToDoubleConverter}, Mode=TwoWay}" Width="100" Style="{StaticResource VerticalCenteredTextBox}"/>
-                                        <!-- binding in the controls width to take the same width than the parent Grid -->
-                                        <ScrollBar Value="{Binding LightRoDistance, Mode=TwoWay}" Minimum="{Binding LightDistanceMin}" Maximum="{Binding LightDistanceMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
                                     </WrapPanel>
-                                    <CheckBox Content="Link light to view" Grid.Row="3" IsChecked="{Binding LinkLightToView}" Margin="2,2,2,2" />
-                                    <Button x:Name="btnResetLightOrientation" Grid.Row="4" Height="22" Content="Reset" Click="btnResetLightOrientation_Click" Width="140" />
                                 </Grid>
                             </GroupBox>
                         </Grid>

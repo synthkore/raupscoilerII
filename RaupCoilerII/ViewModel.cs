@@ -281,6 +281,7 @@ namespace RaupCoilerII {
             set {
                 if (bAutoscale != value) {
                     bAutoscale = value;
+                    bRequireToRegenerate = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Autoscale");
                 }//if
@@ -648,6 +649,20 @@ namespace RaupCoilerII {
             }//set
         }//BackgroundColor
 
+        // mesh transparency percentage
+        int iMeshTransparency;
+        public int MeshTransparency {
+            get { return iMeshTransparency; }
+            set {
+                if (iMeshTransparency != value) {
+                    iMeshTransparency = value;
+                    bRequireToTransform = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("MeshTransparency");
+                }
+            }//set
+        }//MeshTransparency
+
         // required on classes that implement the INotifyPropertyChanged interface to notify changes to the user interface
         public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyMyPropertyChanged(string propName) {
@@ -679,7 +694,7 @@ namespace RaupCoilerII {
 
             Axis3D = true;
 
-            Revolutions = 3;
+            Revolutions = 10;
             Resolution = 36;
             RingsRev = 36;
             IniRadius = 0.1;
@@ -705,6 +720,7 @@ namespace RaupCoilerII {
             AxisColor = System.Windows.Media.Color.FromRgb(255, 0, 0);
             SpiralColor = System.Windows.Media.Color.FromRgb(255, 0, 0);
             BackgroundColor = System.Windows.Media.Color.FromRgb(0, 0, 0);
+            MeshTransparency = 100;
 
         }//ViewModel
 

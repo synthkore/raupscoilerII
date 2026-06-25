@@ -388,18 +388,48 @@ namespace RaupCoilerII {
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user clicks over
-        * the reset view vector parameters
+        * the reset view to X axis
         * @param[in] sender reference to the object that raises the event
         * @param[in] e the information related to the event
         *******************************************************************************/
-        private void btnResetViewOrientation_Click(object sender, RoutedEventArgs e) {
+        private void btnResetViewOrientationToX_Click(object sender, RoutedEventArgs e) {
 
             // set all the view vector parameters to its default value
             appViewModel.ViewPhiZenithAngle = 0;
             appViewModel.ViewThetaAzimuthAngle = 0;
             appViewModel.ViewRoDistance = 4;
 
-        }//btnResetViewOrientation_Click
+        }//btnResetViewOrientationToX_Click
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the reset view to Y axis
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void btnResetViewOrientationToY_Click(object sender, RoutedEventArgs e) {
+
+            // set all the view vector parameters to its default value
+            appViewModel.ViewPhiZenithAngle = 90;
+            appViewModel.ViewThetaAzimuthAngle = 0;
+            appViewModel.ViewRoDistance = 4;
+
+        }//btnResetViewOrientationToY_Click
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the reset view to Z axis
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void btnResetViewOrientationToZ_Click(object sender, RoutedEventArgs e) {
+
+            // set all the view vector parameters to its default value
+            appViewModel.ViewPhiZenithAngle = 0;
+            appViewModel.ViewThetaAzimuthAngle = 90;
+            appViewModel.ViewRoDistance = 4;
+
+        }//btnResetViewOrientationToZ_Click
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user clicks over

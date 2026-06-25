@@ -300,7 +300,7 @@ namespace RaupCoilerII {
                         // converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
                         fXAux2 = (fXAux * (float)Math.Cos(flThetaRad)) + (fZAux * (float)Math.Sin(flThetaRad));
                         fYAux2 = fYAux;
-                        fZAux2 = -(fXAux * (float)Math.Sin(flThetaRad)) + (fZAux * (float)Math.Cos(flThetaRad));
+                        fZAux2 = (fXAux * (float)Math.Sin(flThetaRad)) + (fZAux * (float)Math.Cos(flThetaRad));
 
                         // store the calculated vertex X,Y,Z inot the tempora list
                         vectorAux1 = new Assimp.Vector3D(fXAux2, fYAux2, fZAux2);
@@ -342,6 +342,7 @@ namespace RaupCoilerII {
                 flBigYRange = flBigMaxY - flBigMinY;
                 flBigZRange = flBigMaxZ - flBigMinZ;
 
+                // get the scale factors
                 flAutoScaleX = flSmallXRange / flBigXRange;
                 flAutoScaleY = flSmallYRange / flBigYRange;
                 flAutoScaleZ = flSmallZRange / flBigZRange;
@@ -431,14 +432,23 @@ namespace RaupCoilerII {
 
                     // apply the "Raup & Michelson" model parameters on the generating curve
                     fXAux = ((float)li2DVertexsGenCurve[iVertexIndex].X + flRc) * fAux;
-                    fYAux = ((float)li2DVertexsGenCurve[iVertexIndex].Y * fAux) + (flRc * (float)refAppViewModel.Tparam * (fAux - 1));
+                    fYAux = ((float)li2DVertexsGenCurve[iVertexIndex].Y * fAux) - (flRc * (float)refAppViewModel.Tparam * (fAux - 1));
                     fZAux = 0;
 
                     // apply the corresponding "flThetaRad" rotation over the transformed generating curve. This converts
                     // from cylindrica coordinates to cartesian coordinates (theta,r,y -> x,y,z ).
                     fXAux2 = (fXAux * (float)Math.Cos(flThetaRad)) + (fZAux * (float)Math.Sin(flThetaRad));
                     fYAux2 = fYAux;
-                    fZAux2 = -(fXAux * (float)Math.Sin(flThetaRad)) + (fZAux * (float)Math.Cos(flThetaRad));
+                    fZAux2 = (fXAux * (float)Math.Sin(flThetaRad)) + (fZAux * (float)Math.Cos(flThetaRad));
+
+                    // if the model autoscale is enabled scale the vertex coordinates in order to fit them in the frutrun
+                    if (refAppViewModel.Autoscale) {
+
+                        fXAux2 = flAutoScaleX * fXAux2;
+                        fYAux2 = flAutoScaleY * fYAux2;
+                        fZAux2 = flAutoScaleZ * fZAux2;
+
+                    }
 
                     // store the calculated vertex inoto the mesh structure
                     vectorAux1 = new Assimp.Vector3D(fXAux2, fYAux2, fZAux2);
