@@ -164,16 +164,17 @@
                                 <RowDefinition Height="450"/>
                             </Grid.RowDefinitions>
                             <!-- Column 1 Row 0:Drawing options -->
-                            <GroupBox Header="Drawing" Grid.Row="0" Margin="2,2,2,13" BorderBrush="Black" BorderThickness="1">
+                            <GroupBox Header="Drawing" Grid.Row="0" Margin="2,2,2,151" BorderBrush="Black" BorderThickness="1">
                                 <StackPanel>
                                     <!-- BEGIN GroupBox: Shell mesh geometry options -->
-                                    <GroupBox Header="Geometry" Margin="2,0,2,0" BorderBrush="Black" BorderThickness="1" Height="158" Width="220">
+                                    <GroupBox Header="Geometry" Margin="2,0,2,0" BorderBrush="Black" BorderThickness="1" Height="178" Width="220">
                                         <StackPanel Margin="10,10,10,10" >
-                                            <RadioButton Content="No mesh" Height="24" VerticalAlignment="Top" IsChecked="{Binding NoMesh}"/>
-                                            <RadioButton Content="Vertexs" Height="24" VerticalAlignment="Top" IsChecked="{Binding Vertexs}"/>
-                                            <RadioButton Content="Rings" Height="24" VerticalAlignment="Top"  IsChecked="{Binding Rings}"/>
-                                            <RadioButton Content="Quads" Height="24" VerticalAlignment="Top"  IsChecked="{Binding Quads}"/>
-                                            <RadioButton Content="Triangles" Height="24" VerticalAlignment="Top" IsChecked="{Binding Triangles}"/>
+                                            <RadioButton Name="radNoMesh" Content="No mesh" Height="24" VerticalAlignment="Top" IsChecked="{Binding NoMesh}"/>
+                                            <RadioButton Name="radVertexs" Content="Vertexs" Height="24" VerticalAlignment="Top" IsChecked="{Binding Vertexs}"/>
+                                            <RadioButton Name="radRings" Content="Rings" Height="24" VerticalAlignment="Top"  IsChecked="{Binding Rings}"/>
+                                            <RadioButton Name="radQuads" Content="Quads" Height="24" VerticalAlignment="Top"  IsChecked="{Binding Quads}"/>
+                                            <RadioButton Name="radTriangles" Content="Triangles" Height="24" VerticalAlignment="Top" IsChecked="{Binding Triangles}"/>
+                                            <RadioButton Name="radFaces" Content="Faces" Height="24" VerticalAlignment="Top" IsChecked="{Binding Faces}"/>
                                         </StackPanel>
                                     </GroupBox>
                                     <!-- END GroupBox: Shell mesh geometry options -->

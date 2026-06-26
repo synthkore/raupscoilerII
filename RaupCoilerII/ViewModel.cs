@@ -25,7 +25,8 @@ namespace RaupCoilerII {
             Vertexs,
             Rings,
             Quads,
-            Triangles
+            Triangles,
+            Faces
         }
 
         // constants
@@ -62,7 +63,7 @@ namespace RaupCoilerII {
 
         // properties
 
-        tGeometryStyleEnum geometryStyle = tGeometryStyleEnum.Triangles;
+        public tGeometryStyleEnum geometryStyle = tGeometryStyleEnum.Triangles;
 
         public bool bRequireToReRender = true; // flag that indicates that has been any change in a parameter that requires to redner the model again.
         public bool bRequireToRegenerate = true; // flag that indicates that has been any change in a parameter that requires to recalculate the Raup model geometry
@@ -247,6 +248,24 @@ namespace RaupCoilerII {
                 }//if
             }//set
         }//Triangles
+
+        // Faces flag
+        bool bFaces;
+        public bool Faces {
+            get { return bFaces; }
+            set {
+                if (bFaces != value) {
+                    if (value == true) {
+                        bFaces = true;
+                        geometryStyle = tGeometryStyleEnum.Faces;
+                    } else {
+                        bFaces = false;
+                    }
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("Faces");
+                }//if
+            }//set
+        }//bFaces
 
         // Spiral flag
         bool bSpiral;
@@ -676,10 +695,10 @@ namespace RaupCoilerII {
         *******************************************************************************/
         public ViewModel() {
 
-            Dparam = 0.025f;
-            Wparam = 1;
-            Tparam = 0;
-            Sparam = 1;
+            Dparam = 0.25f;
+            Wparam = 1.8f;
+            Tparam = 0.8f;
+            Sparam = 1.0f;
 
             geometryStyle = tGeometryStyleEnum.Triangles;
 
@@ -687,7 +706,8 @@ namespace RaupCoilerII {
             Vertexs = false;
             Rings = false;
             Quads = false;
-            Triangles = true;
+            Triangles = false;
+            Faces = true;
             Spiral = false;
             Axis = true;
             Autoscale = true;

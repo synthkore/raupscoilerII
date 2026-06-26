@@ -15,6 +15,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Wpf;
+using static RaupCoilerII.ViewModel;
 
 namespace RaupCoilerII {
 
@@ -110,7 +111,7 @@ namespace RaupCoilerII {
                         #version 330 core
 
                         layout (location = 0) in vec3 aPos;
-                        layout (location = 1) in vec3 aColor;
+                        layout (location = 1) in vec4 aColor;
                         layout (location = 2) in vec3 aNormal;
 
                         uniform mat4 uModel;
@@ -118,7 +119,7 @@ namespace RaupCoilerII {
                         uniform mat4 uProjection;
 
                         out vec3 FragPos;
-                        out vec3 Color;
+                        out vec4 Color;
                         flat out vec3 Normal;
                         // out vec3 Normal;
 
@@ -136,7 +137,7 @@ namespace RaupCoilerII {
                         #version 330 core
 
                         in vec3 FragPos;
-                        in vec3 Color;
+                        in vec4 Color;
                         flat in vec3 Normal;
                         // in vec3 Normal;
 
@@ -184,8 +185,8 @@ namespace RaupCoilerII {
                                 vec3 specular = specularStrength * spec * lightColor;  
 
                                 // final light calculations
-                                vec3 result = ( ambient + diffuse + specular ) * Color;
-                                FragColor = vec4(result, 1.0);
+                                vec3 result = ( ambient + diffuse + specular ) * Color.rgb;
+                                FragColor = vec4(result, Color.a);
 
                             }//if
 
@@ -434,9 +435,31 @@ namespace RaupCoilerII {
 
                 // ###### render the Model ######
                 GL.BindVertexArray(ShellModel.objectVAO);
-                GL.LineWidth(3.0f);
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);// PolygonMode.Line);// PolygonMode.Fill);
-                GL.DrawElements(BeginMode.Triangles, ShellModel.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+
+                // generate the geoemtry with the selecthed method
+                switch (appViewModel.geometryStyle) {
+
+                    case (tGeometryStyleEnum.Vertexs):
+                        GL.PointSize(5.0f);
+                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
+                        GL.DrawElements(BeginMode.Triangles, ShellModel.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                        break;
+                    
+                    case (tGeometryStyleEnum.Triangles):
+                        GL.LineWidth(3.0f);
+                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                        GL.DrawElements(BeginMode.Triangles, ShellModel.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                        break;
+
+                    case (tGeometryStyleEnum.Faces):
+                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                        GL.DrawElements(BeginMode.Triangles, ShellModel.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                        break;
+
+                    case (tGeometryStyleEnum.NoMesh):
+                        break;
+
+                }//switch                                                             
                 
                 // clear the context
                 GL.BindVertexArray(0);

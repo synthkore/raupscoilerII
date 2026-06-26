@@ -1664,7 +1664,7 @@ namespace RaupCoilerII {
                 modelCoordNColors.Add(((float)refAppViewModel.MeshColor.R) / 255f);
                 modelCoordNColors.Add(((float)refAppViewModel.MeshColor.G) / 255f);
                 modelCoordNColors.Add(((float)refAppViewModel.MeshColor.B) / 255f);
-
+                modelCoordNColors.Add((float)(refAppViewModel.MeshTransparency / 100.0f));
                 // normal
                 modelCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].X);
                 modelCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].Y);
@@ -1702,18 +1702,18 @@ namespace RaupCoilerII {
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, objectEBO);
             GL.BufferData(BufferTarget.ElementArrayBuffer, modelFaceIdxs.Count() * sizeof(uint), modelFaceIdxs.ToArray(), BufferUsageHint.StaticDraw);
 
-            iStride = (3 + 3 + 3) * sizeof(float); // pos (3) + color (3) + normal (3)
+            iStride = (3 + 4 + 3) * sizeof(float); // pos (3) + color (4=3+1) + normal (3)
 
             // configure the position atributes
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, iStride, 0);
             GL.EnableVertexAttribArray(0);
 
-            // configure the color atributes
-            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, iStride, 3 * sizeof(float));
+            // configure the color+transparency atributes
+            GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, iStride, 3 * sizeof(float));
             GL.EnableVertexAttribArray(1);
 
             // configure the attributes of the normals
-            GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, iStride, 6 * sizeof(float));
+            GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, iStride, 7 * sizeof(float));
             GL.EnableVertexAttribArray(2);
 
             // clear the context
@@ -1811,7 +1811,7 @@ namespace RaupCoilerII {
                 if (iAux == 2) { fR = 1; fG = 0; fB = 0; }
 
                 for (iAux2 = 0; iAux2 < mesh.Vertices.Count(); iAux2++) {
-                    // each face has 3 vertices + 3 colors + 3 normals
+                    // each face has 3 vertices + 3 colors + 1 transparency + 3 normals
                     // vertex coords
                     axisCoordNColors.Add((float)mesh.Vertices[iAux2].X);
                     axisCoordNColors.Add((float)mesh.Vertices[iAux2].Y);
@@ -1820,6 +1820,7 @@ namespace RaupCoilerII {
                     axisCoordNColors.Add((float)fR);
                     axisCoordNColors.Add((float)fG);
                     axisCoordNColors.Add((float)fB);
+                    axisCoordNColors.Add(1.0f);// alpha:transparency
                     // normal
                     axisCoordNColors.Add((float)mesh.Normals[iAux2].X);
                     axisCoordNColors.Add((float)mesh.Normals[iAux2].Y);
@@ -1873,18 +1874,18 @@ namespace RaupCoilerII {
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, objectEBO);
             GL.BufferData(BufferTarget.ElementArrayBuffer, axisFaceIdxs.Count * sizeof(uint), axisFaceIdxs.ToArray(), BufferUsageHint.StaticDraw);
 
-            iStride = (3 + 3 + 3) * sizeof(float); // pos (3) + color (3) + normal (3)
+            iStride = (3 + 4 + 3) * sizeof(float); // pos (3) + color (4=3+1) + normal (3)
 
             // configure the position atributes
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, iStride, 0);
             GL.EnableVertexAttribArray(0);
 
-            // configure the color atributes
-            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, iStride, 3 * sizeof(float));
+            // configure the color+transparency atributes
+            GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, iStride, 3 * sizeof(float));
             GL.EnableVertexAttribArray(1);
 
             // configure the attributes of the normals
-            GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, iStride, 6 * sizeof(float));
+            GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, iStride, 7 * sizeof(float));
             GL.EnableVertexAttribArray(2);
 
             // clear the context
