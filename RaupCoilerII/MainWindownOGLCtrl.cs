@@ -382,7 +382,7 @@ namespace RaupCoilerII {
                 lightZ = (float)Math.Sin(lightZAngle) * projectLight;
                 light_vector = new Vector3(lightX, lightY, lightZ);
 
-                Matrix4 transforMatrix;// = Matrix4.CreateScale((float)1.0f);// ShellModel.objModelScale);// * Matrix4.CreateTranslation(ShellModel.objModelTransX* ShellModel.objModelScale, ShellModel.objModelTransY*ShellModel.objModelScale, ShellModel.objModelTransZ* ShellModel.objModelScale);
+                Matrix4 transforMatrix = Matrix4.Identity; // Matrix4.CreateScale((float)ShellModel.objModelScale);// * Matrix4.CreateTranslation(ShellModel.objModelTransX* ShellModel.objModelScale, ShellModel.objModelTransY*ShellModel.objModelScale, ShellModel.objModelTransZ* ShellModel.objModelScale);
                 Matrix4 viewMatrix = Matrix4.LookAt(view_vector,Vector3.Zero,up_vector);
                 Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
 
@@ -402,9 +402,6 @@ namespace RaupCoilerII {
                 int locModel = GL.GetUniformLocation(shaderProgram, "uModel");
                 int locView = GL.GetUniformLocation(shaderProgram, "uView");
                 int locProj = GL.GetUniformLocation(shaderProgram, "uProjection");
-
-                // transforMatrix = Matrix4.CreateScale((float)objModelScale);// * Matrix4.CreateTranslation(objModelTransX, objModelTransY, objModelTransZ);
-                transforMatrix = Matrix4.CreateScale((float)1.0f);
 
                 // inicializamos el contenido de las diferentes buffers Uniform de las matrices 
                 // en los shaders con las matrices calculadas                
@@ -447,25 +444,6 @@ namespace RaupCoilerII {
                         break;
 
                 }//switch                                                             
-                
-                // render the XYZ Axis if enabled
-                if (appViewModel.Axis3D) {
-
-                    // clear the context
-                    GL.BindVertexArray(0);
-
-                    // ###### render the XYZ Axis ######
-                    GL.BindVertexArray(ZYXaxis.objectVAO);
-                    transforMatrix = Matrix4.CreateScale((float)ZYXaxis.objModelScale) * Matrix4.CreateTranslation(ZYXaxis.objModelTransX, ZYXaxis.objModelTransY, ZYXaxis.objModelTransZ);
-                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
-                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objXYZAxisAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objXYZAxisAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objXYZAxisAngleZ));
-                    GL.UniformMatrix4(locModel, false, ref transforMatrix);
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    GL.DrawElements(BeginMode.Triangles, ZYXaxis.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
-                    // clear the context
-                    GL.BindVertexArray(0);
-
-                }//if (appViewModel.Axis3D)
 
                 // render the unit cube that contains the shell model when autoscale mode is enabled
                 if (appViewModel.UnitCube) {
@@ -485,6 +463,94 @@ namespace RaupCoilerII {
                     GL.BindVertexArray(0);
 
                 }// if (appViewModel.UnitCube) {
+
+                // render the XYZ Axis if enabled
+                if (appViewModel.Axis3D) {
+
+                    // convert from degrees to radians
+                    // view spheric coordinates
+                    viewXAngle = MathHelper.DegreesToRadians((float)appViewModel.ViewThetaAzimuthAngle);
+                    viewYAngle = MathHelper.DegreesToRadians((float)appViewModel.ViewPhiZenithAngle);
+                    viewZAngle = MathHelper.DegreesToRadians((float)appViewModel.ViewThetaAzimuthAngle);
+                    viewDist = (float)appViewModel.ViewRoDistance;
+                    // light spheric coordinates
+                    lightXAngle = MathHelper.DegreesToRadians((float)appViewModel.LightThetaAzimuthAngle);
+                    lightYAngle = MathHelper.DegreesToRadians((float)appViewModel.LightPhiZenithAngle);
+                    lightZAngle = MathHelper.DegreesToRadians((float)appViewModel.LightThetaAzimuthAngle);
+                    lightDist = (float)appViewModel.LightRoDistance;
+
+                    // calculate the coordinates of the View Vector
+
+                    // invert the Up vector to avoid that the camera flips when passing 90º over the model or 270º under the model.
+                    if ((Math.Abs(viewYAngle) > (Math.PI / 2)) && (Math.Abs(viewYAngle) < (3 * (Math.PI / 2)))) {
+                        up_vector = -1 * Vector3.UnitY;
+                    } else {
+                        up_vector = Vector3.UnitY;
+                    }
+
+                    // calculate the X,Y,Z endpoint of the View Vector, the other endpoint is the 0,0,0
+                    projectView = (float)Math.Cos((float)viewYAngle) * (float)viewDist;
+                    // Endpoint X coordinate
+                    viewX = (float)Math.Cos((float)viewXAngle) * projectView;
+                    // Endpoint Y coordinate
+                    viewY = (float)viewDist * (float)Math.Sin((float)viewYAngle);
+                    // Endpoint Z coordinate
+                    viewZ = (float)Math.Sin(viewZAngle) * projectView;
+                    view_vector = new Vector3(viewX, viewY, viewZ);
+
+                    // calculate the X,Y,Z endpoint of the Light Vector, the other endpoint is the 0,0,0
+                    projectLight = (float)Math.Cos((float)lightYAngle) * (float)lightDist;
+                    // Endpoint X coordinate
+                    lightX = (float)Math.Cos((float)lightXAngle) * projectLight;
+                    // Endpoint Y coordinate
+                    lightY = (float)lightDist * (float)Math.Sin((float)lightYAngle);
+                    // Endpoint Z coordinate
+                    lightZ = (float)Math.Sin(lightZAngle) * projectLight;
+                    light_vector = new Vector3(lightX, lightY, lightZ);
+
+                    transforMatrix = Matrix4.Identity; // Matrix4.CreateScale((float)ShellModel.objModelScale);// * Matrix4.CreateTranslation(ShellModel.objModelTransX* ShellModel.objModelScale, ShellModel.objModelTransY*ShellModel.objModelScale, ShellModel.objModelTransZ* ShellModel.objModelScale);
+                    viewMatrix = Matrix4.LookAt(view_vector, Vector3.Zero, up_vector);
+                    projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
+
+                    // get the camera/view Righ Up and Forward axis in orde to use it on model rotations
+                    invView = Matrix4.Invert(viewMatrix);
+                    ShellModel.cameraRightVector = new Vector3(invView.M11, invView.M12, invView.M13);
+                    ShellModel.cameraUpVector = new Vector3(invView.M21, invView.M22, invView.M23);
+                    ShellModel.cameraForward = new Vector3(invView.M31, invView.M32, invView.M33);
+                    // normalize the vectors
+                    ShellModel.cameraForward.Normalize();
+                    ShellModel.cameraRightVector.Normalize();
+                    ShellModel.cameraUpVector.Normalize();
+
+                    // cameraForwared is negative becuase camera looks to -Z
+                    ShellModel.cameraForward = -ShellModel.cameraForward;                    // en los shaders con las matrices calculadas                
+                    GL.UniformMatrix4(locModel, false, ref transforMatrix);
+                    GL.UniformMatrix4(locView, false, ref viewMatrix);
+                    GL.UniformMatrix4(locProj, false, ref projectionMatrix);
+
+                    GL.Uniform3(GL.GetUniformLocation(shaderProgram, "lightPos"), light_vector);
+                    GL.Uniform3(GL.GetUniformLocation(shaderProgram, "lightColor"), Vector3.One);
+                    GL.Uniform3(GL.GetUniformLocation(shaderProgram, "viewPos"), view_vector);
+
+                    GL.Uniform1(GL.GetUniformLocation(shaderProgram, "ambientStrength"), 0.2);// miViewModel.ambient);
+                    GL.Uniform1(GL.GetUniformLocation(shaderProgram, "specularStrength"), 0.5);// miViewModel.difuse);
+                    GL.Uniform1(GL.GetUniformLocation(shaderProgram, "shininess"), 32);// miViewModel.shine);
+
+                    // clear the context
+                    GL.BindVertexArray(0);
+
+                    // ###### render the XYZ Axis ######
+                    GL.BindVertexArray(ZYXaxis.objectVAO);
+                    transforMatrix = Matrix4.CreateScale((float)ZYXaxis.objModelScale) * Matrix4.CreateTranslation(ZYXaxis.objModelTransX, ZYXaxis.objModelTransY, ZYXaxis.objModelTransZ);
+                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
+                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objXYZAxisAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objXYZAxisAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objXYZAxisAngleZ));
+                    GL.UniformMatrix4(locModel, false, ref transforMatrix);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    GL.DrawElements(BeginMode.Triangles, ZYXaxis.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                    // clear the context
+                    GL.BindVertexArray(0);
+
+                }//if (appViewModel.Axis3D)
 
             }// if (appViewModel.bRequireToReRender)
 

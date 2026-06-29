@@ -42,9 +42,9 @@ namespace RaupCoilerII {
         public double SparamMax { get; } = 5;
         public double SparamMin { get; }  = 0;
 
-        public int RevolutionsMax { get; } = 36;
-        public int RevolutionsMin { get; } = 2;
-        public int ResolutionMax { get; } = 144;
+        public int RevolutionsMax { get; } = 10;
+        public int RevolutionsMin { get; } = 1;
+        public int ResolutionMax { get; } = 180;
         public int ResolutionMin { get; } = 3;
         public int RingsRevMax { get; } = 360;
         public int RingsRevMin { get; } = 1;
@@ -730,7 +730,7 @@ namespace RaupCoilerII {
             Revolutions = 10;
             Resolution = 36;
             RingsRev = 36;
-            IniRadius = 0.01;
+            IniRadius = 0.0001;
 
             XOrientation = 0;
             YOrientation = 0;

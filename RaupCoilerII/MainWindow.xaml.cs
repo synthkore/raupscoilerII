@@ -21,11 +21,14 @@ using System.Windows.Shapes;
 
 
 /* JBR notas
-   Meter transparencia de la concha
    Botón de reset o desplegable con parámetros por defeto
    Situar siempre y con la misma escala el eje de coordenadas en una esquina
    Seleccionar proyecccion en perspectiva o isométrica.
-*/
+   Mostrar plano horizontal para ver como se desplaza en Y (T)
+ 
+Hecho:
+   Meter transparencia de la concha
+ */
 
 /*******************************************************************************
 * @note All the applicatoin 3D objects are implemented using the "object3D" class. The
