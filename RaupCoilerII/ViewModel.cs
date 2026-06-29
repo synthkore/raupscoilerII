@@ -307,6 +307,19 @@ namespace RaupCoilerII {
             }//set
         }//Autoscale
 
+        // UnitCube flag to enable or disable showing the unitary cube that should contain teh shell model when autoscale mode is enabled
+        bool bUnitCube;
+        public bool UnitCube {
+            get { return bUnitCube; }
+            set {
+                if (bUnitCube != value) {
+                    bUnitCube = value;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("UnitCube");
+                }//if
+            }//set
+        }//UnitCube
+
         // Mesh parameters
 
         // Shell initial radius value
@@ -717,7 +730,7 @@ namespace RaupCoilerII {
             Revolutions = 10;
             Resolution = 36;
             RingsRev = 36;
-            IniRadius = 0.1;
+            IniRadius = 0.01;
 
             XOrientation = 0;
             YOrientation = 0;

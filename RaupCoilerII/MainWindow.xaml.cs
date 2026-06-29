@@ -24,6 +24,7 @@ using System.Windows.Shapes;
    Meter transparencia de la concha
    Botón de reset o desplegable con parámetros por defeto
    Situar siempre y con la misma escala el eje de coordenadas en una esquina
+   Seleccionar proyecccion en perspectiva o isométrica.
 */
 
 /*******************************************************************************
@@ -167,6 +168,10 @@ namespace RaupCoilerII {
             ShellModel = new cShellModel(appViewModel);
             ShellModel.InitializeGeometry();
             ShellModel.TransformUpdateVAO();
+
+            UnitContainerCube = new cUnityCube(appViewModel);
+            UnitContainerCube.InitializeGeometry();
+            UnitContainerCube.TransformUpdateVAO();
 
             // force "international" culture
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("EN-US");

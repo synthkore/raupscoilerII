@@ -164,7 +164,7 @@
                                 <RowDefinition Height="450"/>
                             </Grid.RowDefinitions>
                             <!-- Column 1 Row 0:Drawing options -->
-                            <GroupBox Header="Drawing" Grid.Row="0" Margin="2,2,2,151" BorderBrush="Black" BorderThickness="1">
+                            <GroupBox Header="Drawing" Grid.Row="0" Margin="2,2,2,136" BorderBrush="Black" BorderThickness="1">
                                 <StackPanel>
                                     <!-- BEGIN GroupBox: Shell mesh geometry options -->
                                     <GroupBox Header="Geometry" Margin="2,0,2,0" BorderBrush="Black" BorderThickness="1" Height="178" Width="220">
@@ -183,6 +183,7 @@
                                     <CheckBox Content="Model axis" IsChecked="{Binding Axis}" Margin="8,2,4,4"/>
                                     <CheckBox Content="3D Axis" IsChecked="{Binding Axis3D}" Margin="8,2,4,4"/>
                                     <CheckBox Content="Autoscale" IsChecked="{Binding Autoscale}" Margin="8,2,4,4" />
+                                    <CheckBox Content="UnitCube" IsChecked="{Binding UnitCube}" Margin="8,2,4,4" />
                                     <!-- END CheckBoxes Spiral, Axis, AUtoscale -->
                                 </StackPanel>
                             </GroupBox>

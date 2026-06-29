@@ -42,6 +42,7 @@ namespace RaupCoilerII {
 
         cZYXaxis ZYXaxis;
         cShellModel ShellModel;
+        cUnityCube UnitContainerCube;
 
         // view coordinates
         private float viewXAngle = 0f;
@@ -381,7 +382,7 @@ namespace RaupCoilerII {
                 lightZ = (float)Math.Sin(lightZAngle) * projectLight;
                 light_vector = new Vector3(lightX, lightY, lightZ);
 
-                Matrix4 transforMatrix;
+                Matrix4 transforMatrix;// = Matrix4.CreateScale((float)1.0f);// ShellModel.objModelScale);// * Matrix4.CreateTranslation(ShellModel.objModelTransX* ShellModel.objModelScale, ShellModel.objModelTransY*ShellModel.objModelScale, ShellModel.objModelTransZ* ShellModel.objModelScale);
                 Matrix4 viewMatrix = Matrix4.LookAt(view_vector,Vector3.Zero,up_vector);
                 Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
 
@@ -402,25 +403,11 @@ namespace RaupCoilerII {
                 int locView = GL.GetUniformLocation(shaderProgram, "uView");
                 int locProj = GL.GetUniformLocation(shaderProgram, "uProjection");
 
-                // transforMatrix = Matrix4.CreateScale((float)objModelScale) * Matrix4.CreateTranslation(objModelTransX, objModelTransY, objModelTransZ);
-                // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objModelAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objModelAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objModelAngleZ));
-
-                // INICIO
-
-                // OpenTK.Mathematics.Quaternion rotationQuatern = OpenTK.Mathematics.Quaternion.Identity;
-                // rotationQuatern *= OpenTK.Mathematics.Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(objModelAngleX));
-                // rotationQuatern *= OpenTK.Mathematics.Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(objModelAngleY));
-                // rotationQuatern *= OpenTK.Mathematics.Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(objModelAngleZ));
-                // convert the quaterinon to a matrix
-                // Matrix4 rotation = Matrix4.CreateFromQuaternion(rotationQuatern);
-
                 // transforMatrix = Matrix4.CreateScale((float)objModelScale);// * Matrix4.CreateTranslation(objModelTransX, objModelTransY, objModelTransZ);
-                transforMatrix = Matrix4.CreateScale((float)ShellModel.objModelScale);
-
-                // FIN
+                transforMatrix = Matrix4.CreateScale((float)1.0f);
 
                 // inicializamos el contenido de las diferentes buffers Uniform de las matrices 
-                // en los shaders con las matrices calculadas
+                // en los shaders con las matrices calculadas                
                 GL.UniformMatrix4(locModel, false, ref transforMatrix);
                 GL.UniformMatrix4(locView, false, ref viewMatrix);
                 GL.UniformMatrix4(locProj, false, ref projectionMatrix);
@@ -461,11 +448,11 @@ namespace RaupCoilerII {
 
                 }//switch                                                             
                 
-                // clear the context
-                GL.BindVertexArray(0);
-
                 // render the XYZ Axis if enabled
                 if (appViewModel.Axis3D) {
+
+                    // clear the context
+                    GL.BindVertexArray(0);
 
                     // ###### render the XYZ Axis ######
                     GL.BindVertexArray(ZYXaxis.objectVAO);
@@ -479,6 +466,25 @@ namespace RaupCoilerII {
                     GL.BindVertexArray(0);
 
                 }//if (appViewModel.Axis3D)
+
+                // render the unit cube that contains the shell model when autoscale mode is enabled
+                if (appViewModel.UnitCube) {
+
+                    // clear the context
+                    GL.BindVertexArray(0);
+
+                    // render the -1,1,-1,1 containing cube
+                    GL.BindVertexArray(UnitContainerCube.objectVAO);
+                    transforMatrix = Matrix4.CreateScale((float)UnitContainerCube.objModelScale) * Matrix4.CreateTranslation(UnitContainerCube.objModelTransX, UnitContainerCube.objModelTransY, UnitContainerCube.objModelTransZ);
+                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
+                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objXYZAxisAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objXYZAxisAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objXYZAxisAngleZ));
+                    GL.UniformMatrix4(locModel, false, ref transforMatrix);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    GL.DrawElements(BeginMode.Triangles, UnitContainerCube.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                    // clear the context
+                    GL.BindVertexArray(0);
+
+                }// if (appViewModel.UnitCube) {
 
             }// if (appViewModel.bRequireToReRender)
 
