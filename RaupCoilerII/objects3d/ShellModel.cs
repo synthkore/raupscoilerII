@@ -369,7 +369,7 @@ float flBigestRange = 0;
             dThetaRad = 0;
             for (iRing = 0; iRing < iTotalNumberOfRings; iRing++) {
 
-                // caluclate the W^(𝜃/2π) for the current Theta value
+                // calculate the W^(𝜃/2π) for the current Theta value
                 dAux = (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
 
                 // scale the current "dThetaRad" ring: calculate all the vertices of the current ring of the shell
@@ -382,9 +382,9 @@ float flBigestRange = 0;
 
 				    // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
 				    // converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
-				    fXAux = (float)((dXAux * Math.Cos(dThetaRad)) + (dZAux * Math.Sin(dThetaRad)));
+				    fXAux = (float)((dXAux * Math.Cos(-dThetaRad)) + (dZAux * Math.Sin(-dThetaRad)));
 				    fYAux = (float)dYAux;
-				    fZAux = (float)(-(dXAux * Math.Sin(dThetaRad)) + (dZAux * Math.Cos(dThetaRad)));
+				    fZAux = (float)(-(dXAux * Math.Sin(-dThetaRad)) + (dZAux * Math.Cos(-dThetaRad)));
 
 // JBR 2026-06-28 BORRA PUESTO PARA PRUEBA
 if (fXAux>flMaxX) {
