@@ -269,15 +269,15 @@ namespace RaupCoilerII {
                 objModelScale = 2 / flBigestRange;
 
                 // JBR 2026-06-28 INICIO Puesto para depurar escalado
-                Debug.Write("* AutoScale:\r\n");
-                Debug.Write("# Last theta:" + dThetaRad.ToString() + " Deg:" + ((dThetaRad / (2 * Math.PI)) * 360) + "\r\n");
-                Debug.Write("# Rc:" + dRc.ToString() + "\r\n");
-                Debug.Write("* Max X:" + flBigMaxX.ToString() + " Y:" + flBigMaxY.ToString() + " Z:" + flBigMaxZ.ToString() + "\r\n");
-                Debug.Write("* Min X:" + flBigMinX.ToString() + " Y:" + flBigMinY.ToString() + " Z:" + flBigMinZ.ToString() + "\r\n");
-                Debug.Write("* Range X:" + flBigXRange.ToString() + "\r\n");
-                Debug.Write("* Range Y:" + flBigYRange.ToString() + "\r\n");
-                Debug.Write("* Range Z:" + flBigZRange.ToString() + "\r\n");
-                Debug.Write("* Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
+                // Debug.Write("* AutoScale:\r\n");
+                // Debug.Write("# Last theta:" + dThetaRad.ToString() + " Deg:" + ((dThetaRad / (2 * Math.PI)) * 360) + "\r\n");
+                // Debug.Write("# Rc:" + dRc.ToString() + "\r\n");
+                // Debug.Write("* Max X:" + flBigMaxX.ToString() + " Y:" + flBigMaxY.ToString() + " Z:" + flBigMaxZ.ToString() + "\r\n");
+                // Debug.Write("* Min X:" + flBigMinX.ToString() + " Y:" + flBigMinY.ToString() + " Z:" + flBigMinZ.ToString() + "\r\n");
+                // Debug.Write("* Range X:" + flBigXRange.ToString() + "\r\n");
+                // Debug.Write("* Range Y:" + flBigYRange.ToString() + "\r\n");
+                // Debug.Write("* Range Z:" + flBigZRange.ToString() + "\r\n");
+                // Debug.Write("* Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
                 // FIN JBR 2026-06-28 INICIO Puesto para depurar escalado
 
             }//if
@@ -343,16 +343,16 @@ namespace RaupCoilerII {
             double dAux = 0;
 
 // JBR 2026-06-28 BORRA para pruebas
-float flMaxX = -1000000;
-float flMinX = 1000000;
-float flMaxY = -1000000;
-float flMinY = 1000000;
-float flMaxZ = -1000000;
-float flMinZ = 1000000;
-float flRangeX = 0;
-float flRangeY = 0;
-float flRangeZ = 0;
-float flBigestRange = 0;
+// float flMaxX = -1000000;
+// float flMinX = 1000000;
+// float flMaxY = -1000000;
+// float flMinY = 1000000;
+// float flMaxZ = -1000000;
+// float flMinZ = 1000000;
+// float flRangeX = 0;
+// float flRangeY = 0;
+// float flRangeZ = 0;
+// float flBigestRange = 0;
 // FIN JBR 2026-06-28 BORRA para pruebas
 
             // calculate some parameters that will be used to generate the shell 3D model
@@ -387,24 +387,24 @@ float flBigestRange = 0;
 				    fZAux = (float)(-(dXAux * Math.Sin(-dThetaRad)) + (dZAux * Math.Cos(-dThetaRad)));
 
 // JBR 2026-06-28 BORRA PUESTO PARA PRUEBA
-if (fXAux>flMaxX) {
-    flMaxX = fXAux;
-}
-if (fXAux < flMinX) {
-    flMinX = fXAux;
-}
-if (fYAux>flMaxY) {
-    flMaxY = fYAux;
-}
-if (fYAux < flMinY) {
-    flMinY = fYAux;
-}
-if (fZAux > flMaxZ) {
-    flMaxZ = fZAux;
-}
-if (fZAux < flMinZ) {
-    flMinZ = fZAux;
-}
+// if (fXAux>flMaxX) {
+//     flMaxX = fXAux;
+// }
+// if (fXAux < flMinX) {
+//     flMinX = fXAux;
+// }
+// if (fYAux>flMaxY) {
+//     flMaxY = fYAux;
+// }
+// if (fYAux < flMinY) {
+//     flMinY = fYAux;
+// }
+// if (fZAux > flMaxZ) {
+//     flMaxZ = fZAux;
+// }
+// if (fZAux < flMinZ) {
+//     flMinZ = fZAux;
+// }
 // FIN JBR 2026-06-28 BORRA PUESTO PARA PRUEBA
 
                     // apply the previously calculated scale factor
@@ -430,27 +430,27 @@ if (fZAux < flMinZ) {
             iOuterShellLastVertexIdx = model_mesh.Vertices.Count() - 1;
             
 // JBR 2026-06-28 BORRA PUESTO PARA PRUEBA
-flRangeX = flMaxX - flMinX;
-flRangeY = flMaxY - flMinY;
-flRangeZ = flMaxZ - flMinZ;
-
-flBigestRange = flRangeX;
-if (flRangeY > flBigestRange) {
-    flBigestRange = flRangeY;
-}
-if (flRangeZ > flBigestRange) {
-    flBigestRange = flRangeZ;
-}
-
-Debug.Write("# Generate:\r\n");
-Debug.Write("# Last theta:" + dThetaRad.ToString() + " Deg:" + ((dThetaRad/(2*Math.PI))*360) + "\r\n");
-Debug.Write("# Rc:" + dRc.ToString() + "\r\n");
-Debug.Write("# Max X:" + flMaxX.ToString() + " Y:" + flMaxY.ToString() + " Z:" + flMaxZ.ToString() + "\r\n");
-Debug.Write("# Min X:" + flMinX.ToString() + " Y:" + flMinY.ToString() + " Z:" + flMinZ.ToString() + "\r\n");
-Debug.Write("# Range X:" + flRangeX.ToString() + "\r\n");
-Debug.Write("# Range Y:" + flRangeY.ToString() + "\r\n");
-Debug.Write("# Range Z:" + flRangeZ.ToString() + "\r\n");
-Debug.Write("# Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
+// flRangeX = flMaxX - flMinX;
+// flRangeY = flMaxY - flMinY;
+// flRangeZ = flMaxZ - flMinZ;
+// 
+// flBigestRange = flRangeX;
+// if (flRangeY > flBigestRange) {
+//     flBigestRange = flRangeY;
+// }
+// if (flRangeZ > flBigestRange) {
+//     flBigestRange = flRangeZ;
+// }
+// 
+// Debug.Write("# Generate:\r\n");
+// Debug.Write("# Last theta:" + dThetaRad.ToString() + " Deg:" + ((dThetaRad/(2*Math.PI))*360) + "\r\n");
+// Debug.Write("# Rc:" + dRc.ToString() + "\r\n");
+// Debug.Write("# Max X:" + flMaxX.ToString() + " Y:" + flMaxY.ToString() + " Z:" + flMaxZ.ToString() + "\r\n");
+// Debug.Write("# Min X:" + flMinX.ToString() + " Y:" + flMinY.ToString() + " Z:" + flMinZ.ToString() + "\r\n");
+// Debug.Write("# Range X:" + flRangeX.ToString() + "\r\n");
+// Debug.Write("# Range Y:" + flRangeY.ToString() + "\r\n");
+// Debug.Write("# Range Z:" + flRangeZ.ToString() + "\r\n");
+// Debug.Write("# Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
 // FIN JBR 2026-06-28 BORRA PUESTO PARA PRUEBA
 
         }//GenerateOuterShellVertexs
@@ -462,48 +462,69 @@ Debug.Write("# Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
         * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
         *******************************************************************************/
         public void GenerateInnerShellVertexs(ref Mesh model_mesh) {
-            Assimp.Vector3D vectorAux1;
-            float fAngle = 0;
-            float fAngleRads = 0;
-            float fAngleDelta = 0;
-            float fXAux, fYAux, fZAux;
-            float fRadius = 0;
             int iRing = 0;
             int iVertexIndex = 0;
-            int iVertexsPerRing = 0;
-            int iNumberOfRings = 0;
+            int iVerticesPerGenCurve = 0; // the number of vertices on each shell ring
+            int iTotalNumberOfRings = 0; // the total number of rings in the shell model
+            double dAngleRingsRad = 0; // angle between each successive ring/generating curve, in radians
+            double dThetaRad = 0;// theta angle used to generate the complete shell model, in radians
+            double dRc = 0;
+            // auxiliar variables
+            Assimp.Vector3D vectorAux1;
+            float fXAux, fYAux, fZAux;
+            double dXAux, dYAux, dZAux;
+            double dAux = 0;
+            double dThicknessFactor = 1.0d;
 
-            iVertexsPerRing = refAppViewModel.Resolution;
-            iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
+            // calculate some parameters that will be used to generate the shell 3D model
+            iTotalNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev; // rings in the complete model: is the number of rings per revolution multiplied by the number of revolutions
+            dAngleRingsRad = ((double)refAppViewModel.Revolutions * (2.0d * (double)Math.PI)) / (double)iTotalNumberOfRings;
+            iVerticesPerGenCurve = li2DVertexsGenCurve.Count();
+            dThicknessFactor = (double)((100.0d - refAppViewModel.ShellWidthPercent) / 100.0d);
 
             // keep the index of the shell inner mesh first stored vertex
             iInnerShellFirstVertexIdx = model_mesh.Vertices.Count();
 
-            fAngleDelta = 360f / (float)iVertexsPerRing;
+            // calculate the Rc value according to the confiugred D and fRadius parameter
+            dRc = (double)refAppViewModel.IniRadius * (1.0d + (double)refAppViewModel.Dparam) / (1.0d - (double)refAppViewModel.Dparam);
 
-            fZAux = 0;
-            fRadius = 0.45f;
-            for (iRing = 0; iRing < iNumberOfRings; iRing++) {
+            dThetaRad = 0;
+            for (iRing = 0; iRing < iTotalNumberOfRings; iRing++) {
 
-                // first initialize all the vertices
-                fRadius = fRadius + 0.1f;
-                fAngle = 0;
-                for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+                // calculate the W^(𝜃/2π) for the current Theta value
+                dAux = (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
 
-                    fAngleRads = MathHelper.DegreesToRadians((float)fAngle);
+                // scale the current "dThetaRad" ring: calculate all the vertices of the current ring of the shell
+                for (iVertexIndex = 0; iVertexIndex < iVerticesPerGenCurve; iVertexIndex++) {
 
-                    fXAux = (float)Math.Cos((double)fAngleRads) * fRadius;
-                    fYAux = (float)Math.Sin((double)fAngleRads) * fRadius;
+                    // apply the "Raup & Michelson" model parameters on the generating curve. In order to achive 
+                    // the desired shell thickness we apply the configured thickness percentage over the generating curve.
+                    dXAux = ((double)li2DVertexsGenCurve[iVertexIndex].X* dThicknessFactor + dRc) * dAux;
+                    dYAux = ((double)li2DVertexsGenCurve[iVertexIndex].Y * dThicknessFactor * dAux) - (dRc * (double)refAppViewModel.Tparam * (dAux - 1.0d));
+                    dZAux = 0;
 
+                    // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
+                    // converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
+                    fXAux = (float)((dXAux * Math.Cos(-dThetaRad)) + (dZAux * Math.Sin(-dThetaRad)));
+                    fYAux = (float)dYAux;
+                    fZAux = (float)(-(dXAux * Math.Sin(-dThetaRad)) + (dZAux * Math.Cos(-dThetaRad)));
+
+                    // apply the previously calculated scale factor
+                    fXAux = fXAux * objModelScale;
+                    fYAux = fYAux * objModelScale;
+                    fZAux = fZAux * objModelScale;
+
+                    // store the calculated vertex coordinates into the mesh structure
                     vectorAux1 = new Assimp.Vector3D(fXAux, fYAux, fZAux);
-
                     model_mesh.Vertices.Add(vectorAux1);
-
-                    fAngle = fAngle + fAngleDelta;
 
                 }//for
 
-                fZAux = fZAux + 0.15f;
+                // increase the Theta angle of the following shell model ring
+                dThetaRad = dThetaRad + dAngleRingsRad;
+
+                // apply the W param on the next ring radius
+                // fCurrRingRadius = fCurrRingRadius * flWRing;
 
             }//for (iRings=0;
 
@@ -631,7 +652,7 @@ Debug.Write("# Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
 
             for (iRing = 0; iRing < (iNumberOfRings - 1); iRing++) {
 
-                iAux = iOuterShellFirstVertexIdx + iRing * iVertexsPerRing;
+                iAux = iOuterShellFirstVertexIdx + iRing * iVertexsPerRing;// index of the first vertex of the current processed ring
 
                 // calculate all the normals of vertexs of the ring
                 for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
@@ -739,7 +760,7 @@ Debug.Write("# Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
 
             for (iRing = 0; iRing < (iNumberOfRings - 1); iRing++) {
 
-                iAux = iInnerShellFirstVertexIdx + iRing * iVertexsPerRing;
+                iAux = iInnerShellFirstVertexIdx + iRing * iVertexsPerRing;// index of the first vertex of the current processed ring
 
                 // calculate all the normals of vertexs of the ring
                 for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
@@ -762,7 +783,7 @@ Debug.Write("# Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
 
                     vectorEdge1 = vertexAux1 - vertexAux2;
 
-                    // get the vector that joins the current vertex with the equivalente vertex in the next face
+                    // get the vector that joins the current vertex with the equivalent vertex in the next face
                     vertexAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing];
 
                     vectorEdge2 = vertexAux1 - vertexAux2;
@@ -1187,17 +1208,16 @@ Debug.Write("# Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
 
                     // face 1 
                     faceAux = new Face();
-                    faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  
                     faceAux.Indices.Add(iAux + iVertexIndex + 1); // v 1
-                    faceAux.Indices.Add(iAux + iVertexIndex); // v 0 <= "provoking index" ( despite idx 0 and idx 2 are not the same index, they have the same normal, so the color of the faces is properly shown )
-
+                    faceAux.Indices.Add(iAux + iVertexIndex); // v 0                   
+                    faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
                     model_mesh.Faces.Add(faceAux);
 
                     // face 2 
                     faceAux = new Face();
-                    faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3 
-                    faceAux.Indices.Add(iAux + iVertexIndex); // v 0
-                    faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing); // v 2  <= "provoking index" ( despite idx 0 and idx 2 are not the same index, they have the same normal, so the color of the faces is properly shown )
+                    faceAux.Indices.Add(iAux + iVertexIndex); // v 0 
+                    faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing); // v 2                                       
+                    faceAux.Indices.Add(iAux + iVertexIndex + 1 + iVertexsPerRing); // v 3  <= "provoking index"
 
                     model_mesh.Faces.Add(faceAux);
 
@@ -1223,16 +1243,16 @@ Debug.Write("# Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
 
                 // last face 1 of the ring
                 faceAux = new Face();
-                faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3
                 faceAux.Indices.Add(iAux);// v 1
-                faceAux.Indices.Add(iAux + iVertexIndex);// v 0 <= "provoking index" ( despite idx 0 and idx 2 are not the same index, they have the same normal, so the color of the faces is properly shown )
+                faceAux.Indices.Add(iAux + iVertexIndex);// v 0 
+                faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3 <= "provoking index" ( despite idx 0 and idx 2 are not the same index, they have the same normal, so the color of the faces is properly shown )
                 model_mesh.Faces.Add(faceAux);
 
                 // last face 2 of the ring
                 faceAux = new Face();
-                faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3 
                 faceAux.Indices.Add(iAux + iVertexIndex);// v 0
-                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing);// v 2  <= "provoking index" ( despite idx 0 and idx 2 are not the same index, they have the same normal, so the color of the faces is properly shown )
+                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing);// v 2 
+                faceAux.Indices.Add(iAux + iVertexsPerRing);// v 3  <= "provoking index" ( despite idx 0 and idx 2 are not the same index, they have the same normal, so the color of the faces is properly shown )
                 model_mesh.Faces.Add(faceAux);
 
             }//for (iRing = 0; iRing < iNumberOfRings; iRing++) {
@@ -1411,21 +1431,21 @@ Debug.Write("# Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
 
             // generate the vertexs and add them to the geometry
             GenerateOuterShellVertexs(ref model_mesh);
-            // GenerateInnerShellVertexs(ref model_mesh);
-            // GenerateShellBeginCoverVertexs(ref model_mesh);
-            // GenerateShellEndCoverVertexs(ref model_mesh);
+            GenerateInnerShellVertexs(ref model_mesh);
+            GenerateShellBeginCoverVertexs(ref model_mesh);
+            GenerateShellEndCoverVertexs(ref model_mesh);
 
             // generate the normals and add them to the geometry
             GenerateOuterShellNormals(ref model_mesh);
-            // GenerateInnerShellNormals(ref model_mesh);
-            // GenerateShellBeginCoverNormals(ref model_mesh);
-            // GenerateShellEndCoverNormals(ref model_mesh);
+            GenerateInnerShellNormals(ref model_mesh);
+            GenerateShellBeginCoverNormals(ref model_mesh);
+            GenerateShellEndCoverNormals(ref model_mesh);
 
             // generate the faces combining their vertex indexs
             GenerateOuterShellFaces(ref model_mesh);
-            // GenerateInnerShellFaces(ref model_mesh);
-            // GenerateShellBeginCoverFaces(ref model_mesh);
-            // GenerateShellEndCoverFaces(ref model_mesh);
+            GenerateInnerShellFaces(ref model_mesh);
+            GenerateShellBeginCoverFaces(ref model_mesh);
+            GenerateShellEndCoverFaces(ref model_mesh);
 
         }//GenerateShellModel
 

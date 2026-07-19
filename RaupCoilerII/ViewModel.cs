@@ -410,6 +410,28 @@ namespace RaupCoilerII {
             }//set
         }// Resolution
 
+        // The with of the shell in percentaje of the radius
+        int iShellWidthPercent;
+        public int ShellWidthPercent {
+            get { return iShellWidthPercent; }
+            set {
+                if (iShellWidthPercent != value) {
+                    // check that received value is in range
+                    if (value > 100) {
+                        iShellWidthPercent = 100;
+                    } else if (value < 1) {
+                        iShellWidthPercent = 1;
+                    } else {
+                        iShellWidthPercent = value;
+                    }
+                    bRequireToRegenerate = true;
+                    // bRequireToTransform = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("ShellWidthPercent");
+                }
+            }//set
+        }// ShellWidthPercent
+
         // Axis flag
         bool bAxis3D;
         public bool Axis3D {
@@ -730,6 +752,7 @@ namespace RaupCoilerII {
             Revolutions = 10;
             Resolution = 36;
             RingsRev = 36;
+            ShellWidthPercent = 5;
             IniRadius = 0.0001;
 
             XOrientation = 0;
