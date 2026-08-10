@@ -19,11 +19,6 @@ namespace RaupCoilerII {
     *******************************************************************************/
     public class cShellModel : object3D {
 
-        // the three vectors defined by the view vector
-        public Vector3 cameraRightVector; // the Right Vector of the camera 
-        public Vector3 cameraUpVector;// the Up Vector of the camera 
-        public Vector3 cameraForward;
-
         // outer shell mesh indexes
         public int iOuterShellFirstVertexIdx;
         public int iOuterShellFirstNormalIdx;
@@ -64,9 +59,6 @@ namespace RaupCoilerII {
         public cShellModel(ViewModel _refViewModel) {
 
             refAppViewModel = _refViewModel;
-            cameraRightVector = new Vector3();
-            cameraUpVector = new Vector3();
-            cameraForward = new Vector3();
 
             iOuterShellFirstVertexIdx = 0;
             iOuterShellFirstNormalIdx = 0;
