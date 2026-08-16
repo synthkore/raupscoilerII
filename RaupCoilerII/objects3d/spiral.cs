@@ -34,7 +34,7 @@ namespace RaupCoilerII {
         * @brief generates all the vertexs of the shell model spiral
         * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
         *******************************************************************************/
-        private void GenerateSpiral(ref Mesh model_mesh) {
+        private void GenerateSpiral(ref Mesh spiral_mesh) {
             int iRing = 0;
             int iVertexIndex = 0;
             int iTotalNumberOfRings = 0; // the total number of rings in the shell model
@@ -82,7 +82,7 @@ namespace RaupCoilerII {
 
                     // store the calculated vertex coordinates into the mesh structure
                     vectorAux1 = new Assimp.Vector3D(fXAux, fYAux, fZAux);
-                    model_mesh.Vertices.Add(vectorAux1);
+                    spiral_mesh.Vertices.Add(vectorAux1);
 
                 // }//for
 
@@ -125,11 +125,9 @@ namespace RaupCoilerII {
         *******************************************************************************/
         public void TransformUpdateVAO() {
             int iStride = 0;
-            float fR = 0, fG = 0, fB = 0;
             List<float> liCoordNColors = null;
             List<uint> liFaceIdxs = null;
             Mesh mesh;
-            int iAux = 0;
             int iAux2 = 0;
 
 
@@ -154,9 +152,9 @@ namespace RaupCoilerII {
                 liCoordNColors.Add((float)0.0f);
                 liCoordNColors.Add(0.3f);// alpha:transparency
                 // normal
-                liCoordNColors.Add((float)mesh.Normals[iAux2].X);
-                liCoordNColors.Add((float)mesh.Normals[iAux2].Y);
-                liCoordNColors.Add((float)mesh.Normals[iAux2].Z);
+                liCoordNColors.Add((float)1.0f);// mesh.Normals[iAux2].X);
+                liCoordNColors.Add((float)1.0f);//mesh.Normals[iAux2].Y);
+                liCoordNColors.Add((float)1.0f);//mesh.Normals[iAux2].Z);
             }//for
 
             iVerticesCter = mesh.Vertices.Count();
@@ -182,7 +180,7 @@ namespace RaupCoilerII {
 
             iFacesCter = mesh.Faces.Count();
 
-            // #### initalize the Cube VAO (VBO and EBO)  with the attributes, vertices and faces in the lists
+            // #### initalize the Spiral VAO (VBO and EBO)  with the attributes, vertices and faces in the lists
 
             objectVAO = GL.GenVertexArray();
             objectVBO = GL.GenBuffer();
@@ -218,7 +216,7 @@ namespace RaupCoilerII {
 
         }//TransformUpdateVAO
 
-    }//cUnityCube
+    }//cSpiral
 
 }//}//namespace RaupCoilerII
 

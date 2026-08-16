@@ -285,6 +285,8 @@ namespace RaupCoilerII {
 
                 // regenerate the shell model geometry
                 ShellModel.InitializeGeometry();
+                Spiral.objModelScale = ShellModel.objModelScale;
+                Spiral.InitializeGeometry();
 
             }//if
 
@@ -295,6 +297,7 @@ namespace RaupCoilerII {
 
                 // apply the current transformations to the original shell geometry
                 ShellModel.TransformUpdateVAO();
+                Spiral.TransformUpdateVAO();
 
             }//if
 
@@ -424,8 +427,11 @@ namespace RaupCoilerII {
                     // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
                     // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objXYZAxisAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objXYZAxisAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objXYZAxisAngleZ));
                     GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModel"), false, ref transforMatrix);
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    GL.DrawElements(BeginMode.Triangles, UnitContainerCube.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                    // GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    // GL.DrawElements(BeginMode.Triangles, UnitContainerCube.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+
+                    GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.LineStrip,0,Spiral.iVerticesCter);
+
                     // clear the context
                     GL.BindVertexArray(0);
 
