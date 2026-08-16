@@ -100,7 +100,7 @@ namespace RaupCoilerII {
         * @note the shell generation curve should have been configured previsously calling
         * that mehtod because it is used here.
         *******************************************************************************/
-        public void CalculateAutoScaleFactors() {
+        private void CalculateAutoScaleFactors() {
             Assimp.Vector3D vectorAux1;
             List<Assimp.Vector3D> liAuxVec3DSmall = null; // vertices of the smallest coil turn
             List<Assimp.Vector3D> liAuxVec3DBig = null; // vertices of the largest coil turn
@@ -281,7 +281,7 @@ namespace RaupCoilerII {
         * used to generate the shell 3D model. The generating curve/ring is initialized
         * according to the configured parameters.
         *******************************************************************************/
-        public void GetGeneratingCurveVertices() {
+        private void GetGeneratingCurveVertices() {
             Assimp.Vector2D vector2DAux1;
             float fCurrRingVertexAngleRad = 0;
             float fXAux, fYAux, fZAux;
@@ -320,7 +320,7 @@ namespace RaupCoilerII {
         * 
         * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
         *******************************************************************************/
-        public void GenerateOuterShellVertexs(ref Mesh model_mesh) {           
+        private void GenerateOuterShellVertexs(ref Mesh model_mesh) {           
             int iRing = 0;
             int iVertexIndex = 0;
             int iVerticesPerGenCurve = 0; // the number of vertices on each shell ring
@@ -334,18 +334,6 @@ namespace RaupCoilerII {
             double dXAux, dYAux, dZAux;
             double dAux = 0;
 
-// JBR 2026-06-28 BORRA para pruebas
-// float flMaxX = -1000000;
-// float flMinX = 1000000;
-// float flMaxY = -1000000;
-// float flMinY = 1000000;
-// float flMaxZ = -1000000;
-// float flMinZ = 1000000;
-// float flRangeX = 0;
-// float flRangeY = 0;
-// float flRangeZ = 0;
-// float flBigestRange = 0;
-// FIN JBR 2026-06-28 BORRA para pruebas
 
             // calculate some parameters that will be used to generate the shell 3D model
             iTotalNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev; // rings in the complete model: is the number of rings per revolution multiplied by the number of revolutions
@@ -378,27 +366,6 @@ namespace RaupCoilerII {
 				    fYAux = (float)dYAux;
 				    fZAux = (float)(-(dXAux * Math.Sin(-dThetaRad)) + (dZAux * Math.Cos(-dThetaRad)));
 
-// JBR 2026-06-28 BORRA PUESTO PARA PRUEBA
-// if (fXAux>flMaxX) {
-//     flMaxX = fXAux;
-// }
-// if (fXAux < flMinX) {
-//     flMinX = fXAux;
-// }
-// if (fYAux>flMaxY) {
-//     flMaxY = fYAux;
-// }
-// if (fYAux < flMinY) {
-//     flMinY = fYAux;
-// }
-// if (fZAux > flMaxZ) {
-//     flMaxZ = fZAux;
-// }
-// if (fZAux < flMinZ) {
-//     flMinZ = fZAux;
-// }
-// FIN JBR 2026-06-28 BORRA PUESTO PARA PRUEBA
-
                     // apply the previously calculated scale factor
                     fXAux = fXAux * objModelScale;
                     fYAux = fYAux * objModelScale;
@@ -421,30 +388,6 @@ namespace RaupCoilerII {
             // keep the index of the shell inner mesh last stored vertex
             iOuterShellLastVertexIdx = model_mesh.Vertices.Count() - 1;
             
-// JBR 2026-06-28 BORRA PUESTO PARA PRUEBA
-// flRangeX = flMaxX - flMinX;
-// flRangeY = flMaxY - flMinY;
-// flRangeZ = flMaxZ - flMinZ;
-// 
-// flBigestRange = flRangeX;
-// if (flRangeY > flBigestRange) {
-//     flBigestRange = flRangeY;
-// }
-// if (flRangeZ > flBigestRange) {
-//     flBigestRange = flRangeZ;
-// }
-// 
-// Debug.Write("# Generate:\r\n");
-// Debug.Write("# Last theta:" + dThetaRad.ToString() + " Deg:" + ((dThetaRad/(2*Math.PI))*360) + "\r\n");
-// Debug.Write("# Rc:" + dRc.ToString() + "\r\n");
-// Debug.Write("# Max X:" + flMaxX.ToString() + " Y:" + flMaxY.ToString() + " Z:" + flMaxZ.ToString() + "\r\n");
-// Debug.Write("# Min X:" + flMinX.ToString() + " Y:" + flMinY.ToString() + " Z:" + flMinZ.ToString() + "\r\n");
-// Debug.Write("# Range X:" + flRangeX.ToString() + "\r\n");
-// Debug.Write("# Range Y:" + flRangeY.ToString() + "\r\n");
-// Debug.Write("# Range Z:" + flRangeZ.ToString() + "\r\n");
-// Debug.Write("# Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
-// FIN JBR 2026-06-28 BORRA PUESTO PARA PRUEBA
-
         }//GenerateOuterShellVertexs
 
         /*******************************************************************************
@@ -453,7 +396,7 @@ namespace RaupCoilerII {
         * 
         * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
         *******************************************************************************/
-        public void GenerateInnerShellVertexs(ref Mesh model_mesh) {
+        private void GenerateInnerShellVertexs(ref Mesh model_mesh) {
             int iRing = 0;
             int iVertexIndex = 0;
             int iVerticesPerGenCurve = 0; // the number of vertices on each shell ring
@@ -533,7 +476,7 @@ namespace RaupCoilerII {
         * 
         * @param[in|out] model_mesh with all the generated vertexs are stored into that object.
         *******************************************************************************/
-        public void GenerateShellBeginCoverVertexs(ref Mesh model_mesh) {
+        private void GenerateShellBeginCoverVertexs(ref Mesh model_mesh) {
             int iVertexIndex = 0;
             int iAux = 0;
             Assimp.Vector3D v3Daux;
@@ -624,7 +567,7 @@ namespace RaupCoilerII {
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
         *******************************************************************************/
-        public void GenerateOuterShellNormals(ref Mesh model_mesh) {
+        private void GenerateOuterShellNormals(ref Mesh model_mesh) {
             Assimp.Vector3D vertexAux1;
             Assimp.Vector3D vertexAux2;
             Assimp.Vector3D vectorEdge1;
@@ -732,7 +675,7 @@ namespace RaupCoilerII {
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
         *******************************************************************************/
-        public void GenerateInnerShellNormals(ref Mesh model_mesh) {
+        private void GenerateInnerShellNormals(ref Mesh model_mesh) {
             Assimp.Vector3D vertexAux1;
             Assimp.Vector3D vertexAux2;
             Assimp.Vector3D vectorEdge1;
@@ -839,7 +782,7 @@ namespace RaupCoilerII {
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
         *******************************************************************************/
-        public void GenerateShellBeginCoverNormals(ref Mesh model_mesh) {
+        private void GenerateShellBeginCoverNormals(ref Mesh model_mesh) {
             Assimp.Vector3D vertexAux1;
             Assimp.Vector3D vertexAux2;
             Assimp.Vector3D vectorEdge1;
@@ -940,7 +883,7 @@ namespace RaupCoilerII {
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
         *******************************************************************************/
-        public void GenerateShellEndCoverNormals(ref Mesh model_mesh) {
+        private void GenerateShellEndCoverNormals(ref Mesh model_mesh) {
             Assimp.Vector3D vertexAux1;
             Assimp.Vector3D vertexAux2;
             Assimp.Vector3D vectorEdge1;
@@ -1050,7 +993,7 @@ namespace RaupCoilerII {
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
         *******************************************************************************/
-        public void GenerateOuterShellFaces(ref Mesh model_mesh) {
+        private void GenerateOuterShellFaces(ref Mesh model_mesh) {
             Assimp.Face faceAux;
             int iRing = 0;
             int iVertexIndex = 0;
@@ -1159,7 +1102,7 @@ namespace RaupCoilerII {
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
         *******************************************************************************/
-        public void GenerateInnerShellFaces(ref Mesh model_mesh) {
+        private void GenerateInnerShellFaces(ref Mesh model_mesh) {
             Assimp.Face faceAux;
             int iRing = 0;
             int iVertexIndex = 0;
@@ -1268,7 +1211,7 @@ namespace RaupCoilerII {
          * @param[in|out] model_mesh with all the geometry information. Here is where
          * the generated vertex, normals, and faces information is stored
          *******************************************************************************/
-        public void GenerateShellBeginCoverFaces(ref Mesh model_mesh) {
+        private void GenerateShellBeginCoverFaces(ref Mesh model_mesh) {
             Assimp.Face faceAux;
             int iVertexIndex = 0;
             int iAux = 0;
@@ -1339,7 +1282,7 @@ namespace RaupCoilerII {
         * @param[in|out] model_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
         *******************************************************************************/
-        public void GenerateShellEndCoverFaces(ref Mesh model_mesh) {
+        private void GenerateShellEndCoverFaces(ref Mesh model_mesh) {
             Assimp.Face faceAux;
             int iVertexIndex = 0;
             int iAux = 0;
@@ -1400,40 +1343,37 @@ namespace RaupCoilerII {
 
 
         /*******************************************************************************
-        * @brief method that generates/loads the shell model according to the parameters
-        * set by the user
+        * @brief method that programatically generates the shell model according to the 
+        * parameters set by the user
         *******************************************************************************/
-        public void GenerateShellModel(ref Scene scene) {
-            Mesh model_mesh;
+        private void GenerateShellModel(ref Mesh model_mesh) {
 
             model_mesh = new Mesh("Shell", Assimp.PrimitiveType.Triangle);
-
-            scene.Meshes.Add(model_mesh);
 
             // reset all the counters
             iVerticesCter = 0;
             iFacesCter = 0;
             iIndicesFacesCter = 0;
 
-            // generate the shell generating curve vertices according to the configured parameters
+            // generate the shell generating curve (ring) vertices according to the configured parameters
             GetGeneratingCurveVertices();
 
-            // in case AutoScale option is checked calculate the scale factors to apply
+            // calculate the needed scale factors to fit the shell model into the unit cube
             CalculateAutoScaleFactors();
 
-            // generate the vertexs and add them to the geometry
+            // generate and add to the geometry the vertexs 
             GenerateOuterShellVertexs(ref model_mesh);
             GenerateInnerShellVertexs(ref model_mesh);
             GenerateShellBeginCoverVertexs(ref model_mesh);
             GenerateShellEndCoverVertexs(ref model_mesh);
 
-            // generate the normals and add them to the geometry
+            // generate and add to the geometry the normals
             GenerateOuterShellNormals(ref model_mesh);
             GenerateInnerShellNormals(ref model_mesh);
             GenerateShellBeginCoverNormals(ref model_mesh);
             GenerateShellEndCoverNormals(ref model_mesh);
 
-            // generate the faces combining their vertex indexs
+            // generate and add to the geometry the faces
             GenerateOuterShellFaces(ref model_mesh);
             GenerateInnerShellFaces(ref model_mesh);
             GenerateShellBeginCoverFaces(ref model_mesh);
@@ -1478,104 +1418,92 @@ namespace RaupCoilerII {
         }//export
 
         /*******************************************************************************
-        * @brief method that generates/loads the object geometry and stores it into a 
-        * mesh object
+        * @brief initializes the object geometry ( vertex, normals, faces ) programatically
+        * using the Raups model
         *******************************************************************************/
         public override void InitializeGeometry() {
             var importer = new AssimpContext();
             // Acceder al primer Mesh (malla) del archivo
             int iAux = 0;
-            // maximum and minimum coordinates values used to center the model
-            float flMaxX = -10000, flMaxY = -10000, flMaxZ = -10000; // set a very small value in order to update it when a bigger value is found
-            float flMinX = 10000, flMinY = 10000, flMinZ = 10000; // set a very big value in order to update it when a smalle value is found
-            Assimp.Matrix4x4 tranlsationMatrix;
-            Scene scene = null;
+            Mesh model_mesh = null;
 
-            // Configuración de carga (Post-Procesamiento)
-            // * Triangulate: Convierte todo a triángulos (vital para OpenGL)
-            // * FlipUVs: Voltea las texturas (OpenGL tiene el origen de textura abajo-izq,
-            // la mayoría de formatos arriba-izq)
-            // * GenerateNormals: Si el modelo no tiene normales, las calcula.
-            var postProcessSteps = PostProcessSteps.Triangulate |
-                                    PostProcessSteps.FlipUVs |
-                                    PostProcessSteps.GenerateNormals;
-
-            /*
-            // use the AssimpNet Scheme object to load the model from the file
-            //scene = importer.ImportFile("cono.obj", postProcessSteps); // 290
-            scene = importer.ImportFile("TestOGL.obj", postProcessSteps); // 290
-
-            if (scene == null || scene.SceneFlags.HasFlag(SceneFlags.Incomplete) || scene.RootNode == null) {
-                Console.WriteLine("Error al cargar el modelo");
-                return;
-            }
-            */
-
-            scene = new Scene();
-            GenerateShellModel(ref scene);
+            model_mesh = new Mesh();
+            
+            // call the method that procedurally generates the shell model geometry and stores it into the Scene object
+            GenerateShellModel(ref model_mesh);
 
             liOriginaldMesh = new List<Mesh>();
             liOriginaldMesh.Add(new Mesh()); // create a new empty mesh object at index 0
-            liOriginaldMesh[0] = object3D.CloneMesh(scene.Meshes[0]);// clone the object in the index 0 mesh
+            liOriginaldMesh[0] = object3D.CloneMesh(model_mesh);// clone the object in the index 0 mesh
 
-            liTransformedMesh = new List<Mesh>();
-            liTransformedMesh.Add(new Mesh()); // create a new empty mesh object at index 0
-            liTransformedMesh[0] = object3D.CloneMesh(liOriginaldMesh[0]);// clone the object in the index 0 mesh
+        }//Initialize
 
-            // process the model mesh to center it on 0,0,0 
+        /*******************************************************************************
+        * @brief transforms the original geometry (liOriginaldMesh) with the object 
+        * current transformation values ( liTransformedMesh ) and then updates the VAO
+        * ( VBO and EBO ) with that data.
+        *******************************************************************************/
+        public override void TransformUpdateVAO() {
+            // maximum and minimum coordinates values used to center the model
+            float flMaxX = -10000, flMaxY = -10000, flMaxZ = -10000; // set a very small value in order to update it when a bigger value is found
+            float flMinX = 10000, flMinY = 10000, flMinZ = 10000; // set a very big value in order to update it when a smalle value is found
+
+            // maximum and minimum coordinates values used to center the model
+            // float flMaxX = -10000, flMaxY = -10000, flMaxZ = -10000; // set a very small value in order to update it when a bigger value is found
+            // float flMinX = 10000, flMinY = 10000, flMinZ = 10000; // set a very big value in order to update it when a smalle value is found
+            int iStride = 0;
+            // Assimp.Matrix4x4 rotationMatrix;
+            Assimp.Matrix4x4 tranlsationMatrix;
+            List<float> liCoordNColors;
+            List<uint> liFaceIdxs;
+            int iAux = 0;
+
+            // process the model mesh to center it on 0,0,0: get the max and minimum coordinates 
+            // and the use that values to calculate the translation required to center it to 0,0,0
 
             // get the Max and Min coordinates of the model vertices
-            iVerticesCter = liTransformedMesh[0].Vertices.Count();
+            iVerticesCter = liOriginaldMesh[0].Vertices.Count();
             for (iAux = 0; iAux < iVerticesCter; iAux++) {
                 // update the maximum and mínimum coordinates values if necessary
-                if (liTransformedMesh[0].Vertices[iAux].X > flMaxX) {
-                    flMaxX = liTransformedMesh[0].Vertices[iAux].X;
-                } else if (liTransformedMesh[0].Vertices[iAux].X < flMinX) {
-                    flMinX = liTransformedMesh[0].Vertices[iAux].X;
+                // X max and min
+                if (liOriginaldMesh[0].Vertices[iAux].X > flMaxX) {
+                    flMaxX = liOriginaldMesh[0].Vertices[iAux].X;
+                } else if (liOriginaldMesh[0].Vertices[iAux].X < flMinX) {
+                    flMinX = liOriginaldMesh[0].Vertices[iAux].X;
                 }
-                if (liTransformedMesh[0].Vertices[iAux].Y > flMaxY) {
-                    flMaxY = liTransformedMesh[0].Vertices[iAux].Y;
-                } else if (liTransformedMesh[0].Vertices[iAux].Y < flMinY) {
-                    flMinY = liTransformedMesh[0].Vertices[iAux].Y;
+                // Y max and min
+                if (liOriginaldMesh[0].Vertices[iAux].Y > flMaxY) {
+                    flMaxY = liOriginaldMesh[0].Vertices[iAux].Y;
+                } else if (liOriginaldMesh[0].Vertices[iAux].Y < flMinY) {
+                    flMinY = liOriginaldMesh[0].Vertices[iAux].Y;
                 }
-                if (liTransformedMesh[0].Vertices[iAux].Z > flMaxZ) {
-                    flMaxZ = liTransformedMesh[0].Vertices[iAux].Z;
-                } else if (liTransformedMesh[0].Vertices[iAux].Z < flMinZ) {
-                    flMinZ = liTransformedMesh[0].Vertices[iAux].Z;
+                // Z max and min
+                if (liOriginaldMesh[0].Vertices[iAux].Z > flMaxZ) {
+                    flMaxZ = liOriginaldMesh[0].Vertices[iAux].Z;
+                } else if (liOriginaldMesh[0].Vertices[iAux].Z < flMinZ) {
+                    flMinZ = liOriginaldMesh[0].Vertices[iAux].Z;
                 }
             }//for
 
-            // use the Max and Min coordinatens to calculate the translation to center the model on
-            // 0,0,0 and then configure the corresponding model translation matrix
+            // use the max and min coordinatens to calculate the translation necessary to center 
+            // the model on 0,0,0 and then configure the corresponding model translation matrix
             objModelTransX = -(flMaxX + flMinX) / 2;
             objModelTransY = -(flMaxY + flMinY) / 2;
             objModelTransZ = -(flMaxZ + flMinZ) / 2;
 
             tranlsationMatrix = Assimp.Matrix4x4.FromTranslation(new Assimp.Vector3D(objModelTransX, objModelTransY, objModelTransZ));
 
-            // apply the transformations over each vertex of the mesh and store it in the list that will be used to update the VAO ( VBO and EBO )
+            liTransformedMesh = new List<Mesh>();
+            liTransformedMesh.Add(new Mesh()); // create a new empty mesh object at index 0
+            liTransformedMesh[0] = object3D.CloneMesh(liOriginaldMesh[0]);// clone the object in the index 0 mesh
+
+            // apply the translation transformation over each vertex of the mesh and store it in the
+            // list that will be used to update the VAO ( VBO and EBO )
             for (iAux = 0; iAux < iVerticesCter; iAux++) {
                 // first apply the transformations
                 liTransformedMesh[0].Vertices[iAux] = tranlsationMatrix * liTransformedMesh[0].Vertices[iAux];
                 liTransformedMesh[0].Normals[iAux] = tranlsationMatrix * liTransformedMesh[0].Normals[iAux];
             }//for
-
-        }//Initialize
-
-        /*******************************************************************************
-        * @brief applies the transformation over the object mesh vertices and faces and 
-        * then updates that information in the VAO ( VBO and EBO )
-        *******************************************************************************/
-        public override void TransformUpdateVAO() {
-
-            // maximum and minimum coordinates values used to center the model
-            // float flMaxX = -10000, flMaxY = -10000, flMaxZ = -10000; // set a very small value in order to update it when a bigger value is found
-            // float flMinX = 10000, flMinY = 10000, flMinZ = 10000; // set a very big value in order to update it when a smalle value is found
-            int iStride = 0;
-            Assimp.Matrix4x4 rotationMatrix;
-            List<float> modelCoordNColors;
-            List<uint> modelFaceIdxs;
-            int iAux = 0;
 
             // ### update the content of the lists that will be used to intialize the VAO ( VBO and EBO ) 
             // with the model data while apply the transformations set by the user
@@ -1608,7 +1536,7 @@ namespace RaupCoilerII {
             // refAppViewModel.ZOrientation = 0;
 
             // 3 vertex floats   + 3 color floats  + 3 normal floats
-            modelCoordNColors = new List<float>();
+            liCoordNColors = new List<float>();
 
             // apply the obtained rotation matrix over the vertices and the normals of the model           
             // iVerticesCter = liTransformedMesh[0].Vertices.Count();
@@ -1653,29 +1581,29 @@ namespace RaupCoilerII {
 
                 // each face has 3 vertices + 3 colors + 3 normals
                 // vertex coords centered in the middle (flMax... - flMin...) / 2;
-                modelCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].X);
-                modelCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].Y);
-                modelCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].Z);
+                liCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].X);
+                liCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].Y);
+                liCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].Z);
                 // color
-                modelCoordNColors.Add(((float)refAppViewModel.MeshColor.R) / 255f);
-                modelCoordNColors.Add(((float)refAppViewModel.MeshColor.G) / 255f);
-                modelCoordNColors.Add(((float)refAppViewModel.MeshColor.B) / 255f);
-                modelCoordNColors.Add((float)(refAppViewModel.MeshTransparency / 100.0f));
+                liCoordNColors.Add(((float)refAppViewModel.MeshColor.R) / 255f);
+                liCoordNColors.Add(((float)refAppViewModel.MeshColor.G) / 255f);
+                liCoordNColors.Add(((float)refAppViewModel.MeshColor.B) / 255f);
+                liCoordNColors.Add((float)(refAppViewModel.MeshTransparency / 100.0f));
                 // normal
-                modelCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].X);
-                modelCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].Y);
-                modelCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].Z);
+                liCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].X);
+                liCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].Y);
+                liCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].Z);
             }//for
 
             // faces indexs list for the EBO
             // add to the list of the indexs of the vertexs that define the faces of the mode
-            modelFaceIdxs = new List<uint>();
+            liFaceIdxs = new List<uint>();
             iFacesCter = liTransformedMesh[0].Faces.Count();
             foreach (var face in liTransformedMesh[0].Faces) {
                 // each face has 3 index because we us PostProcessSteps.Triangulate
-                modelFaceIdxs.Add((uint)face.Indices[0]);
-                modelFaceIdxs.Add((uint)face.Indices[1]);
-                modelFaceIdxs.Add((uint)face.Indices[2]);
+                liFaceIdxs.Add((uint)face.Indices[0]);
+                liFaceIdxs.Add((uint)face.Indices[1]);
+                liFaceIdxs.Add((uint)face.Indices[2]);
 
                 iIndicesFacesCter = iIndicesFacesCter + 3;
 
@@ -1692,11 +1620,11 @@ namespace RaupCoilerII {
 
             // set in context and initalize the VBO
             GL.BindBuffer(BufferTarget.ArrayBuffer, objectVBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, modelCoordNColors.Count() * sizeof(float), modelCoordNColors.ToArray(), BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, liCoordNColors.Count() * sizeof(float), liCoordNColors.ToArray(), BufferUsageHint.StaticDraw);
 
             // set in context and initalize the EBO
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, objectEBO);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, modelFaceIdxs.Count() * sizeof(uint), modelFaceIdxs.ToArray(), BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, liFaceIdxs.Count() * sizeof(uint), liFaceIdxs.ToArray(), BufferUsageHint.StaticDraw);
 
             iStride = (3 + 4 + 3) * sizeof(float); // pos (3) + color (4=3+1) + normal (3)
 

@@ -16,7 +16,8 @@ using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 namespace RaupCoilerII {
 
     /*******************************************************************************
-    * @brief base class that defines the common properties and methods of a 3D object
+    * @brief base class that defines the common properties and methods of any of the
+    * 3D objects rendered in the application.
     *******************************************************************************/
     public class object3D {
 
@@ -47,7 +48,18 @@ namespace RaupCoilerII {
         public float objModelTransY = 0f;
         public float objModelTransZ = 0f;
 
+        /*******************************************************************************
+        * @brief initializes the geometry of the object (liOriginaldMesh). It may initialize
+        * the vertex and faces of that object, programatically, or by loading them from a file. 
+        *******************************************************************************/
         public virtual void InitializeGeometry() { }
+
+        /*******************************************************************************
+        * @brief applies the current object transformation values (scale, translation, 
+        * rotation) over the original mesh vertices and faces ( liOriginaldMesh ), then 
+        * stores ther result into the liTransformedMesh and uses it to updates that 
+        * information in the VAO ( VBO and EBO )
+        *******************************************************************************/
         public virtual void TransformUpdateVAO(){ }
 
         /*******************************************************************************

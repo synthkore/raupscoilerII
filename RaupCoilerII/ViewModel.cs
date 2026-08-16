@@ -59,7 +59,7 @@ namespace RaupCoilerII {
         public double ViewDistanceMin { get; } = 0;
         public double ViewDistanceMax { get; } = 10;
         public double LightDistanceMin { get; } = 0;
-        public double LightDistanceMax { get; } = 10;
+        public double LightDistanceMax { get; } = 50;
 
         // properties
 
@@ -524,7 +524,7 @@ namespace RaupCoilerII {
                     } else {
                         dViewRoDistance = value;
                     }
-                    if (bLinkLightToView) LightRoDistance = dViewRoDistance;
+                    // if (bLinkLightToView) LightRoDistance = dViewRoDistance; 
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("ViewRoDistance");
                 }

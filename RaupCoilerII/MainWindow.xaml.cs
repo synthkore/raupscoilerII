@@ -21,16 +21,19 @@ using System.Windows.Shapes;
 
 
 /* JBR notas
+   E
+   Espiral
+   Eje
    Botón de reset o desplegable con parámetros por defeto
-   Situar siempre y con la misma escala el eje de coordenadas en una esquina
    Al rotar llega un momento que ya no deja rotar más, estaria bien utilizar el % modulo del angulo en lugar del valor absoluto.
    Seleccionar proyecccion en perspectiva o isométrica.
    Mostrar plano horizontal para ver como se desplaza en Y (T)
    Corregir sombreado triangulos de la cara interior
    La iluminacion a veces parece que no funciona bien y quedan zonas muy oscuras.
-   Porder sobreponer Faces con Triangles / Quads o Vertexs.   
+   Porder sobreponer Faces con Triangles / Quads o Vertexs.
 Hecho:
    Meter transparencia de la concha
+   Situar siempre y con la misma escala el eje de coordenadas en una esquina
  */
 
 /*******************************************************************************
@@ -173,11 +176,15 @@ namespace RaupCoilerII {
 
             ShellModel = new cShellModel(appViewModel);
             ShellModel.InitializeGeometry();
-            ShellModel.TransformUpdateVAO();
+            // ShellModel.TransformUpdateVAO();
 
-            UnitContainerCube = new cUnityCube(appViewModel);
+            UnitContainerCube = new unitCube(appViewModel);
             UnitContainerCube.InitializeGeometry();
-            UnitContainerCube.TransformUpdateVAO();
+            // UnitContainerCube.TransformUpdateVAO();
+
+            Spiral = new cSpiral(appViewModel);
+            Spiral.InitializeGeometry();
+            // Spiral.TransformUpdateVAO();
 
             // force "international" culture
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("EN-US");

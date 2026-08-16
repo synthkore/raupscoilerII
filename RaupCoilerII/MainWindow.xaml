@@ -6,7 +6,7 @@
         xmlns:glWpfControl="clr-namespace:OpenTK.Wpf;assembly=GLWpfControl"
         xmlns:local="clr-namespace:RaupCoilerII"
         mc:Ignorable="d"
-        Title="MainWindow" Height="745" Width="1105" MinWidth="1055" MinHeight="650">
+        Title="Raup Coiler II" Height="745" Width="1105" MinWidth="1055" MinHeight="650">
     <Window.Resources>
         <Style x:Key="VerticalCenteredTextBox"
                TargetType="TextBox">
@@ -300,7 +300,7 @@
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
                                         <ScrollBar Value="{Binding LightRoDistance, Mode=TwoWay}" Minimum="{Binding LightDistanceMin}" Maximum="{Binding LightDistanceMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
                                     </WrapPanel>
-                                    <CheckBox Content="Link light to view" Grid.Row="3" IsChecked="{Binding LinkLightToView}" Margin="2,2,2,2" Grid.ColumnSpan="2" />
+                                    <CheckBox Content="Link light orientation to view" Grid.Row="3" IsChecked="{Binding LinkLightToView}" Margin="2,2,2,2" Grid.ColumnSpan="2" />
                                     <Button x:Name="btnResetLightOrientation" Grid.Row="4" Height="22" Content="Reset" Click="btnResetLightOrientation_Click" Width="140" Grid.ColumnSpan="2" Margin="44,3,45,3" />
                                 </Grid>
                             </GroupBox>

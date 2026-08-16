@@ -43,7 +43,8 @@ namespace RaupCoilerII {
 
         cGizmo ZYXaxis;
         cShellModel ShellModel;
-        cUnityCube UnitContainerCube;
+        unitCube UnitContainerCube;
+        cSpiral Spiral;
 
         // view coordinates
         private float viewXAngle = 0f;
@@ -243,13 +244,8 @@ namespace RaupCoilerII {
         private void OpenTkControl_Loaded(object sender, RoutedEventArgs e) {
 
             CreateShaders();
-
-            //if (appViewModel.bRequireToRegenerate) {
-            //    TransformShellSpiralAxisGeometry();
-            //    appViewModel.bRequireToRegenerate = false;
-            //}
-
-            appViewModel.bRequireToTransform = true;
+            
+            // set the flag to force updating the model in the next OnRender event
             appViewModel.bRequireToReRender = true;
 
         }//OpenTkControl_Loaded
@@ -274,33 +270,35 @@ namespace RaupCoilerII {
         * @param[in] e the information related to the event
         *******************************************************************************/
         private void OpenTkControl_OnRender(TimeSpan delta) {
-            float flAux = 0;
             Vector3 up_vector = new Vector3();
             Vector3 light_vector = new Vector3();
             Vector3 view_vector = new Vector3();
             float flGizmoViewDist = 4.0f;
+            float flGizmoLightDist = 100.0f;
             float flGizmoScale = 1.0f;
 
             if (appViewModel.bRequireToRegenerate) {
-
-                ShellModel.InitializeGeometry();
 
                 appViewModel.bRequireToRegenerate = false;
                 appViewModel.bRequireToTransform = true;
                 appViewModel.bRequireToReRender = true;
 
+                // regenerate the shell model geometry
+                ShellModel.InitializeGeometry();
+
             }//if
 
             if (appViewModel.bRequireToTransform) {
 
-                ShellModel.TransformUpdateVAO();
-                
                 appViewModel.bRequireToTransform = false;
-                appViewModel.bRequireToReRender = true;               
+                appViewModel.bRequireToReRender = true;
+
+                // apply the current transformations to the original shell geometry
+                ShellModel.TransformUpdateVAO();
 
             }//if
 
-            // only repaint the model in case any render related parameter has changed
+            // only repaint the model in case the flag has been set
             if (appViewModel.bRequireToReRender) {
                 
                 appViewModel.bRequireToReRender = false;
@@ -311,8 +309,8 @@ namespace RaupCoilerII {
                 // clear the buffer
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-                // adjust the size of the OGL Viewport area at which the shell model will be drawn 
-                // to the size of the WpfOGL control
+                // adjust to the same size than the WpfOGL control, the size of the OGL Viewport
+                // area at which the shell model will be drawn 
                 int[] viewport = new int[4];
                 GL.GetInteger(GetPName.Viewport, viewport);
                 int OGLBufWidth = viewport[2];
@@ -320,7 +318,7 @@ namespace RaupCoilerII {
                 GL.Viewport(0, 0, OGLBufWidth, OGLBufHeight);
 
                 // enable the "DepthTest" when redendering the model in order the faces
-                // are shown or not according to its depth and other faces position
+                // are shown or not according to its depth and the other faces position
                 GL.Enable(EnableCap.DepthTest);
 
                 // convert view vector spheric coordinates (Theta, Phi, Ro) to cartesian coordinates (X,Y,Z)
@@ -331,17 +329,19 @@ namespace RaupCoilerII {
                 viewDist = (float)appViewModel.ViewRoDistance;
                 // calculate the X,Y,Z endpoint of the View Vector, the other endpoint is the 0,0,0
                 float projectedViewVector = (float)Math.Cos((float)viewYAngle) * (float)viewDist;
-                // Endpoint X coordinate
+                // endpoint X coordinate
                 viewX = (float)Math.Cos((float)viewXAngle) * projectedViewVector;
-                // Endpoint Y coordinate
+                // endpoint Y coordinate
                 viewY = (float)viewDist * (float)Math.Sin((float)viewYAngle);
-                // Endpoint Z coordinate
+                // endpoint Z coordinate
                 viewZ = (float)Math.Sin(viewZAngle) * projectedViewVector;               
+                // now get the vector
                 view_vector = new Vector3(viewX, viewY, viewZ);
 
-                // the view matrix has a direction vector but also an up vector that sets where is Up and where is Down.
-                // Invert the Up vector to avoid that the camera flips when passing 90º over the model or 270º under the model.
-                if ((Math.Abs(viewYAngle) > (Math.PI / 2)) && (Math.Abs(viewYAngle) < (3 * (Math.PI / 2)))) {
+                // the view matrix has a direction vector but also needs an 'up vector' that specifies where
+                // is "up" and where is "down" of the view. 
+                // The Up vector must be inverted to avoid that the camera flips when passing 90º over the model or 270º under the model.
+                if ((Math.Abs(viewYAngle) > (Math.PI / 2)) && (Math.Abs(viewYAngle) < (3 * (Math.PI / 2)))) {                    
                     up_vector = -1 * Vector3.UnitY;
                 } else {
                     up_vector = Vector3.UnitY;
@@ -355,12 +355,13 @@ namespace RaupCoilerII {
                 lightDist = (float)appViewModel.LightRoDistance;
                 // calculate the X,Y,Z endpoint of the Light Vector, the other endpoint is the 0,0,0
                 float projectLight = (float)Math.Cos((float)lightYAngle) * (float)lightDist;
-                // Endpoint X coordinate
+                // endpoint X coordinate
                 lightX = (float)Math.Cos((float)lightXAngle) * projectLight;
                 // Endpoint Y coordinate
                 lightY = (float)lightDist * (float)Math.Sin((float)lightYAngle);
-                // Endpoint Z coordinate
+                // endpoint Z coordinate
                 lightZ = (float)Math.Sin(lightZAngle) * projectLight;
+                // now get the vector
                 light_vector = new Vector3(lightX, lightY, lightZ);
                  
 
@@ -369,18 +370,15 @@ namespace RaupCoilerII {
                 Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
                 
                 // initialize the content of the different graphic card Uniform buffers used by
-                // the vertex shader and the fragment shader
-                
+                // the vertex shader and the fragment shader:                
                 // data for the vertex shader:
                 GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModel"), false, ref transforMatrix);
                 GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uView"), false, ref viewMatrix);
-                GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uProjection"), false, ref projectionMatrix);
-                
+                GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uProjection"), false, ref projectionMatrix);                
                 // vectors data for the fragment shader:
                 GL.Uniform3(GL.GetUniformLocation(shaderProgram, "lightPos"), light_vector);
                 GL.Uniform3(GL.GetUniformLocation(shaderProgram, "viewPos"), view_vector);
                 GL.Uniform3(GL.GetUniformLocation(shaderProgram, "lightColor"), Vector3.One);
-
                 // light parameters for the fragment shader:
                 GL.Uniform1(GL.GetUniformLocation(shaderProgram, "ambientStrength"), 0.2);// miViewModel.ambient);
                 GL.Uniform1(GL.GetUniformLocation(shaderProgram, "specularStrength"), 0.5);// miViewModel.difuse);
@@ -413,6 +411,25 @@ namespace RaupCoilerII {
                         break;
 
                 }//switch                                                             
+
+                // render the shell model spiral
+                if (appViewModel.Spiral) {
+
+                    // clear the context
+                    GL.BindVertexArray(0);
+
+                    // render the shell model spiral
+                    GL.BindVertexArray(Spiral.objectVAO);
+                    transforMatrix = Matrix4.CreateScale((float)UnitContainerCube.objModelScale) * Matrix4.CreateTranslation(UnitContainerCube.objModelTransX, UnitContainerCube.objModelTransY, UnitContainerCube.objModelTransZ);
+                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
+                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objXYZAxisAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objXYZAxisAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objXYZAxisAngleZ));
+                    GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModel"), false, ref transforMatrix);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    GL.DrawElements(BeginMode.Triangles, UnitContainerCube.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                    // clear the context
+                    GL.BindVertexArray(0);
+
+                }
 
                 // render the unit cube that contains the shell model when autoscale mode is enabled
                 if (appViewModel.UnitCube) {
@@ -477,10 +494,10 @@ namespace RaupCoilerII {
 
                     // convert light vector spheric coordinates (Theta, Phi, Ro) to cartesian coordinates (X,Y,Z)
                     // convert angles from degrees to radians      
-                    lightXAngle = MathHelper.DegreesToRadians((float)appViewModel.LightThetaAzimuthAngle);
-                    lightYAngle = MathHelper.DegreesToRadians((float)appViewModel.LightPhiZenithAngle);
-                    lightZAngle = MathHelper.DegreesToRadians((float)appViewModel.LightThetaAzimuthAngle);
-                    lightDist = (float)flGizmoViewDist;
+                    // lightXAngle = MathHelper.DegreesToRadians((float)appViewModel.LightThetaAzimuthAngle);
+                    // lightYAngle = MathHelper.DegreesToRadians((float)appViewModel.LightPhiZenithAngle);
+                    // lightZAngle = MathHelper.DegreesToRadians((float)appViewModel.LightThetaAzimuthAngle);
+                    lightDist = (float)flGizmoLightDist;
                     // calculate the X,Y,Z endpoint of the Light Vector, the other endpoint is the 0,0,0
                     projectLight = (float)Math.Cos((float)lightYAngle) * (float)lightDist;
                     // Endpoint X coordinate
@@ -496,24 +513,19 @@ namespace RaupCoilerII {
                     // projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
 
                     // initialize the content of the different graphic card Uniform buffers used by
-                    // the vertex shader and the fragment shader
-
+                    // the vertex shader and the fragment shader:
                     // data for the vertex shader:
                     GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModel"), false, ref transforMatrix);
                     GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uView"), false, ref viewMatrix);
                     // GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uProjection"), false, ref projectionMatrix);
-
                     // vectors data for the fragment shader:
                     GL.Uniform3(GL.GetUniformLocation(shaderProgram, "lightPos"), light_vector);
                     // GL.Uniform3(GL.GetUniformLocation(shaderProgram, "viewPos"), view_vector);
                     // GL.Uniform3(GL.GetUniformLocation(shaderProgram, "lightColor"), Vector3.One);
-
                     // light parameters for the fragment shader:
                     // GL.Uniform1(GL.GetUniformLocation(shaderProgram, "ambientStrength"), 0.2);// miViewModel.ambient);
                     // GL.Uniform1(GL.GetUniformLocation(shaderProgram, "specularStrength"), 0.5);// miViewModel.difuse);
                     // GL.Uniform1(GL.GetUniformLocation(shaderProgram, "shininess"), 32);// miViewModel.shine);
-
-
 
                     // clear the context
                     GL.BindVertexArray(0);
