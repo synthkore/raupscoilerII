@@ -59,7 +59,7 @@ namespace RaupCoilerII {
             }
 
             // modelOriginalZYXAxis is a list of 3 mehses. Each mesh corresponds to an axis. 
-            liOriginaldMesh = scene.Meshes;
+            liMeshesOriginal = scene.Meshes;
 
             objModelScale = 1.0f;
             objModelTransX = 0f;
@@ -69,11 +69,9 @@ namespace RaupCoilerII {
         }//InitializeGeometry
 
         /*******************************************************************************
-        * @brief transforms the original geometry (liOriginaldMesh) with the object 
-        * current transformation values ( liTransformedMesh ) and then updates the VAO
-        * ( VBO and EBO ) with that data.
+        * @brief updates the VAO ( VBO and EBO ) with that data.
         *******************************************************************************/
-        public override void TransformUpdateVAO() {
+        public override void UpdateVAO() {
             int iStride = 0;
             float fR = 0, fG = 0, fB = 0;
             List<float> liCoordNColors = null;
@@ -89,7 +87,7 @@ namespace RaupCoilerII {
             liCoordNColors = new List<float>();
             iVerticesCter = 0;
 
-            mesh = liOriginaldMesh[0];
+            mesh = liMeshesOriginal[0];
 
             for (iAux2 = 0; iAux2 < mesh.Vertices.Count(); iAux2++) {
                 // each face has 3 vertices + 3 colors + 1 transparency + 3 normals
@@ -116,7 +114,7 @@ namespace RaupCoilerII {
             iFacesCter = 0;
             iIndicesFacesCter = 0;
 
-            mesh = liOriginaldMesh[0];
+            mesh = liMeshesOriginal[0];
 
             for (iAux2 = 0; iAux2 < mesh.Faces.Count(); iAux2++) {
 
@@ -165,7 +163,7 @@ namespace RaupCoilerII {
             // clear the context
             GL.BindVertexArray(0);
 
-        }//TransformUpdateVAO
+        }//UpdateVAO
 
     }//cUnityCube
 

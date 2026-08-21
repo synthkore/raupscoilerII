@@ -21,7 +21,6 @@ using System.Windows.Shapes;
 
 
 /* JBR notas
-   E
    Espiral
    Eje
    Botón de reset o desplegable con parámetros por defeto
@@ -29,7 +28,7 @@ using System.Windows.Shapes;
    Seleccionar proyecccion en perspectiva o isométrica.
    Mostrar plano horizontal para ver como se desplaza en Y (T)
    Corregir sombreado triangulos de la cara interior
-   La iluminacion a veces parece que no funciona bien y quedan zonas muy oscuras.
+   La iluminacion a veces parece que no funciona bien y quedan zonas muy oscuras ¿ hay que poner algun tipo de ilumniación global, omni ?
    Porder sobreponer Faces con Triangles / Quads o Vertexs.
 Hecho:
    Meter transparencia de la concha
@@ -172,19 +171,19 @@ namespace RaupCoilerII {
 
             ZYXaxis = new cGizmo(appViewModel);
             ZYXaxis.InitializeGeometry();
-            ZYXaxis.TransformUpdateVAO();
+            ZYXaxis.UpdateVAO();
 
             ShellModel = new cShellModel(appViewModel);
             ShellModel.InitializeGeometry();
-            // ShellModel.TransformUpdateVAO();
+            ShellModel.UpdateVAO();
 
             UnitContainerCube = new unitCube(appViewModel);
             UnitContainerCube.InitializeGeometry();
-            // UnitContainerCube.TransformUpdateVAO();
+            UnitContainerCube.UpdateVAO();
 
             Spiral = new cSpiral(appViewModel);
             Spiral.InitializeGeometry();
-            // Spiral.TransformUpdateVAO();
+            Spiral.TransformUpdateVAO();
 
             // force "international" culture
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("EN-US");

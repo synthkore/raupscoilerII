@@ -120,7 +120,7 @@ namespace RaupCoilerII {
                         layout (location = 1) in vec4 aColor;
                         layout (location = 2) in vec3 aNormal;
 
-                        uniform mat4 uModel;
+                        uniform mat4 uModelTransform;
                         uniform mat4 uView;
                         uniform mat4 uProjection;
 
@@ -131,10 +131,10 @@ namespace RaupCoilerII {
 
                         void main()
                         {
-                            FragPos = vec3(uModel * vec4(aPos, 1.0));
+                            FragPos = vec3(uModelTransform * vec4(aPos, 1.0));
                             Color = aColor;
-                            Normal = mat3(transpose(inverse(uModel))) * aNormal;
-
+                            Normal = mat3(transpose(inverse(uModelTransform))) * aNormal;
+                            
                             gl_Position = uProjection * uView * vec4(FragPos, 1.0);
                         }
                         ";
@@ -286,6 +286,10 @@ namespace RaupCoilerII {
                 // regenerate the shell model geometry
                 ShellModel.InitializeGeometry();
                 Spiral.objModelScale = ShellModel.objModelScale;
+                // apply the same scale and translation to the spiral geometry
+                Spiral.objModelTransX = ShellModel.objModelTransX;
+                Spiral.objModelTransY = ShellModel.objModelTransY;
+                Spiral.objModelTransZ = ShellModel.objModelTransZ;
                 Spiral.InitializeGeometry();
 
             }//if
@@ -296,7 +300,7 @@ namespace RaupCoilerII {
                 appViewModel.bRequireToReRender = true;
 
                 // apply the current transformations to the original shell geometry
-                ShellModel.TransformUpdateVAO();
+                ShellModel.UpdateVAO();
                 Spiral.TransformUpdateVAO();
 
             }//if
@@ -367,7 +371,6 @@ namespace RaupCoilerII {
                 // now get the vector
                 light_vector = new Vector3(lightX, lightY, lightZ);
                  
-
                 Matrix4 transforMatrix = Matrix4.Identity; // Matrix4.CreateScale((float)ShellModel.objModelScale);// * Matrix4.CreateTranslation(ShellModel.objModelTransX* ShellModel.objModelScale, ShellModel.objModelTransY*ShellModel.objModelScale, ShellModel.objModelTransZ* ShellModel.objModelScale);
                 Matrix4 viewMatrix = Matrix4.LookAt(view_vector,Vector3.Zero,up_vector);
                 Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
@@ -375,7 +378,7 @@ namespace RaupCoilerII {
                 // initialize the content of the different graphic card Uniform buffers used by
                 // the vertex shader and the fragment shader:                
                 // data for the vertex shader:
-                GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModel"), false, ref transforMatrix);
+                GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModelTransform"), false, ref transforMatrix);
                 GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uView"), false, ref viewMatrix);
                 GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uProjection"), false, ref projectionMatrix);                
                 // vectors data for the fragment shader:
@@ -385,7 +388,7 @@ namespace RaupCoilerII {
                 // light parameters for the fragment shader:
                 GL.Uniform1(GL.GetUniformLocation(shaderProgram, "ambientStrength"), 0.2);// miViewModel.ambient);
                 GL.Uniform1(GL.GetUniformLocation(shaderProgram, "specularStrength"), 0.5);// miViewModel.difuse);
-                GL.Uniform1(GL.GetUniformLocation(shaderProgram, "shininess"), 32);// miViewModel.shine);
+                GL.Uniform1(GL.GetUniformLocation(shaderProgram, "shininess"), 16);// miViewModel.shine);
 
                 // ###### render the Model ######
                 GL.BindVertexArray(ShellModel.objectVAO);
@@ -421,21 +424,35 @@ namespace RaupCoilerII {
                     // clear the context
                     GL.BindVertexArray(0);
 
-                    // render the shell model spiral
+                    // ###### render the Model ######
                     GL.BindVertexArray(Spiral.objectVAO);
-                    transforMatrix = Matrix4.CreateScale((float)UnitContainerCube.objModelScale) * Matrix4.CreateTranslation(UnitContainerCube.objModelTransX, UnitContainerCube.objModelTransY, UnitContainerCube.objModelTransZ);
-                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
-                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objXYZAxisAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objXYZAxisAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objXYZAxisAngleZ));
-                    GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModel"), false, ref transforMatrix);
-                    // GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    // GL.DrawElements(BeginMode.Triangles, UnitContainerCube.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
 
-                    GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.LineStrip,0,Spiral.iVerticesCter);
+                    // generate the geoemtry with the selecthed method
+                    // switch (appViewModel.geometryStyle) {
+                    // 
+                    //     case (tGeometryStyleEnum.Vertexs):
+                    //        GL.PointSize(5.0f);
+                    //        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
+                    //        GL.DrawElements(BeginMode.Triangles, Spiral.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                    //         break;
+                    // 
+                    //     case (tGeometryStyleEnum.Triangles):
+                    //         GL.LineWidth(3.0f);
+                    //         GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                    //          GL.DrawElements(BeginMode.Triangles, Spiral.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                    //         break;
+                    // 
+                    //     case (tGeometryStyleEnum.Faces):
+                            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                            GL.DrawElements(BeginMode.Triangles, Spiral.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                    //         break;
+                    // 
+                    //     case (tGeometryStyleEnum.NoMesh):
+                    //         break;
+                    // 
+                    // }//switch   
 
-                    // clear the context
-                    GL.BindVertexArray(0);
-
-                }
+                }//if
 
                 // render the unit cube that contains the shell model when autoscale mode is enabled
                 if (appViewModel.UnitCube) {
@@ -445,21 +462,19 @@ namespace RaupCoilerII {
 
                     // render the -1,1,-1,1 containing cube
                     GL.BindVertexArray(UnitContainerCube.objectVAO);
-                    transforMatrix = Matrix4.CreateScale((float)UnitContainerCube.objModelScale) * Matrix4.CreateTranslation(UnitContainerCube.objModelTransX, UnitContainerCube.objModelTransY, UnitContainerCube.objModelTransZ);
-                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
-                    // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objXYZAxisAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objXYZAxisAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objXYZAxisAngleZ));
-                    GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModel"), false, ref transforMatrix);
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+                    // GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                     GL.DrawElements(BeginMode.Triangles, UnitContainerCube.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
-                    // clear the context
-                    GL.BindVertexArray(0);
 
                 }// if (appViewModel.UnitCube) {
 
                 // render the XYZ Axis ( GIZMO ) if enabled. It is drawn in an independent ViewPort
                 if (appViewModel.Axis3D) {
 
-                    // set the Viewport area at the bottom left in the OpenGL buffer at which the gizmo will be rendered
+                    // clear the context
+                    GL.BindVertexArray(0);
+
+                    // set the Viewport area at the 1/4 bottom left in the OpenGL buffer at which the gizmo will be rendered
                     GL.Viewport(0, 0, (int)(OGLBufWidth* 0.25), (int)(OGLBufHeight * 0.25));
 
                     // disable the "DepthTest" when redendering the gizmo in order it is always
@@ -514,14 +529,14 @@ namespace RaupCoilerII {
                     lightZ = (float)Math.Sin(lightZAngle) * projectLight;
                     light_vector = new Vector3(lightX, lightY, lightZ);
 
-                    transforMatrix = Matrix4.CreateScale((float)flGizmoScale);// * Matrix4.CreateTranslation(ShellModel.objModelTransX* ShellModel.objModelScale, ShellModel.objModelTransY*ShellModel.objModelScale, ShellModel.objModelTransZ* ShellModel.objModelScale);
+                    // transforMatrix = Matrix4.Identity; // * Matrix4.CreateTranslation(ShellModel.objModelTransX* ShellModel.objModelScale, ShellModel.objModelTransY*ShellModel.objModelScale, ShellModel.objModelTransZ* ShellModel.objModelScale);
                     viewMatrix = Matrix4.LookAt(view_vector, Vector3.Zero, up_vector);
                     // projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
 
                     // initialize the content of the different graphic card Uniform buffers used by
                     // the vertex shader and the fragment shader:
                     // data for the vertex shader:
-                    GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModel"), false, ref transforMatrix);
+                    // GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModelTransform"), false, ref transforMatrix);
                     GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uView"), false, ref viewMatrix);
                     // GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uProjection"), false, ref projectionMatrix);
                     // vectors data for the fragment shader:
@@ -542,12 +557,10 @@ namespace RaupCoilerII {
                     transforMatrix = Matrix4.CreateScale((float)flGizmoScale) * Matrix4.CreateTranslation(0, 0, 0);
                     // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
                     // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objXYZAxisAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objXYZAxisAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objXYZAxisAngleZ));
-                    GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModel"), false, ref transforMatrix);
+                    // GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModelTransform"), false, ref transforMatrix);
 
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    // GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                     GL.DrawElements(BeginMode.Triangles, ZYXaxis.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
-                    // clear the context
-                    GL.BindVertexArray(0);
                     
                 }//if (appViewModel.Axis3D)
 

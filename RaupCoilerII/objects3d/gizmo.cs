@@ -62,7 +62,7 @@ namespace RaupCoilerII {
             }
 
             // the gizmo is a list of 3 mehses. Each mesh corresponds to an axis. 
-            liOriginaldMesh = scene.Meshes;
+            liMeshesOriginal = scene.Meshes;
 
             objModelScale = 0.15f;
             objModelTransX = -0.5f;
@@ -72,11 +72,9 @@ namespace RaupCoilerII {
         }//Initialize
 
         /*******************************************************************************
-        * @brief transforms the original geometry (liOriginaldMesh) with the object 
-        * current transformation values ( liTransformedMesh ) and then updates the VAO
-        * ( VBO and EBO ) with that data.
+        * @brief updates the VAO ( VBO and EBO ) with that data.
         *******************************************************************************/
-        public override void TransformUpdateVAO() {
+        public override void UpdateVAO() {
             int iStride = 0;
             float fR = 0, fG = 0, fB = 0;
             List<float> liCoordNColors = null;
@@ -97,7 +95,7 @@ namespace RaupCoilerII {
             iVerticesCter = 0;
             for (iAux = 0; iAux < 3; iAux++) {
 
-                meshAux = liOriginaldMesh[iAux];
+                meshAux = liMeshesOriginal[iAux];
 
                 // assign a different color to each mesh of the object ( each mesh is an arrow of the axis)
                 if (iAux == 0) { fR = 0; fG = 0; fB = 1; }
@@ -133,7 +131,7 @@ namespace RaupCoilerII {
             iVertexCounterAux = 0;
             for (iAux = 0; iAux < 3; iAux++) {
 
-                meshAux = liOriginaldMesh[iAux];
+                meshAux = liMeshesOriginal[iAux];
                 iFacesCter = iFacesCter + meshAux.Faces.Count();
 
                 for (iAux2 = 0; iAux2 < meshAux.Faces.Count(); iAux2++) {
@@ -185,7 +183,7 @@ namespace RaupCoilerII {
             // clear the context
             GL.BindVertexArray(0);
 
-        }//TransformUpdateVAO
+        }//UpdateVAO
 
     }//cGizmo
 

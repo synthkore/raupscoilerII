@@ -48,13 +48,21 @@ namespace RaupCoilerII {
         public int iShellEndCoverLastNormalIdx;
         public int iShellEndCoverLastFaceIdx;
 
+        // variables used to store the maximum and minimum values of the X,Y,Z coordinates to 
+        // calculate the scale factor and the translation to fit and center the model in the screen
+        float flMinX, flMaxX;
+        float flMinY, flMaxY;
+        float flMinZ, flMaxZ;
+        float flRangeX, flRangeY, flRangeZ;
+        float flBigestRange;
+
         // list that stores the vertices of the generating ring/shape
         List<Assimp.Vector2D> li2DVertexsGenCurve;
 
         /*******************************************************************************
         * @brief Constructor with pararameters.
         * @param[in] _refViewModel reference to the VieModel object that will be used 
-        * to retrive some information.
+        * to retrive and update information to the user interface and program data
         *******************************************************************************/
         public cShellModel(ViewModel _refViewModel) {
 
@@ -90,202 +98,17 @@ namespace RaupCoilerII {
 
             li2DVertexsGenCurve = null;
 
-        }//object3D
-
-
-        /*******************************************************************************
-        * @brief mehtod that updates the factors used to fit the shell model into the 
-        * screen when the AutoScale option is checked. 
-        * 
-        * @note the shell generation curve should have been configured previsously calling
-        * that mehtod because it is used here.
-        *******************************************************************************/
-        private void CalculateAutoScaleFactors() {
-            Assimp.Vector3D vectorAux1;
-            List<Assimp.Vector3D> liAuxVec3DSmall = null; // vertices of the smallest coil turn
-            List<Assimp.Vector3D> liAuxVec3DBig = null; // vertices of the largest coil turn
-            double dAux = 0;
-            float fXAux, fYAux, fZAux;
-            double dXAux, dYAux, dZAux;
-            int iRing = 0;
-            int iVertexIndex = 0;
-            int iVerticesPerGenCurve = 0; // the number of vertices on each shell ring
-            int iTotalNumberOfRings = 0; // the total number of rings in the shell model
-            double dAngleRingsRad = 0; // angle between each successive ring/generating curve, in radians
-            double dThetaRad = 0;// theta angle used to generate the complete shell model, in radians
-            double dThetatLastTurn = 0;// the Theta angle at which starts the last coil turn
-            double dRc = 0;
-            // auxiliar variables used to get the maximum and minimum value of the smallest turn
-            float flSmallMinX, flSmallMaxX;
-            float flSmallMinY, flSmallMaxY;
-            float flSmallMinZ, flSmallMaxZ;
-            float flSmallXRange; // difference between flSmallMaxX and flSmallMinX
-            float flSmallYRange; // difference between flSmallMaxY and flSmallMinY
-            float flSmallZRange; // difference between flSmallMaxZ and flSmallMinZ
-            // auxiliar variables used to get the maximum and minimum value of the largest turn
-            float flBigMinX, flBigMaxX;
-            float flBigMinY, flBigMaxY;
-            float flBigMinZ, flBigMaxZ;
-            float flBigXRange; // difference between flSmallMaxX and flSmallMinX
-            float flBigYRange; // difference between flSmallMaxY and flSmallMinY
-            float flBigZRange; // difference between flSmallMaxZ and flSmallMinZ
-            float flBigestRange; // the biggest of the X,Y and Z ranges
-
-            if (refAppViewModel.Autoscale == false) {
-
-                // no autoscale applied
-                objModelScale = 1.0f;
-
-            } else {
-
-                // get the maximum and minimum X,Y,Z coordinates of the first (smallest)
-                // and last(biggest) generating curves. To get the max and min coordinates
-                // simpli rotate 90º the generating curve on the first ant the last turn
-                liAuxVec3DSmall = new List<Assimp.Vector3D>();
-                liAuxVec3DBig = new List<Assimp.Vector3D>();
-
-                // calculate some parameters that will be used to generate the shell 3D model
-                iTotalNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev; // rings in the complete model: is the number of rings per revolution multiplied by the number of revolutions
-                iVerticesPerGenCurve = li2DVertexsGenCurve.Count();
-                dAngleRingsRad = ((double)refAppViewModel.Revolutions * (2.0d * (double)Math.PI)) / (double)iTotalNumberOfRings;
-
-                // calculate the Rc value according to the confiugred D and fRadius parameter
-                dRc = (double)refAppViewModel.IniRadius * (1.0d + (double)refAppViewModel.Dparam) / (1.0d - (double)refAppViewModel.Dparam);
-
-                // calucalte the theta angle (in rads) at which starts the last ( largest turn )
-                dThetatLastTurn = (refAppViewModel.Revolutions - 1) * (2.0d * (double)Math.PI);
-
-                // get the X,Y,Z of the vertexs of the first RingsRev, this are the vertexs of the
-                // shell first turn (smallest) separated on dAngleRingsRad each one
-                dThetaRad = 0;
-                for (iRing = 0; iRing < refAppViewModel.RingsRev; iRing++) {
-
-                    // caluclate the W^(𝜃/2π) for the current Theta value
-                    dAux = (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
-
-                    // scale the current "dThetaRad" ring: calculate all the vertices of the current ring of the shell
-                    for (iVertexIndex = 0; iVertexIndex < iVerticesPerGenCurve; iVertexIndex++) {
-
-                        // apply the "Raup & Michelson" model parameters on the generating curve
-                        dXAux = ((double)li2DVertexsGenCurve[iVertexIndex].X + dRc) * dAux;
-                        dYAux = ((double)li2DVertexsGenCurve[iVertexIndex].Y * dAux) - (dRc * (double)refAppViewModel.Tparam * (dAux - 1.0d));
-                        dZAux = 0;
-
-                        // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
-                        // converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
-                        fXAux = (float)((dXAux * Math.Cos(dThetaRad)) + (dZAux * Math.Sin(dThetaRad)));
-                        fYAux = (float)dYAux;
-                        fZAux = (float)(-(dXAux * Math.Sin(dThetaRad)) + (dZAux * Math.Cos(dThetaRad)));
-
-                        // store the calculated vertex X,Y,Z inot the tempora list
-                        vectorAux1 = new Assimp.Vector3D(fXAux, fYAux, fZAux);
-                        liAuxVec3DSmall.Add(vectorAux1);
-
-                    }//for
-
-                    // increase the Theta angle according to the configured parameters
-                    dThetaRad = dThetaRad + dAngleRingsRad;
-
-                }//for (iRings=0;
-
-                // get the X,Y,Z of the vertexs of the last RingsRev, this are the vertexs of the
-                // shell last turn (bigest) separated on dAngleRingsRad each one
-                dThetaRad = (iTotalNumberOfRings - refAppViewModel.RingsRev)* dAngleRingsRad;
-                for (iRing = 0; iRing < refAppViewModel.RingsRev; iRing++) {
-
-                    // caluclate the W^(𝜃/2π) for the current Theta value
-                    dAux = (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
-
-                    // scale the current "dThetaRad" ring: calculate all the vertices of the current ring of the shell
-                    for (iVertexIndex = 0; iVertexIndex < iVerticesPerGenCurve; iVertexIndex++) {
-
-                        // apply the "Raup & Michelson" model parameters on the generating curve
-                        dXAux = ((double)li2DVertexsGenCurve[iVertexIndex].X + dRc) * dAux;
-                        dYAux = ((double)li2DVertexsGenCurve[iVertexIndex].Y * dAux) - (dRc  * (double)refAppViewModel.Tparam * (dAux - 1.0d) );
-                        dZAux = 0;
-
-                        // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
-                        // converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
-                        fXAux = (float)((dXAux * Math.Cos(dThetaRad)) + (dZAux * Math.Sin(dThetaRad)));
-                        fYAux = (float)dYAux;
-                        fZAux = (float)(-(dXAux * Math.Sin(dThetaRad)) + (dZAux * Math.Cos(dThetaRad)));
-
-                        // store the calculated vertex X,Y,Z inot the tempora list
-                        vectorAux1 = new Assimp.Vector3D(fXAux, fYAux, fZAux);
-                        liAuxVec3DBig.Add(vectorAux1);
-
-                    }//for
-
-                    // increase the Theta angle according to the configured parameters
-                    dThetaRad = dThetaRad + dAngleRingsRad;
-
-                }//for (iRings=0;
-
-                // calculate the scale factors
-
-                // get the max and mins of the smallest coil trun
-                flSmallMaxX = liAuxVec3DSmall.Max(v => v.X);
-                flSmallMinX = liAuxVec3DSmall.Min(v => v.X);
-                flSmallMaxY = liAuxVec3DSmall.Max(v => v.Y);
-                flSmallMinY = liAuxVec3DSmall.Min(v => v.Y);
-                flSmallMaxZ = liAuxVec3DSmall.Max(v => v.Z);
-                flSmallMinZ = liAuxVec3DSmall.Min(v => v.Z);
-
-                flSmallXRange = flSmallMaxX - flSmallMinX;
-                flSmallYRange = flSmallMaxY - flSmallMinY;
-                flSmallZRange = flSmallMaxZ - flSmallMinZ;
-
-                // get the max and mins of the largest coil trun
-                flBigMaxX = liAuxVec3DBig.Max(v => v.X);
-                flBigMinX = liAuxVec3DBig.Min(v => v.X);
-                flBigMaxY = liAuxVec3DBig.Max(v => v.Y);
-                flBigMinY = liAuxVec3DBig.Min(v => v.Y);
-                flBigMaxZ = liAuxVec3DBig.Max(v => v.Z);
-                flBigMinZ = liAuxVec3DBig.Min(v => v.Z);
-
-                flBigXRange = flBigMaxX - flBigMinX;
-                flBigYRange = flBigMaxY - flBigMinY;
-                flBigZRange = flBigMaxZ - flBigMinZ;
-
-                // get the scale factor
-                // use the biggest range to calculate the factor
-                flBigestRange = flBigXRange;
-                if (flBigYRange > flBigestRange) {
-                    flBigestRange = flBigYRange;
-                }
-                if (flBigZRange > flBigestRange) {
-                    flBigestRange = flBigZRange;
-                }
-
-                // get the scale factors
-                objModelScale = 2 / flBigestRange;
-
-                // JBR 2026-06-28 INICIO Puesto para depurar escalado
-                // Debug.Write("* AutoScale:\r\n");
-                // Debug.Write("# Last theta:" + dThetaRad.ToString() + " Deg:" + ((dThetaRad / (2 * Math.PI)) * 360) + "\r\n");
-                // Debug.Write("# Rc:" + dRc.ToString() + "\r\n");
-                // Debug.Write("* Max X:" + flBigMaxX.ToString() + " Y:" + flBigMaxY.ToString() + " Z:" + flBigMaxZ.ToString() + "\r\n");
-                // Debug.Write("* Min X:" + flBigMinX.ToString() + " Y:" + flBigMinY.ToString() + " Z:" + flBigMinZ.ToString() + "\r\n");
-                // Debug.Write("* Range X:" + flBigXRange.ToString() + "\r\n");
-                // Debug.Write("* Range Y:" + flBigYRange.ToString() + "\r\n");
-                // Debug.Write("* Range Z:" + flBigZRange.ToString() + "\r\n");
-                // Debug.Write("* Scale:" + (2 / flBigestRange).ToString() + "\r\n\r\n\"");
-                // FIN JBR 2026-06-28 INICIO Puesto para depurar escalado
-
-            }//if
-
-        }//CalculateAutoScaleFactors
+        }//cShellModel
 
         /*******************************************************************************
         * @brief initializes the list of the vertices of the generating curve/ring 
         * used to generate the shell 3D model. The generating curve/ring is initialized
-        * according to the configured parameters.
+        * according to the configured parameters ( S, Resolution ... )
         *******************************************************************************/
         private void GetGeneratingCurveVertices() {
             Assimp.Vector2D vector2DAux1;
             float fCurrRingVertexAngleRad = 0;
             float fXAux, fYAux, fZAux;
-            float fXAux2, fYAux2, fZAux2;
             float flAngleVerticesRad = 0; // angle between successive vertices of the ring, in radians
             int iVertexIndex = 0;
             int iNumVerticesGenCurve = 0;
@@ -313,6 +136,136 @@ namespace RaupCoilerII {
             }//for
 
         }//GetGeneratingCurveVertices
+
+        /*******************************************************************************
+        * @brief method that calculates and updates the scale factor and translation vector
+        * used to fit and center the shell model into the screen when the AutoScale option 
+        * is checked. It generates a simplified version of the shell model with the configured
+        * Raup parameters in order to get the maximum and minimum X,Y,Z coordinates values.
+        * 
+        * @note the shell Raup Michelson and the other genration parameters should have 
+        * been set before calling that method because they are necessary to get the 
+        * dimensions of the model.
+        *******************************************************************************/
+        private void CalculateTranslationAndScaleFactors() {
+            // variables used to calculate the generating curve
+            List<Assimp.Vector2D> liBasicGenCurveVertices; // vertices of the simple generating curve used to calculate the maximum and minimum X,Y and Z coordinates
+            float flAngleVerticesRad = 0; // angle between successive vertices of the ring, in radians
+            Assimp.Vector2D vector2DAux1;
+            int iNumVerticesGenCurve = 4;
+
+            // variables used to generate the simple shell model            
+            int iRingsPerRevolution = 18;
+            int iRing = 0;
+            int iVertexIndex = 0;
+            int iTotalNumberOfRings = 0; // the total number of rings in the shell model
+            float fCurrRingVertexAngleRad = 0;
+            double dAngleRingsRad = 0; // angle between each successive ring/generating curve, in radians
+            double dThetaRad = 0;// theta angle used to generate the complete shell model, in radians
+            double dRc = 0;
+
+            double dAux = 0;
+            float fXAux, fYAux, fZAux;
+            double dXAux, dYAux, dZAux;
+
+            // ## 2D Simplified generating curve
+
+            // create and calculate the generating curve according to the selected Raup & Michelson parameters
+            liBasicGenCurveVertices = new List<Vector2D>();
+
+            flAngleVerticesRad = (2.0f * (float)Math.PI) / (float)iNumVerticesGenCurve;
+            fCurrRingVertexAngleRad = 0;
+            for (iVertexIndex = 0; iVertexIndex < iNumVerticesGenCurve; iVertexIndex++) {
+
+                // generate current ring vertex X, and Y coordinates for the genrating shape
+                fXAux = ((float)Math.Cos((double)fCurrRingVertexAngleRad) * (float)refAppViewModel.IniRadius);
+                fYAux = ((float)Math.Sin((double)fCurrRingVertexAngleRad) * (float)refAppViewModel.IniRadius * (float)refAppViewModel.Sparam);
+
+                // store the current vertex of the generated shape into the list
+                vector2DAux1 = new Assimp.Vector2D(fXAux, fYAux);
+                liBasicGenCurveVertices.Add(vector2DAux1);
+
+                fCurrRingVertexAngleRad = fCurrRingVertexAngleRad + flAngleVerticesRad;
+
+            }//for
+
+            // ## 3D Simplified shell model
+
+            // create and calculate the shell 3D model according to the selected Raup & Michelson
+            // parameters and get the maximum and minimum X, Y, Z values 
+
+            // initialize the variables used to get the maximum and minimum values
+            flMaxX = -10000; flMaxY = -10000; flMaxZ = -10000; // set a very small value in order to update it when a bigger value is found
+            flMinX = 10000; flMinY = 10000; flMinZ = 10000; // set a very big value in order to update it when a smalle value is found
+            flBigestRange = 0;
+
+            // calculate some of the parameters needed to generate the shell 3D model
+            iTotalNumberOfRings = refAppViewModel.Revolutions * iRingsPerRevolution; // rings in the complete model: is the number of rings  per revolution multiplied by the number of revolutions
+            dAngleRingsRad = ((double)refAppViewModel.Revolutions * (2.0d * (double)Math.PI)) / (double)iTotalNumberOfRings;
+
+            // calculate the Rc value according to the confiugred D and fRadius parameter
+            dRc = (double)refAppViewModel.IniRadius * (1.0d + (double)refAppViewModel.Dparam) / (1.0d - (double)refAppViewModel.Dparam);
+
+            dThetaRad = 0;
+            for (iRing = 0; iRing < iTotalNumberOfRings; iRing++) {
+
+                // calculate the W^(𝜃/2π) for the current Theta value
+                dAux = (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
+
+                // scale the current "dThetaRad" ring: calculate all the vertices of the current ring of the shell
+                for (iVertexIndex = 0; iVertexIndex < iNumVerticesGenCurve; iVertexIndex++) {
+
+                    // apply the "Raup & Michelson" model parameters on the generating curve
+                    dXAux = ((double)liBasicGenCurveVertices[iVertexIndex].X + dRc) * dAux;
+                    dYAux = ((double)liBasicGenCurveVertices[iVertexIndex].Y * dAux) - (dRc * (double)refAppViewModel.Tparam * (dAux - 1.0d));
+                    dZAux = 0;
+
+                    // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
+                    // converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
+                    fXAux = (float)((dXAux * Math.Cos(-dThetaRad)) + (dZAux * Math.Sin(-dThetaRad)));
+                    fYAux = (float)dYAux;
+                    fZAux = (float)(-(dXAux * Math.Sin(-dThetaRad)) + (dZAux * Math.Cos(-dThetaRad)));
+
+                    // check if the processed vertex coordinates correspond to a maximum or minimum X,Y or Z value
+                    if (fXAux < flMinX) { flMinX = fXAux; }
+                    if (fXAux > flMaxX) { flMaxX = fXAux; }
+                    if (fYAux < flMinY) { flMinY = fYAux; }
+                    if (fYAux > flMaxY) { flMaxY = fYAux; }
+                    if (fZAux < flMinZ) { flMinZ = fZAux; }
+                    if (fZAux > flMaxZ) { flMaxZ = fZAux; }
+
+                }//for
+
+                // increase the Theta angle of the following shell model ring
+                dThetaRad = dThetaRad + dAngleRingsRad;
+            
+            }//for
+
+            // calculate the scale factor to apply to the shell model to fit in the frustrum/screen
+            if (!refAppViewModel.Autoscale) {
+                objModelScale = 1.0f;
+            } else {
+                // use the biggest range to calculate the model scale factor
+                flRangeX = flMaxX - flMinX;
+                flRangeY = flMaxY - flMinY;
+                flRangeZ = flMaxZ - flMinZ;
+                // get the biggest of the range
+                flBigestRange = flRangeX;
+                if (flRangeY > flBigestRange) flBigestRange = flRangeY;
+                if (flRangeZ > flBigestRange) flBigestRange = flRangeZ;
+                // calculate the scale factor to fit the shell model coordinates into a 2x2x2 cube
+                objModelScale = (float)(2.0f / flBigestRange);
+            }//if
+
+            // calculate the translation vector: use the max and min coordinatens to
+            // calculate the translation necessary to center  the model on 0,0,0 and
+            // then configure the corresponding model translation matrix
+            objModelTransX = (-(flMaxX + flMinX) / 2.0f) * objModelScale;
+            objModelTransY = (-(flMaxY + flMinY) / 2.0f) * objModelScale;
+            objModelTransZ = (-(flMaxZ + flMinZ) / 2.0f) * objModelScale;
+
+        }//CalculateTranslationAndScaleFactors
+
 
         /*******************************************************************************
         * @brief generates all the vertexs of the outer shell geometry ( the faces that
@@ -366,10 +319,10 @@ namespace RaupCoilerII {
 				    fYAux = (float)dYAux;
 				    fZAux = (float)(-(dXAux * Math.Sin(-dThetaRad)) + (dZAux * Math.Cos(-dThetaRad)));
 
-                    // apply the previously calculated scale factor
-                    fXAux = fXAux * objModelScale;
-                    fYAux = fYAux * objModelScale;
-                    fZAux = fZAux * objModelScale;
+                    // apply the previously calculated translation and scale factor
+                    fXAux = fXAux * objModelScale + objModelTransX;
+                    fYAux = fYAux * objModelScale + objModelTransY;
+                    fZAux = fZAux * objModelScale + objModelTransZ;
 
                     // store the calculated vertex coordinates into the mesh structure
                     vectorAux1 = new Assimp.Vector3D(fXAux, fYAux, fZAux);
@@ -444,10 +397,10 @@ namespace RaupCoilerII {
                     fYAux = (float)dYAux;
                     fZAux = (float)(-(dXAux * Math.Sin(-dThetaRad)) + (dZAux * Math.Cos(-dThetaRad)));
 
-                    // apply the previously calculated scale factor
-                    fXAux = fXAux * objModelScale;
-                    fYAux = fYAux * objModelScale;
-                    fZAux = fZAux * objModelScale;
+                    // apply the previously calculated translation and scale factor
+                    fXAux = fXAux * objModelScale + objModelTransX;
+                    fYAux = fYAux * objModelScale + objModelTransY;
+                    fZAux = fZAux * objModelScale + objModelTransZ;
 
                     // store the calculated vertex coordinates into the mesh structure
                     vectorAux1 = new Assimp.Vector3D(fXAux, fYAux, fZAux);
@@ -607,12 +560,10 @@ namespace RaupCoilerII {
 
                     // get the vector that joins the current vertex with the equivalente vertex in the next face
                     vertexAux2 = model_mesh.Vertices[iAux + ((iVertexIndex + 1) % iVertexsPerRing)];
-
                     vectorEdge1 = vertexAux1 - vertexAux2;
 
                     // get the vector that joins the current vertex with the equivalente vertex in the next face
                     vertexAux2 = model_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing];
-
                     vectorEdge2 = vertexAux1 - vertexAux2;
 
                     // calculate the normal of that vertex and add it to the vertex list
@@ -976,7 +927,7 @@ namespace RaupCoilerII {
             // keep the index of the shell end cover last stored normal
             iShellEndCoverLastNormalIdx = model_mesh.Normals.Count() - 1;
 
-        }//GenerateShellEndCoverNormals
+        }//GenerateSpiralEndCoverNormals
 
         /*******************************************************************************
         * @brief fills the faces information by setting the indexs of the vertex that 
@@ -1339,7 +1290,7 @@ namespace RaupCoilerII {
             // keep the index of the shell end cover last stored face
             iShellEndCoverLastFaceIdx = model_mesh.Faces.Count() - 1;
 
-        }//GenerateShellEndCoverFaces
+        }//GenerateSpiralEndCoverFaces
 
 
         /*******************************************************************************
@@ -1355,11 +1306,12 @@ namespace RaupCoilerII {
             iFacesCter = 0;
             iIndicesFacesCter = 0;
 
+            // frist get the scale factor and translation vector that must be applied to
+            // the shell geometry to fit it into the frustrum / screen.
+            CalculateTranslationAndScaleFactors();
+
             // generate the shell generating curve (ring) vertices according to the configured parameters
             GetGeneratingCurveVertices();
-
-            // calculate the needed scale factors to fit the shell model into the unit cube
-            CalculateAutoScaleFactors();
 
             // generate and add to the geometry the vertexs 
             GenerateOuterShellVertexs(ref model_mesh);
@@ -1379,7 +1331,7 @@ namespace RaupCoilerII {
             GenerateShellBeginCoverFaces(ref model_mesh);
             GenerateShellEndCoverFaces(ref model_mesh);
 
-        }//GenerateShellModel
+        }//GenerateSpiralModel
 
         /*******************************************************************************
         * @brief exports the mesh of the object into a file with the specified name.
@@ -1396,7 +1348,7 @@ namespace RaupCoilerII {
             var scene = new Scene();
 
             // 2. Añadir la malla
-            scene.Meshes.Add(liTransformedMesh[0]);
+            scene.Meshes.Add(liMeshesOriginal[0]);
 
             // 3. Crear nodo raíz
             scene.RootNode = new Node("RootNode");
@@ -1407,11 +1359,10 @@ namespace RaupCoilerII {
             // 4. (Opcional pero recomendable) añadir un material
             var material = new Assimp.Material();
             scene.Materials.Add(material);
-            liTransformedMesh[0].MaterialIndex = 0;
+            liMeshesOriginal[0].MaterialIndex = 0;
 
             // 5. Exportar (elige formato: "obj", "fbx", "stl", etc.)
             context.ExportFile(scene, strFileName, "obj");
-
 
             return retVal;
 
@@ -1422,184 +1373,54 @@ namespace RaupCoilerII {
         * using the Raups model
         *******************************************************************************/
         public override void InitializeGeometry() {
-            var importer = new AssimpContext();
-            // Acceder al primer Mesh (malla) del archivo
-            int iAux = 0;
             Mesh model_mesh = null;
 
-            model_mesh = new Mesh();
-            
             // call the method that procedurally generates the shell model geometry and stores it into the Scene object
             GenerateShellModel(ref model_mesh);
 
-            liOriginaldMesh = new List<Mesh>();
-            liOriginaldMesh.Add(new Mesh()); // create a new empty mesh object at index 0
-            liOriginaldMesh[0] = object3D.CloneMesh(model_mesh);// clone the object in the index 0 mesh
+            liMeshesOriginal = new List<Mesh>();
+            liMeshesOriginal.Add(model_mesh);
 
         }//Initialize
 
         /*******************************************************************************
-        * @brief transforms the original geometry (liOriginaldMesh) with the object 
-        * current transformation values ( liTransformedMesh ) and then updates the VAO
-        * ( VBO and EBO ) with that data.
+        * @brief updates the VAO ( VBO and EBO ) with that data.
         *******************************************************************************/
-        public override void TransformUpdateVAO() {
-            // maximum and minimum coordinates values used to center the model
-            float flMaxX = -10000, flMaxY = -10000, flMaxZ = -10000; // set a very small value in order to update it when a bigger value is found
-            float flMinX = 10000, flMinY = 10000, flMinZ = 10000; // set a very big value in order to update it when a smalle value is found
-
-            // maximum and minimum coordinates values used to center the model
-            // float flMaxX = -10000, flMaxY = -10000, flMaxZ = -10000; // set a very small value in order to update it when a bigger value is found
-            // float flMinX = 10000, flMinY = 10000, flMinZ = 10000; // set a very big value in order to update it when a smalle value is found
+        public override void UpdateVAO() {
             int iStride = 0;
-            // Assimp.Matrix4x4 rotationMatrix;
-            Assimp.Matrix4x4 tranlsationMatrix;
             List<float> liCoordNColors;
             List<uint> liFaceIdxs;
             int iAux = 0;
+             
+            // VAO: VBO + EBO
 
-            // process the model mesh to center it on 0,0,0: get the max and minimum coordinates 
-            // and the use that values to calculate the translation required to center it to 0,0,0
-
-            // get the Max and Min coordinates of the model vertices
-            iVerticesCter = liOriginaldMesh[0].Vertices.Count();
-            for (iAux = 0; iAux < iVerticesCter; iAux++) {
-                // update the maximum and mínimum coordinates values if necessary
-                // X max and min
-                if (liOriginaldMesh[0].Vertices[iAux].X > flMaxX) {
-                    flMaxX = liOriginaldMesh[0].Vertices[iAux].X;
-                } else if (liOriginaldMesh[0].Vertices[iAux].X < flMinX) {
-                    flMinX = liOriginaldMesh[0].Vertices[iAux].X;
-                }
-                // Y max and min
-                if (liOriginaldMesh[0].Vertices[iAux].Y > flMaxY) {
-                    flMaxY = liOriginaldMesh[0].Vertices[iAux].Y;
-                } else if (liOriginaldMesh[0].Vertices[iAux].Y < flMinY) {
-                    flMinY = liOriginaldMesh[0].Vertices[iAux].Y;
-                }
-                // Z max and min
-                if (liOriginaldMesh[0].Vertices[iAux].Z > flMaxZ) {
-                    flMaxZ = liOriginaldMesh[0].Vertices[iAux].Z;
-                } else if (liOriginaldMesh[0].Vertices[iAux].Z < flMinZ) {
-                    flMinZ = liOriginaldMesh[0].Vertices[iAux].Z;
-                }
-            }//for
-
-            // use the max and min coordinatens to calculate the translation necessary to center 
-            // the model on 0,0,0 and then configure the corresponding model translation matrix
-            objModelTransX = -(flMaxX + flMinX) / 2;
-            objModelTransY = -(flMaxY + flMinY) / 2;
-            objModelTransZ = -(flMaxZ + flMinZ) / 2;
-
-            tranlsationMatrix = Assimp.Matrix4x4.FromTranslation(new Assimp.Vector3D(objModelTransX, objModelTransY, objModelTransZ));
-
-            liTransformedMesh = new List<Mesh>();
-            liTransformedMesh.Add(new Mesh()); // create a new empty mesh object at index 0
-            liTransformedMesh[0] = object3D.CloneMesh(liOriginaldMesh[0]);// clone the object in the index 0 mesh
-
-            // apply the translation transformation over each vertex of the mesh and store it in the
-            // list that will be used to update the VAO ( VBO and EBO )
-            for (iAux = 0; iAux < iVerticesCter; iAux++) {
-                // first apply the transformations
-                liTransformedMesh[0].Vertices[iAux] = tranlsationMatrix * liTransformedMesh[0].Vertices[iAux];
-                liTransformedMesh[0].Normals[iAux] = tranlsationMatrix * liTransformedMesh[0].Normals[iAux];
-            }//for
-
-            // ### update the content of the lists that will be used to intialize the VAO ( VBO and EBO ) 
-            // with the model data while apply the transformations set by the user
-
-            // calculate the model rotation matrix that allows to rotate the model arround the current view vector with the 
-            // angles set by the user when clicking an draggin over OGL render control. The view vector is defined by the CameraUp
-            // and the CameraRight vectors. The rotation is achived using Quaternions from the OpenTK.Mathematics lib wich also
-            // allow rotating the object arround each axis and then combining then in a single rotation matrix.
-            // OpenTK.Mathematics.Quaternion rotArroundCamUpAxis = OpenTK.Mathematics.Quaternion.FromAxisAngle(cameraUpVector, MathHelper.DegreesToRadians((float)-refAppViewModel.YOrientation));
-            // OpenTK.Mathematics.Quaternion rotArroundCamRightAxis = OpenTK.Mathematics.Quaternion.FromAxisAngle(cameraRightVector, MathHelper.DegreesToRadians((float)-refAppViewModel.XOrientation));
-            // commbine both axis rotations into a single Quaternion
-            // OpenTK.Mathematics.Quaternion rotCombined = rotArroundCamUpAxis * rotArroundCamRightAxis;
-            // nomralize the combined Quaternion
-            // rotCombined = rotCombined.Normalized();
-            // get the rotation matrix that corresponds to the obtained Quaternion
-            // OpenTK.Mathematics.Matrix4 rotMatrix = Matrix4.CreateFromQuaternion(rotCombined);
-
-            // to multiply the OpenTK Rotation Matrix4 with the Assimp.net vertices we must convert the
-            // obtained OpenTK.Mathematics.Matrix4 matrix to an Assimp.Matrix4x4 matrix.            
-            // rotationMatrix = new Assimp.Matrix4x4(
-            //     rotMatrix.M11, rotMatrix.M12, rotMatrix.M13, rotMatrix.M14,
-            //     rotMatrix.M21, rotMatrix.M22, rotMatrix.M23, rotMatrix.M24,
-            //     rotMatrix.M31, rotMatrix.M32, rotMatrix.M33, rotMatrix.M34,
-            //     rotMatrix.M41, rotMatrix.M42, rotMatrix.M43, rotMatrix.M44
-            // );
-            // 
-            // // reset the rotation angles previously set by the user when clickng and draggin on the screen.
-            // refAppViewModel.XOrientation = 0;
-            // refAppViewModel.YOrientation = 0;
-            // refAppViewModel.ZOrientation = 0;
-
-            // 3 vertex floats   + 3 color floats  + 3 normal floats
+            // VBO: create and initialize the list for the VBO: 3 vertex floats   + 3 color floats  + 3 normal floats
             liCoordNColors = new List<float>();
-
-            // apply the obtained rotation matrix over the vertices and the normals of the model           
-            // iVerticesCter = liTransformedMesh[0].Vertices.Count();
-            // for (iAux = 0; iAux < iVerticesCter; iAux++) {
-            //     // first apply the transformations
-            //     liTransformedMesh[0].Vertices[iAux] = rotationMatrix * liTransformedMesh[0].Vertices[iAux];
-            //     liTransformedMesh[0].Normals[iAux] = rotationMatrix * liTransformedMesh[0].Normals[iAux];
-            // }//for
-
-            // get the Max and Min coordinates of the model vertices
-            // for (iAux = 0; iAux < iModelTotalVertices; iAux++) {
-            //     // update the maximum and mínimum coordinates values if necessary
-            //     if (modelTransformedMesh.Vertices[iAux].X > flMaxX) {
-            //         flMaxX = modelTransformedMesh.Vertices[iAux].X;
-            //     } else if (modelTransformedMesh.Vertices[iAux].X < flMinX) {
-            //         flMinX = modelTransformedMesh.Vertices[iAux].X;
-            //     }
-            //     if (modelTransformedMesh.Vertices[iAux].Y > flMaxY) {
-            //         flMaxY = modelTransformedMesh.Vertices[iAux].Y;
-            //     } else if (modelTransformedMesh.Vertices[iAux].Y < flMinY) {
-            //         flMinY = modelTransformedMesh.Vertices[iAux].Y;
-            //     }
-            //     if (modelTransformedMesh.Vertices[iAux].Z > flMaxZ) {
-            //         flMaxZ = modelTransformedMesh.Vertices[iAux].Z;
-            //     } else if (modelTransformedMesh.Vertices[iAux].Z < flMinZ) {
-            //         flMinZ = modelTransformedMesh.Vertices[iAux].Z;
-            //     }
-            // }//for
-
-            // use the Max and Min coordinatens to calculate the center of the model and the corresponding model translation matrix
-            // objModelTransX = -((flMaxX + flMinX) / 2f);
-            // objModelTransY = -((flMaxY + flMinY) / 2f);
-            // objModelTransZ = -((flMaxZ + flMinZ) / 2f);
-
-            // Assimp.Matrix4x4 tranlsationMatrix = Matrix4x4.FromTranslation(new Vector3D(objModelTransX, objModelTransY, objModelTransZ));
-
-            // assign the mesh vertices to the list that will be used to initialize the VAO 
+            iVerticesCter = liMeshesOriginal[0].Vertices.Count();
             for (iAux = 0; iAux < iVerticesCter; iAux++) {
-                // first apply the translation transformation
-                // modelTransformedMesh.Vertices[iAux] = tranlsationMatrix * modelTransformedMesh.Vertices[iAux];
-                // modelTransformedMesh.Normals[iAux] = tranlsationMatrix * modelTransformedMesh.Normals[iAux];
 
                 // each face has 3 vertices + 3 colors + 3 normals
                 // vertex coords centered in the middle (flMax... - flMin...) / 2;
-                liCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].X);
-                liCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].Y);
-                liCoordNColors.Add((float)liTransformedMesh[0].Vertices[iAux].Z);
+                liCoordNColors.Add((float)liMeshesOriginal[0].Vertices[iAux].X);
+                liCoordNColors.Add((float)liMeshesOriginal[0].Vertices[iAux].Y);
+                liCoordNColors.Add((float)liMeshesOriginal[0].Vertices[iAux].Z);
                 // color
                 liCoordNColors.Add(((float)refAppViewModel.MeshColor.R) / 255f);
                 liCoordNColors.Add(((float)refAppViewModel.MeshColor.G) / 255f);
                 liCoordNColors.Add(((float)refAppViewModel.MeshColor.B) / 255f);
                 liCoordNColors.Add((float)(refAppViewModel.MeshTransparency / 100.0f));
                 // normal
-                liCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].X);
-                liCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].Y);
-                liCoordNColors.Add((float)liTransformedMesh[0].Normals[iAux].Z);
+                liCoordNColors.Add((float)liMeshesOriginal[0].Normals[iAux].X);
+                liCoordNColors.Add((float)liMeshesOriginal[0].Normals[iAux].Y);
+                liCoordNColors.Add((float)liMeshesOriginal[0].Normals[iAux].Z);
+
             }//for
 
-            // faces indexs list for the EBO
-            // add to the list of the indexs of the vertexs that define the faces of the mode
+            // EBO: create and initialize the faces indexs list for the EBO:
             liFaceIdxs = new List<uint>();
-            iFacesCter = liTransformedMesh[0].Faces.Count();
-            foreach (var face in liTransformedMesh[0].Faces) {
+            iFacesCter = liMeshesOriginal[0].Faces.Count();
+            foreach (var face in liMeshesOriginal[0].Faces) {
+
                 // each face has 3 index because we us PostProcessSteps.Triangulate
                 liFaceIdxs.Add((uint)face.Indices[0]);
                 liFaceIdxs.Add((uint)face.Indices[1]);
@@ -1607,9 +1428,9 @@ namespace RaupCoilerII {
 
                 iIndicesFacesCter = iIndicesFacesCter + 3;
 
-            }
+            }//foreach
 
-            // #### initalize the model VAO (VBO and EBO)  with the model attributes, vertices and faces in the lists
+            // #### initalize the model VAO (VBO and EBO)  with the created lists
 
             objectVAO = GL.GenVertexArray();
             objectVBO = GL.GenBuffer();
@@ -1643,7 +1464,7 @@ namespace RaupCoilerII {
             // clear the context
             GL.BindVertexArray(0);
 
-        }//TransformUpdateVAO
+        }//UpdateVAO
 
     }//cShellModel
 

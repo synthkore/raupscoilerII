@@ -753,7 +753,7 @@ namespace RaupCoilerII {
             Resolution = 36;
             RingsRev = 36;
             ShellWidthPercent = 5;
-            IniRadius = 0.0001;
+            IniRadius = 0.01;
 
             XOrientation = 0;
             YOrientation = 0;

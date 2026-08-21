@@ -29,11 +29,9 @@ namespace RaupCoilerII {
         protected int objectVBO;
         protected int objectEBO;
 
-        // meshes that will keep the copy of the model geometry. The information will be copied to
-        // from that buffers to the OpenGL buffers. Every time that the mesh requires to be transformed 
-        // its TransformedMesh will be transformed and then copied to the OpnGL buffers
-        protected List<Mesh> liOriginaldMesh = null;
-        protected List<Mesh> liTransformedMesh = null;
+        // list of meshes that keeps the copy of the model geometry. The information will be copied 
+        // from that buffers to the OpenGL buffers every time there are chenges on it
+        protected List<Mesh> liMeshesOriginal = null; // list with the original meshes of the object
 
         public Int32 iVerticesCter = 0; // the total number of vertex indices used to draw the geometry ( they may be repeated )
         public Int32 iFacesCter = 0; // the total number of faces in the geometry
@@ -49,18 +47,16 @@ namespace RaupCoilerII {
         public float objModelTransZ = 0f;
 
         /*******************************************************************************
-        * @brief initializes the geometry of the object (liOriginaldMesh). It may initialize
+        * @brief initializes the geometry of the object (liMeshesOriginal). It may initialize
         * the vertex and faces of that object, programatically, or by loading them from a file. 
         *******************************************************************************/
         public virtual void InitializeGeometry() { }
 
         /*******************************************************************************
-        * @brief applies the current object transformation values (scale, translation, 
-        * rotation) over the original mesh vertices and faces ( liOriginaldMesh ), then 
-        * stores ther result into the liTransformedMesh and uses it to updates that 
+        * @brief stores the mesh into the liMehsesTransformed and uses it to update that 
         * information in the VAO ( VBO and EBO )
         *******************************************************************************/
-        public virtual void TransformUpdateVAO(){ }
+        public virtual void UpdateVAO(){ }
 
         /*******************************************************************************
         * @brief Auxiliar method that clones the received mesh into a new mesh
@@ -69,7 +65,7 @@ namespace RaupCoilerII {
         public static Mesh CloneMesh(Mesh source) {
             var dest = new Mesh(source.Name, source.PrimitiveType);
 
-            // Vertexs
+            // Vertices
             dest.Vertices.AddRange(source.Vertices);
 
             // Normals
