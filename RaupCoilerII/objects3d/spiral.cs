@@ -42,7 +42,7 @@ namespace RaupCoilerII {
         public int iSpiralEndCoverLastNormalIdx;
         public int iSpiralEndCoverLastFaceIdx;
 
-        int iVertexsPerRing = 8;
+        int iVertexsPerRing = 16;
 
         /*******************************************************************************
         * @brief Constructor with pararameters.
@@ -200,8 +200,8 @@ namespace RaupCoilerII {
             fCenterY = fCenterY / iVertexsPerRing;
             fCenterZ = fCenterZ / iVertexsPerRing;
 
-            // store the vertexs of the last ring of the outer shell mesh in the list of vertexs
-            // to use them to define the outer side of the faces of the end cover
+            // store in the list of vertexs the vertexs of the last ring of the spiral
+            // that will be used to generate the spiral tube end cover.
             iAux = iSpiralLastVertexIdx - iVertexsPerRing + 1;
             for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
@@ -210,24 +210,21 @@ namespace RaupCoilerII {
 
             }//for
 
-            // store the vertexs of the last ring of the inner shell mesh in the list of vertexs
-            // to use them to define the innser side of the faces of the end cover
-            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
-
-                v3Daux = new Vector3D(fCenterX, fCenterY, fCenterZ);
-                spiral_mesh.Vertices.Add(v3Daux);
-
-            }//for
+            // store the spiral end cover center vertex used to create the spiral
+            // end cover. The cover is created by joining the vertex of spiral's
+            // last ring with that calculated central vertex using triangles.
+            v3Daux = new Vector3D(fCenterX, fCenterY, fCenterZ);
+            spiral_mesh.Vertices.Add(v3Daux);
 
             // keep the index of the shell end cover last stored vertex
             iSpiralEndCoverLastVertexIdx = spiral_mesh.Vertices.Count() - 1;
 
             // JBR 2026-08-21 Para depurar espiral
-            iAux = iSpiralEndCoverFirstVertexIdx;
-            Debug.WriteLine("GenerateSpiralEndCoverVertexs:");
-            for (iVertexIndex = 0; iVertexIndex < (iVertexsPerRing*2); iVertexIndex++) {
-                Debug.WriteLine(iVertexIndex.ToString() + ": " + spiral_mesh.Vertices[iAux + iVertexIndex].X.ToString() + "," + spiral_mesh.Vertices[iAux + iVertexIndex].Y.ToString() + "," + spiral_mesh.Vertices[iAux + iVertexIndex].Z.ToString());
-            }//for
+            // iAux = iSpiralEndCoverFirstVertexIdx;
+            // Debug.WriteLine("GenerateSpiralEndCoverVertexs:");
+            // for (iVertexIndex = 0; iVertexIndex < (iVertexsPerRing*2); iVertexIndex++) {
+            // Debug.WriteLine(iVertexIndex.ToString() + ": " + spiral_mesh.Vertices[iAux + iVertexIndex].X.ToString() + "," + spiral_mesh.Vertices[iAux + iVertexIndex].Y.ToString() + "," + spiral_mesh.Vertices[iAux + iVertexIndex].Z.ToString());
+            // }//for
             // FIN JBR 2026-08-21 Para depurar espiral
 
         }//GenerateSpiralEndCoverVertexs
@@ -339,7 +336,9 @@ namespace RaupCoilerII {
 
 
         /*******************************************************************************
-        * @brief generates the normals for all the vertices of the spiral end cover
+        * @brief generates the normals for all the vertices of the spiral end cover. The 
+        * end cover is built creating triangles from the spiral final ring vertices to 
+        * the centtral vertex of that ring.
         * 
         * @param[in|out] spiral_mesh with all the geometry information. Here is where
         * the generated vertex, normals, and faces information is stored
@@ -349,7 +348,7 @@ namespace RaupCoilerII {
             Assimp.Vector3D vertexAux2;
             Assimp.Vector3D vectorEdge1;
             Assimp.Vector3D vectorEdge2;
-            Assimp.Vector3D vertexNormal;
+            Assimp.Vector3D vertexNormal ;
             int iAux = 0;
             int iVertexIndex = 0;
             int iNumberOfRings = 0;
@@ -359,21 +358,19 @@ namespace RaupCoilerII {
             // keep the index of the spiral end cover first stored normal
             iSpiralEndCoverFirstNormalIdx = spiral_mesh.Normals.Count();
 
-            // calculate all the normals of vertexs of the outer ring of the end cover
+            // calculate all the normals of vertexs of the spiral last ring used to generate the spiral end cover
             iAux = iSpiralEndCoverFirstVertexIdx;
             for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
-                // Indexs of a regular face of the ring:
-                // iAux = iRing * iVertexsPerRing            +                    +
-                //                   iAux + iVertexIndex>  + O ------------------ 1 + <iAux + iVertexIndex + 1
-                //                                           |  +                 +
-                //                                           |      +     face 1  +
-                //                                           |          +         + 
-                //                                           |  face 2      +     +
-                //                                           |                 +  +
-                //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
-                //                                           +                    +
-
+                // Indexs of a face of the spiral end cover
+                // iAux = iRing * iVertexsPerRing    
+                //                   iAux + iVertexIndex>  + O ----------------- 1 + <iAux + iVertexIndex + 1
+                //                                             +               +
+                //                                               +   face    +
+                //                                                 +       + 
+                //                                                   +   +
+                //                                                     3  < iSpiralEndCoverLastVertexIdx: is the center of the last ring
+                //
                 vertexAux1 = spiral_mesh.Vertices[iAux + iVertexIndex];
 
                 // get the vector that joins the current vertex with the equivalente vertex in the next face
@@ -382,7 +379,7 @@ namespace RaupCoilerII {
                 vectorEdge1 = vertexAux2 - vertexAux1;
 
                 // get the vector that joins the current vertex with the equivalente vertex in the next face
-                vertexAux2 = spiral_mesh.Vertices[iAux + iVertexIndex + iVertexsPerRing];
+                vertexAux2 = spiral_mesh.Vertices[iSpiralEndCoverLastVertexIdx];
 
                 vectorEdge2 = vertexAux2 - vertexAux1;
 
@@ -395,42 +392,13 @@ namespace RaupCoilerII {
 
             }// for (iVertexIndex = 0
 
-            // calculate all the normals of the vertexs of the inner ring of the end cover. The vertexs of the 
-            // inner ring of the begin cover are stored just after the vertex of the
-            iAux = iSpiralEndCoverFirstVertexIdx + iVertexsPerRing;
-            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
+            // calculate the normal of spiral end cover central vertex, as the cover
+            // is flat we use the same normal than the last calcualted vertex
+            vertexNormal = new Assimp.Vector3D();
+            vertexNormal = spiral_mesh.Normals[iAux + iVertexIndex - 1];
+            vertexNormal.Normalize();
 
-                // Indexs of the last face of the ring:
-                // iAux = iRing * iVertexsPerRing              +                    +
-                //   iAux + iVertexIndex - iVertexsPerRing > + O  +  +  +  +  +  +  1 + < iAux + iVertexIndex + 1 - iVertexsPerRing 
-                //                                             |  +                 +
-                //                                             |      +     face 1  +
-                //                                             |          +         + 
-                //                                             |  face 2      +     +
-                //                                             |                 +  +
-                //                     iAux + iVertexIndex > + 2 ------------------ 3 + < iAux + iVertexIndex + 1
-                //     
-
-                vertexAux1 = spiral_mesh.Vertices[iAux + iVertexIndex];
-
-                // get the vector that joins the current vertex with the equivalente vertex in the next face
-                vertexAux2 = spiral_mesh.Vertices[iAux + iVertexIndex - iVertexsPerRing];
-
-                vectorEdge1 = vertexAux1 - vertexAux2;
-
-                // get the vector that joins the current vertex with the equivalent vertex in the next face
-                vertexAux2 = spiral_mesh.Vertices[iAux + ((iVertexIndex + 1) % iVertexsPerRing)];
-
-                vectorEdge2 = vertexAux2 - vertexAux1;
-
-                // calculate the normal of that vertex and add it to the vertex list
-                vertexNormal = new Assimp.Vector3D();
-                vertexNormal = Assimp.Vector3D.Cross(vectorEdge1, vectorEdge2);
-                vertexNormal.Normalize();
-
-                spiral_mesh.Normals.Add(-vertexNormal);
-
-            }// for (iVertexIndex = 0
+            spiral_mesh.Normals.Add(-vertexNormal);
 
             // keep the index of the shell end cover last stored normal
             iSpiralEndCoverLastNormalIdx = spiral_mesh.Normals.Count() - 1;
@@ -567,18 +535,16 @@ namespace RaupCoilerII {
             iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // Indexs of a regular face of the ring:
-            // iAux = iRing * iVertexsPerRing            +                    +
-            //                   iAux + iVertexIndex>  + O  +  +  +  +  +  +  1 + <iAux + iVertexIndex + 1
-            //                                           +  +                 +
-            //                                           +      +     face 1  +
-            //                                           +          +         + 
-            //                                           +  face 2      +     +
-            //                                           +                 +  +
-            //  iAux + iVertexIndex + iVertexsPerRing> + 2  +  +  +  +  +  +  3 + <iAux + iVertexIndex + 1 + iVertexsPerRing 
-            //                                           +                    +
-            //  Faces must be defined in this order:
-            //   face 1: 1 0 3
-            //   face 2: 0 2 3
+            // iAux = iRing * iVertexsPerRing    
+            //                   iAux + iVertexIndex>  + O ----------------- 1 + <iAux + iVertexIndex + 1
+            //                                             +               +
+            //                                               +   face    +
+            //                                                 +       + 
+            //                                                   +   +
+            //                                                     3  < iSpiralEndCoverLastVertexIdx: is the center of the last ring
+            //
+            //  Face must be defined in this order:
+
             // IMPORTANT: "provoking index" is the last index of the face, and is the one that "provokes" the color of the face
             // when using flat colouring / ilumination.To grant that faces are properly coloured when using flat ilumination
             // the "provoking index" of the two triangles of the face must me the same, in that case Vertex 3. Or at less they
@@ -596,16 +562,7 @@ namespace RaupCoilerII {
                 faceAux = new Face();
                 faceAux.Indices.Add(iAux + iVertexIndex); // v 0
                 faceAux.Indices.Add(iAux + ((iVertexIndex + 1) % iVertexsPerRing)); // v 1                
-
-                faceAux.Indices.Add(iAux + ((iVertexIndex + 1) % iVertexsPerRing) + iVertexsPerRing); // v 3  
-                spiral_mesh.Faces.Add(faceAux);
-
-                // face 2 
-                faceAux = new Face();
-                faceAux.Indices.Add(iAux + iVertexIndex + iVertexsPerRing); // v  2                
-                faceAux.Indices.Add(iAux + iVertexIndex); // v 0
-
-                faceAux.Indices.Add(iAux + ((iVertexIndex + 1) % iVertexsPerRing) + iVertexsPerRing); // v 3
+                faceAux.Indices.Add(iSpiralEndCoverLastVertexIdx); // v 3  
                 spiral_mesh.Faces.Add(faceAux);
 
             }//for (iRings=0;
