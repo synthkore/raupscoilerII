@@ -155,7 +155,7 @@ namespace RaupCoilerII {
             int iNumVerticesGenCurve = 4;
 
             // variables used to generate the simple shell model            
-            int iRingsPerRevolution = 18;
+            int iRingsPerRevolution = 36;
             int iRing = 0;
             int iVertexIndex = 0;
             int iTotalNumberOfRings = 0; // the total number of rings in the shell model

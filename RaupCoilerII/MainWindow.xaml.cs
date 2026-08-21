@@ -21,6 +21,7 @@ using System.Windows.Shapes;
 
 
 /* JBR notas
+   Parece que el autoscale no va bien, pues al generar un bivalvo con W=10000 contra el cubo unitario este sale fuera del cubo. Quizas sea por la resolcuion de la malla utilizada al hacer el GetScaleFactors
    Espiral
    Eje
    Botón de reset o desplegable con parámetros por defeto
