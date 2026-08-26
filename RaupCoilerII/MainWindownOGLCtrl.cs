@@ -280,28 +280,28 @@ namespace RaupCoilerII {
             if (appViewModel.bRequireToRegenerate) {
 
                 appViewModel.bRequireToRegenerate = false;
-                appViewModel.bRequireToTransform = true;
                 appViewModel.bRequireToReRender = true;
 
                 // regenerate the shell model geometry
                 ShellModel.InitializeGeometry();
-                Spiral.objModelScale = ShellModel.objModelScale;
+
                 // apply the same scale and translation to the spiral geometry
+                Spiral.objModelScale = ShellModel.objModelScale;
                 Spiral.objModelTransX = ShellModel.objModelTransX;
                 Spiral.objModelTransY = ShellModel.objModelTransY;
                 Spiral.objModelTransZ = ShellModel.objModelTransZ;
+                // regenerate the spiral model geometry
                 Spiral.InitializeGeometry();
 
             }//if
 
-            if (appViewModel.bRequireToTransform) {
+            if (appViewModel.bRequireToUpdateVAO) {
 
-                appViewModel.bRequireToTransform = false;
-                appViewModel.bRequireToReRender = true;
+                appViewModel.bRequireToUpdateVAO = false;
 
                 // apply the current transformations to the original shell geometry
                 ShellModel.UpdateVAO();
-                Spiral.TransformUpdateVAO();
+                Spiral.UpdateVAO();
 
             }//if
 

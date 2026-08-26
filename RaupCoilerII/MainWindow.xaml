@@ -17,6 +17,7 @@
         <local:stringToDoubleConverter  x:Key="stringToDoubleConverter"/>
         <local:doubleToIntConverter  x:Key="doubleToIntConverter"/>
         <local:colorToBrushConverter x:Key="colorToBrushConverter"/>
+        <local:InverseBoolConverter x:Key="InverseBoolConverter"/>
     </Window.Resources>
     <Grid Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
@@ -44,7 +45,7 @@
         <!-- Main Layout Grid: column 0: OpenGL control, column 1: hide button, column 2: parameters editor -->
         <Grid Background="#FFE5E5E5" Margin="0,20,0,0" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
-                <!-- Column 0: lef panel, the OpenGL WPF control used to render the model -->
+                <!-- Column 0: left panel, the OpenGL WPF control used to render the model -->
                 <ColumnDefinition x:Name="leftPanel" Width="*"/>
                 <!-- Column 1: with the button used to hide or show the rirght panel as if it was a splitter -->
                 <ColumnDefinition Width="7"/>
@@ -60,17 +61,19 @@
             <Button Grid.Column="1" Click="PanelSplitButton_Click"/>
             <!-- Column 2: the column with the tools -->
             <TabControl Grid.Column="2" Margin="2,2,2,2">
-                <!--######################################################### Model TabPage controls #########################################################-->
+                <!--BEGIN: ######################################################### Model TabPage control #########################################################-->
                 <TabItem Header="Model" HorizontalAlignment="Right" Margin="0,-2,-2,0" Width="50">
+                    <!--BEGIN: ############ Model TabPage main grid: 2 columns 1 row ############ -->
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <!--############ Column 0 Model TabPage Grid ############ -->
-                        <Grid Grid.Column="0" Margin="0,0,245,0">
+                        <!--BEGIN: ############ Model TabPage main grid Column 0: grid 1 column 2 rows  ############ -->
+                        <Grid Grid.Column="0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
@@ -78,7 +81,8 @@
                                 <RowDefinition Height="250"/>
                                 <RowDefinition  Height="280"/>
                             </Grid.RowDefinitions>
-                            <!-- Grid in Column 0: Row 0: Raup parameters panel -->
+                            <!-- BEGIN: ############ Model TabPage main grid Column 0: Column 0 -->
+                            <!-- GroupBox Raup parameters panel -->
                             <GroupBox Header="Raup" Grid.Row="0" Margin="2,2,2,2" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -121,7 +125,9 @@
                                     </WrapPanel>
                                 </Grid>
                             </GroupBox>
-                            <!-- Grid in Column 0:  Row 1: Mesh panel -->
+                            <!-- END: ############ Model TabPage main grid Column 0: Column 0: Row 0 -->
+                            <!-- BEGIN: ############ Model TabPage main grid Column 0: Column 0: Row 1 -->
+                            <!-- GroupBox Mesh parameters panel -->
                             <GroupBox Header="Mesh" Grid.Column="0" Grid.Row="1" Margin="2,2,2,58" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -165,14 +171,18 @@
                                     </WrapPanel>                                    
                                 </Grid>
                             </GroupBox>
+                            <!-- END: ############ Model TabPage main grid Column 0: Column 0: Row 0 -->
                         </Grid>
-                        <!--############ Column 1 Model TabPage Grid ############ -->
-                        <Grid Margin="245,0,0,0">
+                        <!--END: ############ Model TabPage main grid: Column 0 Grid: 1 column 2 rows  ############ -->
+                        <!--BEGIN: ############ Model TabPage main grid: Column 1 Grid: 1 column 2 rows  ############ -->
+                        <Grid Grid.Column="1">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="450"/>
+                                <RowDefinition Height="340"/>
+                                <RowDefinition Height="330"/>
                             </Grid.RowDefinitions>
-                            <!-- Column 1 Row 0:Drawing options -->
-                            <GroupBox Header="Drawing" Grid.Row="0" Margin="2,2,2,136" BorderBrush="Black" BorderThickness="1">
+                            <!-- BEGIN: ############ Model TabPage main grid: Column 1: Row 0 -->
+                            <!-- GroupBox Drawing options panel -->
+                            <GroupBox Header="Drawing" Grid.Row="0" Margin="2,2,2,2" BorderBrush="Black" BorderThickness="1">
                                 <StackPanel>
                                     <!-- BEGIN GroupBox: Shell mesh geometry options -->
                                     <GroupBox Header="Geometry" Margin="2,0,2,0" BorderBrush="Black" BorderThickness="1" Height="178" Width="220">
@@ -192,32 +202,68 @@
                                     <CheckBox Content="3D Axis" IsChecked="{Binding Axis3D}" Margin="8,2,4,4"/>
                                     <CheckBox Content="Autoscale" IsChecked="{Binding Autoscale}" Margin="8,2,4,4" />
                                     <CheckBox Content="UnitCube" IsChecked="{Binding UnitCube}" Margin="8,2,4,4" />
+                                    <CheckBox Content="XZ plane" IsChecked="{Binding XZPlane}" Margin="8,2,4,4" />
                                     <!-- END CheckBoxes Spiral, Axis, AUtoscale -->
                                 </StackPanel>
                             </GroupBox>
-                            <!-- Column 1 Row 1: Orientation -->
+                            <!-- END: ############ Model TabPage main grid: Column 1: Row 0 ############ -->
+                            <!-- BEGIN: ############ Model TabPage main grid: Column 1: Row 1 ############ -->
+                            <!-- GroupBox Spiral options panel -->
+                            <GroupBox Header="Spiral" Grid.Row="1" Margin="2,2,2,168" BorderBrush="Black" BorderThickness="1" IsEnabled="{Binding Spiral}">
+                                <Grid Height="140">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="35"/>
+                                    </Grid.RowDefinitions>
+                                    <!-- Resolution  -->
+                                    <WrapPanel Margin="2,2,0,2" Grid.Row="0">
+                                        <Label Content="Resolution:"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SpiralResolution,Converter={StaticResource doubleToIntConverter}, Mode=TwoWay}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding SpiralResolution, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Minimum="{Binding SpiralResolutionMin}" Maximum="{Binding SpiralResolutionMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                    <!-- Shell width  -->
+                                    <WrapPanel Margin="2,2,0,2" Grid.Row="1">
+                                        <Label Content=" Width:"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding SpiralWidth, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" IsEnabled="{Binding ExpandSpiral, Converter={StaticResource InverseBoolConverter}}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding SpiralWidth, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" IsEnabled="{Binding ExpandSpiral, Converter={StaticResource InverseBoolConverter}}" Minimum="1" Maximum="20" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
+                                    </WrapPanel>
+                                    <!-- Revolutions  -->
+                                    <WrapPanel Margin="2,0,2,2" Grid.Row="2">
+                                        <CheckBox Content="Expand spiral to shell width" IsChecked="{Binding ExpandSpiral}" Margin="8,8,4,4" />
+                                    </WrapPanel>                                    
+                                </Grid>
+                            </GroupBox>
+                            <!-- END: ############ Model TabPage main grid: Column 1: Row 1 ############ -->
                         </Grid>
+                        <!--END: ############ Model TabPage main grid: Column 1 ############ -->
                     </Grid>
+                    <!--BEGIN: ############ Model TabPage main Grid: 2 columns 1 row ############ -->
                 </TabItem>
-                <!--######################################################### View & Light TabPage controls #########################################################-->
+                <!-- END: ######################################################### Model TabPage control ######################################################### -->
+                <!-- BEGIN:##################################################### View & Light TabPage control ######################################################### -->
                 <!-- View TabPage controls-->
                 <TabItem Header="View" HorizontalAlignment="Left" Width="37">
+                    <!-- BEGIN: ############ View TabPage main grid ############ -->
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <!--############ Column 0 View & Light TabPage Grid ############ -->
+                        <!-- BEGIN: ############ View TabPage main grid: Column 0: Row 0 ############ -->
                         <Grid Grid.Column="0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition  Height="677"/>
+                                <RowDefinition Height="282"/>
                             </Grid.RowDefinitions>
-                            <GroupBox Header="View Orientation" Grid.Row="0" Grid.Column="0" Margin="2,2,247,400" BorderBrush="Black" BorderThickness="1">
+                            <GroupBox Header="View Orientation" Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
@@ -257,8 +303,9 @@
                                 </Grid>
                             </GroupBox>
                         </Grid>
-                        <!--############ Column 1 View & Light TabPage Grid ############ -->
-                        <Grid>
+                        <!-- END: ############ View TabPage main grid: Column 0: Row 0 ############ -->
+                        <!-- BEGIN: ############ View TabPage main grid: Column 1: Row 0 ############ -->
+                        <Grid Grid.Column="1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
@@ -266,7 +313,7 @@
                                 <RowDefinition Height="250"/>
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <GroupBox Header="Light Orientation" Grid.Row="0" Margin="247,2,2,2" BorderBrush="Black" BorderThickness="1">
+                            <GroupBox Header="Light Orientation" Grid.Column="1" Grid.Row="0" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="52*"/>
@@ -306,8 +353,10 @@
                             </GroupBox>
                         </Grid>
                     </Grid>
+                    <!-- END: ############ View TabPage main grid ############ -->
                 </TabItem>
-                <!--######################################################### Appearence TabPage controls #########################################################-->
+                <!-- END :######################################################## View & Light TabPage control ######################################################### -->
+                <!-- BEGIN :####################################################### Appearence TabPage control ########################################################## -->
                 <!-- Appearance TabPage controls-->
                 <TabItem Header="Appearance">
                     <Grid>
@@ -397,6 +446,7 @@
                         </Grid>
                     </Grid>
                 </TabItem>
+                <!-- END :######################################################## Appearence TabPage control ######################################################### -->
                 <!-- Section TabPage controls-->
                 <TabItem Header="Section">
                 </TabItem>

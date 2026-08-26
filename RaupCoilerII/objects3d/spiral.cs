@@ -42,8 +42,6 @@ namespace RaupCoilerII {
         public int iSpiralEndCoverLastNormalIdx;
         public int iSpiralEndCoverLastFaceIdx;
 
-        int iVertexsPerRing = 16;
-
         /*******************************************************************************
         * @brief Constructor with pararameters.
         * @param[in] _refViewModel reference to the VieModel object that will be used 
@@ -65,6 +63,8 @@ namespace RaupCoilerII {
             float flAngleVerticesRad = 0; // angle between successive vertices of the ring, in radians
             Assimp.Vector2D vector2DAux1;
             float fCurrRingVertexAngleRad = 0;
+            int iVertexsPerRing = 0;
+            float fRadius = 0;
 
             // variables used to generate the spiral model using
             int iRing = 0;
@@ -73,11 +73,14 @@ namespace RaupCoilerII {
             double dAngleRingsRad = 0; // angle between each successive ring/generating curve, in radians
             double dThetaRad = 0;// theta angle used to generate the complete shell model, in radians
             double dRc = 0;
+            double dThicknessFactor = 1.0d;
             // auxiliar variables
             Assimp.Vector3D vectorAux1;
             float fXAux, fYAux, fZAux;
             double dXAux, dYAux, dZAux;
-            double dAux = 0;
+            double dFactAuxA = 0; // auxiliar factor A 
+            double dFactAuxB = 0; // auxiliar factor B 
+            double dFactAuxC = 0; // auxiliar factor C 
 
 
             // ## 2D Generating circel 
@@ -86,14 +89,27 @@ namespace RaupCoilerII {
             // to the selected Raup & Michelson parameters
             liBasicGenCurveVertices = new List<Vector2D>();
 
+
+            if (refAppViewModel.ExpandSpiral) {
+                fRadius = (float)refAppViewModel.IniRadius;
+            } else {
+                fRadius = (float)(0.01* refAppViewModel.SpiralWidth);
+            }
+
+            iVertexsPerRing = refAppViewModel.SpiralResolution;
             flAngleVerticesRad = (2.0f * (float)Math.PI) / (float)iVertexsPerRing;
             fCurrRingVertexAngleRad = 0;
             for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
-                // generate current ring vertex X, and Y coordinates for the genrating shape
-                fXAux = ((float)Math.Cos((double)fCurrRingVertexAngleRad) * (float)refAppViewModel.IniRadius);
-                fYAux = ((float)Math.Sin((double)fCurrRingVertexAngleRad) * (float)refAppViewModel.IniRadius);
-
+                // generate current ring vertex X, and Y coordinates for the genrating shape                
+                if (refAppViewModel.ExpandSpiral) {
+                    fXAux = ((float)Math.Cos((double)fCurrRingVertexAngleRad) * (float)fRadius);
+                    fYAux = ((float)Math.Sin((double)fCurrRingVertexAngleRad) * (float)fRadius * (float)refAppViewModel.Sparam);
+                } else {
+                    fXAux = ((float)Math.Cos((double)fCurrRingVertexAngleRad) * fRadius);
+                    fYAux = ((float)Math.Sin((double)fCurrRingVertexAngleRad) * fRadius);
+                }
+                
                 // store the current vertex of the generated shape into the list
                 vector2DAux1 = new Assimp.Vector2D(fXAux, fYAux);
                 liBasicGenCurveVertices.Add(vector2DAux1);
@@ -107,6 +123,7 @@ namespace RaupCoilerII {
             // calculate some parameters that will be used to generate the shell 3D model
             iTotalNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev; // rings in the complete model: is the number of rings per revolution multiplied by the number of revolutions
             dAngleRingsRad = ((double)refAppViewModel.Revolutions * (2.0d * (double)Math.PI)) / (double)iTotalNumberOfRings;
+            dThicknessFactor = (double)((100.0d - refAppViewModel.ShellWidthPercent) / 100.0d);
 
             // keep the index of the shell outer mesh first stored vertex
             iSpiralFirstVertexIdx = spiral_mesh.Vertices.Count();
@@ -117,27 +134,57 @@ namespace RaupCoilerII {
             dThetaRad = 0;
             for (iRing = 0; iRing < iTotalNumberOfRings; iRing++) {
 
-                // calculate the W^(𝜃/2π) for the current Theta value
-                dAux =  (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
+                // calculate the W^(𝜃/2π) for the current Theta value. 
+                dFactAuxA =  (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
+                dFactAuxB = dFactAuxA * dRc;
+                dFactAuxC = (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
 
                 // scale the current "dThetaRad" ring: calculate all the vertices of the current ring of the shell
                 for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
 
-                    // apply the "Raup & Michelson" model parameters on the generating curve
-                    dXAux = ((double)liBasicGenCurveVertices[iVertexIndex].X + dRc) * dAux;
-                    dYAux = ((double)liBasicGenCurveVertices[iVertexIndex].Y * dAux) - (dRc * (double)refAppViewModel.Tparam * (dAux - 1.0d));
-                    dZAux = 0;
+                   if (refAppViewModel.ExpandSpiral) {
 
-                    // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
-                    // converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
-                    fXAux = (float)((dXAux * Math.Cos(-dThetaRad)) + (dZAux * Math.Sin(-dThetaRad)));
-                    fYAux = (float)dYAux;
-                    fZAux = (float)(-(dXAux * Math.Sin(-dThetaRad)) + (dZAux * Math.Cos(-dThetaRad)));
+                        // apply the "Raup & Michelson" model parameters on the "iVertexIndex" vertex of the generating curve
+                        dXAux = ((double)liBasicGenCurveVertices[iVertexIndex].X * dThicknessFactor * dFactAuxA  + dFactAuxB );// ((double)liBasicGenCurveVertices[iVertexIndex].X * dThicknessFactor + dRc) * dFactAuxA;
+                        dYAux = ((double)liBasicGenCurveVertices[iVertexIndex].Y * dThicknessFactor * dFactAuxA) - dFactAuxC;// ((double)liBasicGenCurveVertices[iVertexIndex].Y * dThicknessFactor * dFactAuxA) - (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
+                        dZAux = 0;
 
-                    // apply the previously calculated translation and scale factor
-                    fXAux = fXAux * objModelScale + objModelTransX;
-                    fYAux = fYAux * objModelScale + objModelTransY;
-                    fZAux = fZAux * objModelScale + objModelTransZ;
+                        // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
+                        // converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
+                        fXAux = (float)((dXAux * Math.Cos(-dThetaRad)) + (dZAux * Math.Sin(-dThetaRad)));
+                        fYAux = (float)dYAux;
+                        fZAux = (float)(-(dXAux * Math.Sin(-dThetaRad)) + (dZAux * Math.Cos(-dThetaRad)));
+
+                        // apply the previously calculated translation and scale factor
+                        fXAux = fXAux * objModelScale + objModelTransX;
+                        fYAux = fYAux * objModelScale + objModelTransY;
+                        fZAux = fZAux * objModelScale + objModelTransZ;
+
+                    } else {
+
+                        // apply the "Raup & Michelson" model parameters on the center of the generating curve
+                        dXAux = dFactAuxB;//((double)0.0f + dRc) * dFactAuxA;;
+                        dYAux = -dFactAuxC;// ((double)0.0f * dFactAuxA) - (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
+                        dZAux = 0;
+
+                        // apply the corresponding "dThetaRad" rotation over the center of the  generating curve.
+                        // This converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
+                        fXAux = (float)((dXAux * Math.Cos(-dThetaRad)) + (dZAux * Math.Sin(-dThetaRad)));
+                        fYAux = (float)dYAux;
+                        fZAux = (float)(-(dXAux * Math.Sin(-dThetaRad)) + (dZAux * Math.Cos(-dThetaRad)));
+
+                        // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
+                        // converts from cylindrical coordinates to cartesian coordinates ( r,y,theta -> x,y,z )
+                        float fXAux2 = (float)(((double)liBasicGenCurveVertices[iVertexIndex].X * Math.Cos(-dThetaRad)) + (0 * Math.Sin(-dThetaRad)));
+                        float fYAux2 = (float)((double)liBasicGenCurveVertices[iVertexIndex].Y);
+                        float fZAux2 = (float)(-((double)liBasicGenCurveVertices[iVertexIndex].X * Math.Sin(-dThetaRad)) + (0 * Math.Cos(-dThetaRad)));
+
+                        // apply the previously calculated scale factor then add the rotated constant radius and th apply the calculated translation
+                        fXAux = fXAux * objModelScale + objModelTransX + fXAux2;
+                        fYAux = fYAux * objModelScale + objModelTransY + fYAux2;
+                        fZAux = fZAux * objModelScale + objModelTransZ + fZAux2;
+
+                    }//if (refAppViewModel.ExpandSpiral) {
 
                     // store the calculated vertex coordinates into the mesh structure
                     vectorAux1 = new Assimp.Vector3D(fXAux, fYAux, fZAux);
@@ -178,10 +225,12 @@ namespace RaupCoilerII {
             int iAux = 0;
             Assimp.Vector3D v3Daux;
             int iNumberOfRings = 0;
+            int iVertexsPerRing = 0;
             float fCenterX, fCenterY, fCenterZ;
 
+            iVertexsPerRing = refAppViewModel.SpiralResolution;
             iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
-
+            
             // keep the index of the shell end cover first stored vertex
             iSpiralEndCoverFirstVertexIdx = spiral_mesh.Vertices.Count();
 
@@ -243,11 +292,13 @@ namespace RaupCoilerII {
             Assimp.Vector3D vectorEdge1;
             Assimp.Vector3D vectorEdge2;
             Assimp.Vector3D vertexNormal;
-            int iAux = 0;
             int iRing = 0;
             int iVertexIndex = 0;
             int iNumberOfRings = 0;
+            int iVertexsPerRing = 0;
+            int iAux = 0;
 
+            iVertexsPerRing = refAppViewModel.SpiralResolution;
             iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // keep the index of the spiral mesh first stored normal
@@ -349,10 +400,12 @@ namespace RaupCoilerII {
             Assimp.Vector3D vectorEdge1;
             Assimp.Vector3D vectorEdge2;
             Assimp.Vector3D vertexNormal ;
-            int iAux = 0;
             int iVertexIndex = 0;
             int iNumberOfRings = 0;
+            int iVertexsPerRing = 0;
+            int iAux = 0;
 
+            iVertexsPerRing = refAppViewModel.SpiralResolution;
             iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // keep the index of the spiral end cover first stored normal
@@ -426,7 +479,9 @@ namespace RaupCoilerII {
             int iVertexIndex = 0;
             int iAux = 0;
             int iNumberOfRings = 0;
+            int iVertexsPerRing = 0;
 
+            iVertexsPerRing = refAppViewModel.SpiralResolution;
             iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
 
             // Indexs of a regular face of the ring:
@@ -531,9 +586,11 @@ namespace RaupCoilerII {
             int iVertexIndex = 0;
             int iAux = 0;
             int iNumberOfRings = 0;
+            int iVertexsPerRing = 0;
 
+            iVertexsPerRing = refAppViewModel.SpiralResolution;
             iNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev;
-
+            
             // Indexs of a regular face of the ring:
             // iAux = iRing * iVertexsPerRing    
             //                   iAux + iVertexIndex>  + O ----------------- 1 + <iAux + iVertexIndex + 1
@@ -618,7 +675,7 @@ namespace RaupCoilerII {
         /*******************************************************************************
         * @brief updates the VAO ( VBO and EBO ) with that data.
         *******************************************************************************/
-        public void TransformUpdateVAO() {
+        public void UpdateVAO() {
             int iStride = 0;
             List<float> liCoordNColors = null;
             List<uint> liFaceIdxs = null;

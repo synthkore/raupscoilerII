@@ -285,7 +285,7 @@ namespace RaupCoilerII {
             Assimp.Vector3D vectorAux1;
             float fXAux, fYAux, fZAux;
             double dXAux, dYAux, dZAux;
-            double dAux = 0;
+            double dFactAuxA = 0;
 
 
             // calculate some parameters that will be used to generate the shell 3D model
@@ -303,14 +303,14 @@ namespace RaupCoilerII {
             for (iRing = 0; iRing < iTotalNumberOfRings; iRing++) {
 
                 // calculate the W^(𝜃/2π) for the current Theta value
-                dAux = (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
+                dFactAuxA = (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
 
                 // scale the current "dThetaRad" ring: calculate all the vertices of the current ring of the shell
                 for (iVertexIndex = 0; iVertexIndex < iVerticesPerGenCurve; iVertexIndex++) {
 
                     // apply the "Raup & Michelson" model parameters on the generating curve
-                    dXAux = ((double)li2DVertexsGenCurve[iVertexIndex].X + dRc) * dAux;
-                    dYAux = ((double)li2DVertexsGenCurve[iVertexIndex].Y * dAux) - (dRc * (double)refAppViewModel.Tparam * (dAux - 1.0d));
+                    dXAux = ((double)li2DVertexsGenCurve[iVertexIndex].X + dRc) * dFactAuxA;
+                    dYAux = ((double)li2DVertexsGenCurve[iVertexIndex].Y * dFactAuxA) - (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
                     dZAux = 0;
 
 				    // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
@@ -361,7 +361,7 @@ namespace RaupCoilerII {
             Assimp.Vector3D vectorAux1;
             float fXAux, fYAux, fZAux;
             double dXAux, dYAux, dZAux;
-            double dAux = 0;
+            double dFactAuxA = 0;
             double dThicknessFactor = 1.0d;
 
             // calculate some parameters that will be used to generate the shell 3D model
@@ -380,15 +380,15 @@ namespace RaupCoilerII {
             for (iRing = 0; iRing < iTotalNumberOfRings; iRing++) {
 
                 // calculate the W^(𝜃/2π) for the current Theta value
-                dAux = (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
+                dFactAuxA = (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
 
                 // scale the current "dThetaRad" ring: calculate all the vertices of the current ring of the shell
                 for (iVertexIndex = 0; iVertexIndex < iVerticesPerGenCurve; iVertexIndex++) {
 
                     // apply the "Raup & Michelson" model parameters on the generating curve. In order to achive 
                     // the desired shell thickness we apply the configured thickness percentage over the generating curve.
-                    dXAux = ((double)li2DVertexsGenCurve[iVertexIndex].X* dThicknessFactor + dRc) * dAux;
-                    dYAux = ((double)li2DVertexsGenCurve[iVertexIndex].Y * dThicknessFactor * dAux) - (dRc * (double)refAppViewModel.Tparam * (dAux - 1.0d));
+                    dXAux = ((double)li2DVertexsGenCurve[iVertexIndex].X* dThicknessFactor + dRc) * dFactAuxA;
+                    dYAux = ((double)li2DVertexsGenCurve[iVertexIndex].Y * dThicknessFactor * dFactAuxA) - (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
                     dZAux = 0;
 
                     // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
@@ -1341,28 +1341,48 @@ namespace RaupCoilerII {
         *******************************************************************************/
         public int export(string strFileName) {
             int retVal = 0;
-
+            float fScaleFactor = 40.0f;
+            Mesh scaledMeshToExport = null;
             var context = new AssimpContext();
+            int iTotalVertices;
+            int iAux;
 
-            // 1. Crear escena
+
+            // clone and scale the mesh
+            scaledMeshToExport = new Mesh();
+
+            scaledMeshToExport = object3D.CloneMesh(liMeshesOriginal[0]);
+
+            iTotalVertices = scaledMeshToExport.Vertices.Count();
+            for (iAux = 0; iAux < iTotalVertices; iAux++) {
+
+                // vertex coords centered in the middle (flMax... - flMin...) / 2;
+                scaledMeshToExport.Vertices[iAux] = new Vector3D(
+                    (float)(scaledMeshToExport.Vertices[iAux].X * fScaleFactor),
+                    (float)(scaledMeshToExport.Vertices[iAux].Y * fScaleFactor),
+                    (float)(scaledMeshToExport.Vertices[iAux].Z * fScaleFactor));
+
+            }//for
+
+            // Create the Scene() object needed to export the mesh
             var scene = new Scene();
 
-            // 2. Añadir la malla
-            scene.Meshes.Add(liMeshesOriginal[0]);
+            // Add the scaled mesh into the scene
+            scene.Meshes.Add(scaledMeshToExport);
 
-            // 3. Crear nodo raíz
-            scene.RootNode = new Node("RootNode");
+            // Crete the scene root node
+            scene.RootNode = new Node("Shell");
 
-            // Asociar la malla al nodo (índice 0 porque es la primera)
+            // Associate the sence to the node ( 0 because is the first )
             scene.RootNode.MeshIndices.Add(0);
 
-            // 4. (Opcional pero recomendable) añadir un material
+            // Add the material ( optional but recomended )
             var material = new Assimp.Material();
             scene.Materials.Add(material);
             liMeshesOriginal[0].MaterialIndex = 0;
 
             // 5. Exportar (elige formato: "obj", "fbx", "stl", etc.)
-            context.ExportFile(scene, strFileName, "obj");
+            context.ExportFile(scene, strFileName, "stl");
 
             return retVal;
 

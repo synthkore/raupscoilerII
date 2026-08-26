@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.ES11;
+﻿using Microsoft.Win32;
+using OpenTK.Graphics.ES11;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -24,6 +25,7 @@ using System.Windows.Shapes;
    Parece que el autoscale no va bien, pues al generar un bivalvo con W=10000 contra el cubo unitario este sale fuera del cubo. Quizas sea por la resolcuion de la malla utilizada al hacer el GetScaleFactors
    Espiral
    Eje
+   Poder sobreimponer en render valores de parámetros D,W,T,S para facilitar capturas.
    Botón de reset o desplegable con parámetros por defeto
    Al rotar llega un momento que ya no deja rotar más, estaria bien utilizar el % modulo del angulo en lugar del valor absoluto.
    Seleccionar proyecccion en perspectiva o isométrica.
@@ -152,6 +154,21 @@ namespace RaupCoilerII {
     }//doubleToIntConverter 
 
     /*******************************************************************************
+    * @brief Converter used to transform a bool to its inverted value.
+    *******************************************************************************/
+    public class InverseBoolConverter : IValueConverter {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+            return value is bool b && !b;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+            return value is bool b && !b;
+        }
+
+    }//InverseBoolConverter
+
+    /*******************************************************************************
     * @brief Main window Form class
     *******************************************************************************/
     public partial class MainWindow : Window {
@@ -184,7 +201,7 @@ namespace RaupCoilerII {
 
             Spiral = new cSpiral(appViewModel);
             Spiral.InitializeGeometry();
-            Spiral.TransformUpdateVAO();
+            Spiral.UpdateVAO();
 
             // force "international" culture
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("EN-US");
@@ -472,7 +489,24 @@ namespace RaupCoilerII {
         *******************************************************************************/
         private void menuExportItem_Click(object sender, RoutedEventArgs e) {
 
-            ShellModel.export("exportado.obj");
+            SaveFileDialog saveFileDialog = new SaveFileDialog {
+                Title = "Export shell model",
+                Filter = "STL file (*.stl)|*.stl|" +
+                         "OBJ file (*.obj)|*.obj|" +
+                         "All files (*.*)|*.*",
+                DefaultExt = ".obj",
+                AddExtension = true,
+                OverwritePrompt = true
+            };
+
+            bool? result = saveFileDialog.ShowDialog();
+
+            if (result == true) {
+                string rutaFichero = saveFileDialog.FileName;
+
+                // call the method that exports the information
+                ShellModel.export(rutaFichero);
+            }
 
         }//menuExportItem_Click
 

@@ -42,12 +42,14 @@ namespace RaupCoilerII {
         public double SparamMax { get; } = 5;
         public double SparamMin { get; }  = 0;
 
-        public int RevolutionsMax { get; } = 10;
+        public int RevolutionsMax { get; } = 12;
         public int RevolutionsMin { get; } = 1;
         public int ResolutionMax { get; } = 180;
         public int ResolutionMin { get; } = 3;
         public int RingsRevMax { get; } = 360;
         public int RingsRevMin { get; } = 1;
+        public int SpiralResolutionMax { get; } = 36;
+        public int SpiralResolutionMin { get; } = 3;
 
         public double XOrientationMin { get; } = -360;
         public double XOrientationMax { get; } = 360;
@@ -65,10 +67,10 @@ namespace RaupCoilerII {
 
         public tGeometryStyleEnum geometryStyle = tGeometryStyleEnum.Triangles;
 
-        public bool bRequireToReRender = true; // flag that indicates that has been any change in a parameter that requires to redner the model again.
         public bool bRequireToRegenerate = true; // flag that indicates that has been any change in a parameter that requires to recalculate the Raup model geometry
-        public bool bRequireToTransform = true; // flag that indicates that has been any change in a transformation parameter that requires to apply the transformation to the model
-
+        public bool bRequireToUpdateVAO = true; // flag that indicates that has been any change in a parameter that requires to update the VAO
+        public bool bRequireToReRender = true; // flag that indicates that has been any change in a parameter that requires to redner the model again.
+       
         // Raup model parameters
         // Raup model D parameter
         double dDparam;
@@ -85,7 +87,7 @@ namespace RaupCoilerII {
                         dDparam = value;
                     }
                     bRequireToRegenerate = true;
-                    // bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Dparam");
                 }
@@ -107,7 +109,7 @@ namespace RaupCoilerII {
                         dWparam = value;
                     }
                     bRequireToRegenerate = true;
-                    // bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Wparam");
                 }
@@ -129,7 +131,7 @@ namespace RaupCoilerII {
                         dTparam = value;
                     }
                     bRequireToRegenerate = true;
-                    // bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Tparam");
                 }
@@ -151,7 +153,7 @@ namespace RaupCoilerII {
                         dSparam = value;
                     }
                     bRequireToRegenerate = true;
-                    // bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Sparam");
                 }
@@ -301,6 +303,7 @@ namespace RaupCoilerII {
                 if (bAutoscale != value) {
                     bAutoscale = value;
                     bRequireToRegenerate = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Autoscale");
                 }//if
@@ -320,6 +323,80 @@ namespace RaupCoilerII {
             }//set
         }//UnitCube
 
+        // XZPlane flag to enable or disable showing the XZ plane in order to show how does the T parameter affect to the model
+        bool bXZPlane;
+        public bool XZPlane {
+            get { return bXZPlane; }
+            set {
+                if (bXZPlane != value) {
+                    bXZPlane = value;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("XZPlane");
+                }//if
+            }//set
+        }//XZPlane
+
+        // Spiral parameters
+
+        // ExpandSpiral flag to enable or disable expanding the spirtal thickness to the shell thickness
+        bool bExpandSpiral;
+        public bool ExpandSpiral {
+            get { return bExpandSpiral; }
+            set {
+                if (bExpandSpiral != value) {
+                    bExpandSpiral = value;
+                    bRequireToRegenerate = true;
+                    bRequireToUpdateVAO = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("ExpandSpiral");
+                }//if
+            }//set
+        }//ExpandSpiral
+
+        // Resolution
+        int iSpiralResolution;
+        public int SpiralResolution {
+            get { return iSpiralResolution; }
+            set {
+                if (iSpiralResolution != value) {
+                    // check that received value is in range
+                    if (value > ResolutionMax) {
+                        iSpiralResolution = SpiralResolutionMax;
+                    } else if (value < SpiralResolutionMin) {
+                        iSpiralResolution = SpiralResolutionMin;
+                    } else {
+                        iSpiralResolution = value;
+                    }
+                    bRequireToRegenerate = true;
+                    bRequireToUpdateVAO = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("SpiralResolution");
+                }
+            }//set
+        }// SpiralResolution
+
+        // The with of the shell SpiralWidth
+        int iSpiralWidth;
+        public int SpiralWidth {
+            get { return iSpiralWidth; }
+            set {
+                if (iSpiralWidth != value) {
+                    // check that received value is in range
+                    if (value > 100) {
+                        iSpiralWidth = 100;
+                    } else if (value < 1) {
+                        iSpiralWidth = 1;
+                    } else {
+                        iSpiralWidth = value;
+                    }
+                    bRequireToRegenerate = true;
+                    bRequireToUpdateVAO = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("SpiralWidth");
+                }
+            }//set
+        }// SpiralWidth
+
         // Mesh parameters
 
         // Shell initial radius value
@@ -337,7 +414,7 @@ namespace RaupCoilerII {
                         dIniRadius = value;
                     }
                     bRequireToRegenerate = true;
-                    // bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("IniRadius");
                 }
@@ -359,7 +436,7 @@ namespace RaupCoilerII {
                         iRevolutions = value;
                     }
                     bRequireToRegenerate = true;
-                    // bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Revolutions");
                 }
@@ -381,7 +458,7 @@ namespace RaupCoilerII {
                         iResolution = value;
                     }
                     bRequireToRegenerate = true;
-                    // bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Resolution");
                 }
@@ -403,7 +480,7 @@ namespace RaupCoilerII {
                         iRingsRev = value;
                     }
                     bRequireToRegenerate = true;
-                    // bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("RingsRev");
                 }
@@ -425,7 +502,7 @@ namespace RaupCoilerII {
                         iShellWidthPercent = value;
                     }
                     bRequireToRegenerate = true;
-                    // bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("ShellWidthPercent");
                 }
@@ -439,7 +516,9 @@ namespace RaupCoilerII {
             set {
                 if (bAxis3D != value) {
                     bAxis3D = value;
+                    bRequireToRegenerate = true;
                     bRequireToReRender = true;
+                    bRequireToUpdateVAO = true;
                     this.NotifyMyPropertyChanged("Axis3D");
                 }//if
             }//set
@@ -460,7 +539,6 @@ namespace RaupCoilerII {
                     } else {
                         dXOrientation = value;
                     }
-                    bRequireToTransform = true;
                     this.NotifyMyPropertyChanged("Xorientation");
                 }
             }//set
@@ -481,7 +559,6 @@ namespace RaupCoilerII {
                     } else {
                         dYOrientation = value;
                     }
-                    bRequireToTransform = true;
                     this.NotifyMyPropertyChanged("Yorientation");
                 }
             }//set
@@ -502,7 +579,6 @@ namespace RaupCoilerII {
                     } else {
                         dZOrientation = value;
                     }
-                    bRequireToTransform = true;
                     this.NotifyMyPropertyChanged("Zorientation");
                 }
             }//set
@@ -655,7 +731,7 @@ namespace RaupCoilerII {
             set {
               if (colMeshColor != value) {
                 colMeshColor = value;
-                bRequireToTransform = true;
+                bRequireToUpdateVAO = true;
                 bRequireToReRender = true;
                 this.NotifyMyPropertyChanged("MeshColor");
               }
@@ -669,7 +745,7 @@ namespace RaupCoilerII {
             set {
                 if (colAxisColor != value) {
                     colAxisColor = value;
-                    bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("AxisColor");
                 }
@@ -683,7 +759,7 @@ namespace RaupCoilerII {
             set {
                 if (colSpiralColor != value) {
                     colSpiralColor = value;
-                    bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("SpiralColor");
                 }
@@ -696,7 +772,7 @@ namespace RaupCoilerII {
             get { return colBackgroundColor; }
             set {
                 if (colBackgroundColor != value) {
-                    bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("BackgroundColor");
                 }
@@ -710,7 +786,7 @@ namespace RaupCoilerII {
             set {
                 if (iMeshTransparency != value) {
                     iMeshTransparency = value;
-                    bRequireToTransform = true;
+                    bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("MeshTransparency");
                 }
@@ -746,6 +822,7 @@ namespace RaupCoilerII {
             Spiral = false;
             Axis = true;
             Autoscale = true;
+            ExpandSpiral = false;
 
             Axis3D = true;
 
@@ -754,6 +831,9 @@ namespace RaupCoilerII {
             RingsRev = 36;
             ShellWidthPercent = 5;
             IniRadius = 0.01;
+
+            SpiralResolution = 18;
+            SpiralWidth = 5;
 
             XOrientation = 0;
             YOrientation = 0;
