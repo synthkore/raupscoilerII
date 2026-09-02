@@ -203,6 +203,10 @@ namespace RaupCoilerII {
             Spiral.InitializeGeometry();
             Spiral.UpdateVAO();
 
+            CoilingAxis = new cAxis(appViewModel);
+            CoilingAxis.InitializeGeometry();
+            CoilingAxis.UpdateVAO();
+
             // force "international" culture
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("EN-US");
 
@@ -427,14 +431,14 @@ namespace RaupCoilerII {
         * @param[in] sender reference to the object that raises the event
         * @param[in] e the information related to the event
         *******************************************************************************/
-        private void btnResetViewOrientationToX_Click(object sender, RoutedEventArgs e) {
+        private void btnResetViewOrientationToYZ_Click(object sender, RoutedEventArgs e) {
 
             // set all the view vector parameters to its default value
             appViewModel.ViewPhiZenithAngle = 0;
             appViewModel.ViewThetaAzimuthAngle = 0;
             appViewModel.ViewRoDistance = 4;
 
-        }//btnResetViewOrientationToX_Click
+        }//btnResetViewOrientationToYZ_Click
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user clicks over
@@ -442,14 +446,14 @@ namespace RaupCoilerII {
         * @param[in] sender reference to the object that raises the event
         * @param[in] e the information related to the event
         *******************************************************************************/
-        private void btnResetViewOrientationToY_Click(object sender, RoutedEventArgs e) {
+        private void btnResetViewOrientationToZX_Click(object sender, RoutedEventArgs e) {
 
             // set all the view vector parameters to its default value
             appViewModel.ViewPhiZenithAngle = 90;
             appViewModel.ViewThetaAzimuthAngle = 0;
             appViewModel.ViewRoDistance = 4;
 
-        }//btnResetViewOrientationToY_Click
+        }//btnResetViewOrientationToZX_Click
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user clicks over
@@ -457,14 +461,14 @@ namespace RaupCoilerII {
         * @param[in] sender reference to the object that raises the event
         * @param[in] e the information related to the event
         *******************************************************************************/
-        private void btnResetViewOrientationToZ_Click(object sender, RoutedEventArgs e) {
+        private void btnResetViewOrientationToYX_Click(object sender, RoutedEventArgs e) {
 
             // set all the view vector parameters to its default value
             appViewModel.ViewPhiZenithAngle = 0;
             appViewModel.ViewThetaAzimuthAngle = 90;
             appViewModel.ViewRoDistance = 4;
 
-        }//btnResetViewOrientationToZ_Click
+        }//btnResetViewOrientationToYX_Click
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user clicks over

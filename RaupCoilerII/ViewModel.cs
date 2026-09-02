@@ -376,18 +376,18 @@ namespace RaupCoilerII {
         }// SpiralResolution
 
         // The with of the shell SpiralWidth
-        int iSpiralWidth;
-        public int SpiralWidth {
-            get { return iSpiralWidth; }
+        double dSpiralWidth;
+        public double SpiralWidth {
+            get { return dSpiralWidth; }
             set {
-                if (iSpiralWidth != value) {
+                if (dSpiralWidth != value) {
                     // check that received value is in range
-                    if (value > 100) {
-                        iSpiralWidth = 100;
-                    } else if (value < 1) {
-                        iSpiralWidth = 1;
+                    if (value > 10) {
+                        dSpiralWidth = 10.0d;
+                    } else if (value < 0.1d) {
+                        dSpiralWidth = 0.1d;
                     } else {
-                        iSpiralWidth = value;
+                        dSpiralWidth = value;
                     }
                     bRequireToRegenerate = true;
                     bRequireToUpdateVAO = true;
@@ -833,7 +833,7 @@ namespace RaupCoilerII {
             IniRadius = 0.01;
 
             SpiralResolution = 18;
-            SpiralWidth = 5;
+            SpiralWidth = 1.5;
 
             XOrientation = 0;
             YOrientation = 0;
@@ -853,7 +853,7 @@ namespace RaupCoilerII {
             bLinkLightToView = true;
 
             MeshColor = System.Windows.Media.Color.FromRgb(0, 255, 0);
-            AxisColor = System.Windows.Media.Color.FromRgb(255, 0, 0);
+            AxisColor = System.Windows.Media.Color.FromRgb(0, 0, 255);
             SpiralColor = System.Windows.Media.Color.FromRgb(255, 0, 0);
             BackgroundColor = System.Windows.Media.Color.FromRgb(0, 0, 0);
             MeshTransparency = 100;

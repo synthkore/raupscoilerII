@@ -50,11 +50,11 @@ namespace RaupCoilerII {
 
         // variables used to store the maximum and minimum values of the X,Y,Z coordinates to 
         // calculate the scale factor and the translation to fit and center the model in the screen
-        float flMinX, flMaxX;
-        float flMinY, flMaxY;
-        float flMinZ, flMaxZ;
-        float flRangeX, flRangeY, flRangeZ;
-        float flBigestRange;
+        public float flMinX, flMaxX;
+        public float flMinY, flMaxY;
+        public float flMinZ, flMaxZ;
+        public float flRangeX, flRangeY, flRangeZ;
+        public float flBigestRange;
 
         // list that stores the vertices of the generating ring/shape
         List<Assimp.Vector2D> li2DVertexsGenCurve;
@@ -286,6 +286,8 @@ namespace RaupCoilerII {
             float fXAux, fYAux, fZAux;
             double dXAux, dYAux, dZAux;
             double dFactAuxA = 0;
+            double dFactAuxB = 0;
+            double dFactAuxC = 0;
 
 
             // calculate some parameters that will be used to generate the shell 3D model
@@ -302,15 +304,18 @@ namespace RaupCoilerII {
             dThetaRad = 0;
             for (iRing = 0; iRing < iTotalNumberOfRings; iRing++) {
 
+                // precalculate various factors to simplify computations within the next ring loop
                 // calculate the W^(𝜃/2π) for the current Theta value
                 dFactAuxA = (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
+                dFactAuxB = dFactAuxA * dRc;
+                dFactAuxC = (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
 
                 // scale the current "dThetaRad" ring: calculate all the vertices of the current ring of the shell
                 for (iVertexIndex = 0; iVertexIndex < iVerticesPerGenCurve; iVertexIndex++) {
 
                     // apply the "Raup & Michelson" model parameters on the generating curve
-                    dXAux = ((double)li2DVertexsGenCurve[iVertexIndex].X + dRc) * dFactAuxA;
-                    dYAux = ((double)li2DVertexsGenCurve[iVertexIndex].Y * dFactAuxA) - (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
+                    dXAux = ((double)li2DVertexsGenCurve[iVertexIndex].X * dFactAuxA) + dFactAuxB;// optimization of: ((double)li2DVertexsGenCurve[iVertexIndex].X + dRc) * dFactAuxA;
+                    dYAux = ((double)li2DVertexsGenCurve[iVertexIndex].Y * dFactAuxA) - dFactAuxC;// optimization of: ((double)li2DVertexsGenCurve[iVertexIndex].Y * dFactAuxA) - (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
                     dZAux = 0;
 
 				    // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
@@ -358,11 +363,13 @@ namespace RaupCoilerII {
             double dThetaRad = 0;// theta angle used to generate the complete shell model, in radians
             double dRc = 0;
             // auxiliar variables
+            double dThicknessFactor = 1.0d;
             Assimp.Vector3D vectorAux1;
             float fXAux, fYAux, fZAux;
             double dXAux, dYAux, dZAux;
             double dFactAuxA = 0;
-            double dThicknessFactor = 1.0d;
+            double dFactAuxB = 0;
+            double dFactAuxC = 0;
 
             // calculate some parameters that will be used to generate the shell 3D model
             iTotalNumberOfRings = refAppViewModel.Revolutions * refAppViewModel.RingsRev; // rings in the complete model: is the number of rings per revolution multiplied by the number of revolutions
@@ -379,16 +386,19 @@ namespace RaupCoilerII {
             dThetaRad = 0;
             for (iRing = 0; iRing < iTotalNumberOfRings; iRing++) {
 
+                // precalculate various factors to simplify computations within the next ring loop
                 // calculate the W^(𝜃/2π) for the current Theta value
                 dFactAuxA = (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
+                dFactAuxB = dFactAuxA * dRc;
+                dFactAuxC = (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
 
                 // scale the current "dThetaRad" ring: calculate all the vertices of the current ring of the shell
                 for (iVertexIndex = 0; iVertexIndex < iVerticesPerGenCurve; iVertexIndex++) {
 
                     // apply the "Raup & Michelson" model parameters on the generating curve. In order to achive 
                     // the desired shell thickness we apply the configured thickness percentage over the generating curve.
-                    dXAux = ((double)li2DVertexsGenCurve[iVertexIndex].X* dThicknessFactor + dRc) * dFactAuxA;
-                    dYAux = ((double)li2DVertexsGenCurve[iVertexIndex].Y * dThicknessFactor * dFactAuxA) - (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
+                    dXAux = ((double)li2DVertexsGenCurve[iVertexIndex].X * dThicknessFactor * dFactAuxA) + dFactAuxB;// optimization of: ((double)li2DVertexsGenCurve[iVertexIndex].X* dThicknessFactor + dRc) * dFactAuxA;
+                    dYAux = ((double)li2DVertexsGenCurve[iVertexIndex].Y * dThicknessFactor * dFactAuxA) - dFactAuxC;// optimization of: ((double)li2DVertexsGenCurve[iVertexIndex].Y * dThicknessFactor * dFactAuxA) - (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
                     dZAux = 0;
 
                     // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 

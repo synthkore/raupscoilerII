@@ -28,12 +28,12 @@ namespace RaupCoilerII {
         public int iSpiralLastNormalIdx;
         public int iSpiralLastFaceIdx;
         // spiral beginning cover indexes
-        public int iSpiralBeginCoverFirstVertexIdx;
-        public int iSpiralBeginCoverFirstNormalIdx;
-        public int iSpiralBeginCoverFirstFaceIdx;
-        public int iSpiralBeginCoverLastVertexIdx;
-        public int iSpiralBeginCoverLastNormalIdx;
-        public int iSpiralBeginCoverLastFaceIdx;
+        // public int iSpiralBeginCoverFirstVertexIdx;
+        // public int iSpiralBeginCoverFirstNormalIdx;
+        // public int iSpiralBeginCoverFirstFaceIdx;
+        // public int iSpiralBeginCoverLastVertexIdx;
+        // public int iSpiralBeginCoverLastNormalIdx;
+        // public int iSpiralBeginCoverLastFaceIdx;
         // spiral enidng cover indexes
         public int iSpiralEndCoverFirstVertexIdx;
         public int iSpiralEndCoverFirstNormalIdx;
@@ -83,7 +83,7 @@ namespace RaupCoilerII {
             double dFactAuxC = 0; // auxiliar factor C 
 
 
-            // ## 2D Generating circel 
+            // ## 2D Generating circle 
 
             // create and calculate the generating ring used to generate the spiral tube, according
             // to the selected Raup & Michelson parameters
@@ -129,12 +129,13 @@ namespace RaupCoilerII {
             iSpiralFirstVertexIdx = spiral_mesh.Vertices.Count();
 
             // calculate the Rc value according to the confiugred D and fRadius parameter
+            // calculate the W^(𝜃/2π) for the current Theta value
             dRc = (double)refAppViewModel.IniRadius * (1.0d + (double)refAppViewModel.Dparam) / (1.0d - (double)refAppViewModel.Dparam);
 
             dThetaRad = 0;
             for (iRing = 0; iRing < iTotalNumberOfRings; iRing++) {
 
-                // calculate the W^(𝜃/2π) for the current Theta value. 
+                // precalculate various factors to simplify computations within the next ring loop
                 dFactAuxA =  (double)Math.Pow((double)refAppViewModel.Wparam, (double)(dThetaRad / (double)(2.0d * Math.PI)));// W^(1/refAppViewModel.RingsRev)
                 dFactAuxB = dFactAuxA * dRc;
                 dFactAuxC = (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
@@ -145,8 +146,8 @@ namespace RaupCoilerII {
                    if (refAppViewModel.ExpandSpiral) {
 
                         // apply the "Raup & Michelson" model parameters on the "iVertexIndex" vertex of the generating curve
-                        dXAux = ((double)liBasicGenCurveVertices[iVertexIndex].X * dThicknessFactor * dFactAuxA  + dFactAuxB );// ((double)liBasicGenCurveVertices[iVertexIndex].X * dThicknessFactor + dRc) * dFactAuxA;
-                        dYAux = ((double)liBasicGenCurveVertices[iVertexIndex].Y * dThicknessFactor * dFactAuxA) - dFactAuxC;// ((double)liBasicGenCurveVertices[iVertexIndex].Y * dThicknessFactor * dFactAuxA) - (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
+                        dXAux = ((double)liBasicGenCurveVertices[iVertexIndex].X * dThicknessFactor * dFactAuxA  + dFactAuxB );// optimization of: ((double)liBasicGenCurveVertices[iVertexIndex].X * dThicknessFactor + dRc) * dFactAuxA;
+                        dYAux = ((double)liBasicGenCurveVertices[iVertexIndex].Y * dThicknessFactor * dFactAuxA) - dFactAuxC;// optimization of: ((double)liBasicGenCurveVertices[iVertexIndex].Y * dThicknessFactor * dFactAuxA) - (dRc * (double)refAppViewModel.Tparam * (dFactAuxA - 1.0d));
                         dZAux = 0;
 
                         // apply the corresponding "dThetaRad" rotation over the transformed generating curve. This 
@@ -202,14 +203,6 @@ namespace RaupCoilerII {
 
             // keep the index of the spiral mesh last stored vertex
             iSpiralLastVertexIdx = spiral_mesh.Vertices.Count() - 1;
-
-            // JBR 2026-08-21 Para depurar espiral
-            int iAux = iSpiralLastVertexIdx - iVertexsPerRing + 1;
-            Debug.WriteLine("GenerateSpiralVertexs Last ring");
-            for (iVertexIndex = 0; iVertexIndex < iVertexsPerRing; iVertexIndex++) {
-                Debug.WriteLine(iVertexIndex.ToString() + ": " + spiral_mesh.Vertices[iAux+ iVertexIndex].X.ToString() +","+ spiral_mesh.Vertices[iAux + iVertexIndex].Y.ToString() + ","+ spiral_mesh.Vertices[iAux + iVertexIndex].Z.ToString());
-            }//for
-            // FIN JBR 2026-08-21 Para depurar espiral
 
         }//GenerateSpiralVertexs
 
@@ -384,7 +377,6 @@ namespace RaupCoilerII {
             iSpiralLastNormalIdx = spiral_mesh.Normals.Count() - 1;
 
         }//GenerateSpiralNormals
-
 
         /*******************************************************************************
         * @brief generates the normals for all the vertices of the spiral end cover. The 

@@ -42,6 +42,7 @@ namespace RaupCoilerII {
         private int shaderProgram;
 
         cGizmo ZYXaxis;
+        cAxis CoilingAxis;
         cShellModel ShellModel;
         unitCube UnitContainerCube;
         cSpiral Spiral;
@@ -290,8 +291,19 @@ namespace RaupCoilerII {
                 Spiral.objModelTransX = ShellModel.objModelTransX;
                 Spiral.objModelTransY = ShellModel.objModelTransY;
                 Spiral.objModelTransZ = ShellModel.objModelTransZ;
+            
                 // regenerate the spiral model geometry
                 Spiral.InitializeGeometry();
+
+                // apply the same scale and translation to the coiling axis
+                CoilingAxis.objModelScale = 1;// ShellModel.objModelScale;
+                CoilingAxis.objModelTransX = ShellModel.objModelTransX;
+                CoilingAxis.objModelTransY = ShellModel.objModelTransY;
+                CoilingAxis.objModelTransZ = ShellModel.objModelTransZ;
+                CoilingAxis.fMaxY = 1.25f * (ShellModel.flMaxY * ShellModel.objModelScale);
+                CoilingAxis.fMinY = 1.25f * (ShellModel.flMinY * ShellModel.objModelScale);
+                // regenerate the spiral model geometry
+                CoilingAxis.InitializeGeometry();
 
             }//if
 
@@ -302,6 +314,7 @@ namespace RaupCoilerII {
                 // apply the current transformations to the original shell geometry
                 ShellModel.UpdateVAO();
                 Spiral.UpdateVAO();
+                CoilingAxis.UpdateVAO();
 
             }//if
 
@@ -426,31 +439,25 @@ namespace RaupCoilerII {
 
                     // ###### render the Model ######
                     GL.BindVertexArray(Spiral.objectVAO);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    GL.DrawElements(BeginMode.Triangles, Spiral.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
 
-                    // generate the geoemtry with the selecthed method
-                    // switch (appViewModel.geometryStyle) {
-                    // 
-                    //     case (tGeometryStyleEnum.Vertexs):
-                    //        GL.PointSize(5.0f);
-                    //        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
-                    //        GL.DrawElements(BeginMode.Triangles, Spiral.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
-                    //         break;
-                    // 
-                    //     case (tGeometryStyleEnum.Triangles):
-                    //         GL.LineWidth(3.0f);
-                    //         GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                    //          GL.DrawElements(BeginMode.Triangles, Spiral.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
-                    //         break;
-                    // 
-                    //     case (tGeometryStyleEnum.Faces):
-                            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                            GL.DrawElements(BeginMode.Triangles, Spiral.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
-                    //         break;
-                    // 
-                    //     case (tGeometryStyleEnum.NoMesh):
-                    //         break;
-                    // 
-                    // }//switch   
+                }//if
+
+                // render the shell coiling axis
+                if (appViewModel.Axis) {
+
+                    // clear the context
+                    GL.BindVertexArray(0);
+
+                    // ###### render the Model ######
+                    GL.BindVertexArray(CoilingAxis.objectVAO);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    GL.DrawElements(BeginMode.Triangles, CoilingAxis.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+
+                    // GL.PointSize(35.0f);
+                    // GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
+                    // GL.DrawElements(BeginMode.Triangles, ShellModel.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
 
                 }//if
 
