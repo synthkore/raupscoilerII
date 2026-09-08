@@ -191,7 +191,7 @@ namespace RaupCoilerII {
 
             // ## 3D Simplified shell model
 
-            // create and calculate the shell 3D model according to the selected Raup & Michelson
+            // create and calculate the simplified shell 3D model according to the selected Raup & Michelson
             // parameters and get the maximum and minimum X, Y, Z values 
 
             // initialize the variables used to get the maximum and minimum values

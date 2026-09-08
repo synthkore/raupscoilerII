@@ -283,14 +283,14 @@ namespace RaupCoilerII {
         }//Spiral
 
         // Axis flag
-        bool bAxis;
-        public bool Axis {
-            get { return bAxis; }
+        bool bShellAxis;
+        public bool ShellAxis {
+            get { return bShellAxis; }
             set {
-                if (bAxis != value) {
-                    bAxis = value;
+                if (bShellAxis != value) {
+                    bShellAxis = value;
                     bRequireToReRender = true;
-                    this.NotifyMyPropertyChanged("Axis");
+                    this.NotifyMyPropertyChanged("ShellAxis");
                 }//if
             }//set
         }//Axis
@@ -509,20 +509,20 @@ namespace RaupCoilerII {
             }//set
         }// ShellWidthPercent
 
-        // Axis flag
-        bool bAxis3D;
-        public bool Axis3D {
-            get { return bAxis3D; }
+        // 3D Gizmo showing ZYZ axis
+        bool bXYZGizmo;
+        public bool XYZGizmo {
+            get { return bXYZGizmo; }
             set {
-                if (bAxis3D != value) {
-                    bAxis3D = value;
+                if (bXYZGizmo != value) {
+                    bXYZGizmo = value;
                     bRequireToRegenerate = true;
                     bRequireToReRender = true;
                     bRequireToUpdateVAO = true;
-                    this.NotifyMyPropertyChanged("Axis3D");
+                    this.NotifyMyPropertyChanged("XYZGizmo");
                 }//if
             }//set
-        }//Axis
+        }//XYZGizmo
 
         // Model transformation parameters
         // Model rotation arround X axis
@@ -711,7 +711,7 @@ namespace RaupCoilerII {
             }//set
         }//LightThetaAzimuthAngle
 
-        // Axis flag
+        // The spot light is linked to the perspective camera position
         bool bLinkLightToView;
         public bool LinkLightToView {
             get { return bLinkLightToView; }
@@ -820,11 +820,11 @@ namespace RaupCoilerII {
             Triangles = false;
             Faces = true;
             Spiral = false;
-            Axis = true;
+            ShellAxis = true;
             Autoscale = true;
             ExpandSpiral = false;
 
-            Axis3D = true;
+            XYZGizmo = true;
 
             Revolutions = 10;
             Resolution = 36;
@@ -843,7 +843,6 @@ namespace RaupCoilerII {
             ViewPhiZenithAngle = 0;
             ViewThetaAzimuthAngle = 0;
             ViewRoDistance = 4;
-
 
             // set all the view vector parameters to its default value
             LightPhiZenithAngle = 0;

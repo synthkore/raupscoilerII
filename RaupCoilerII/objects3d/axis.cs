@@ -49,8 +49,8 @@ namespace RaupCoilerII {
         public int iAxisBotCoverLastFaceIdx;
 
         // the top and bottom Y coordinates of the axis
-        public float fMaxY;
-        public float fMinY;
+        public float fTopY;
+        public float fBotY;
 
         /*******************************************************************************
         * @brief Constructor with pararameters.
@@ -61,8 +61,8 @@ namespace RaupCoilerII {
 
             refAppViewModel = _refViewModel;
 
-            fMaxY = 1.0f;
-            fMinY = -1.0f;
+            fTopY = 1.0f;
+            fBotY = -1.0f;
 
         }//cAxis
 
@@ -89,8 +89,8 @@ namespace RaupCoilerII {
             int iIterCter = 0;
 
             // use the fMaxY and fMinY to calculate the two ends of the coiling axis
-            fAxisTopCoverY = fMaxY;
-            fAxisBotCoverY = fMinY;
+            fAxisTopCoverY = fTopY;
+            fAxisBotCoverY = fBotY;
 
             // ## 2D Generating circle 
 

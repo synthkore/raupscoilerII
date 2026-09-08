@@ -187,9 +187,9 @@ namespace RaupCoilerII {
 
             InitializeOpenGL();
 
-            ZYXaxis = new cGizmo(appViewModel);
-            ZYXaxis.InitializeGeometry();
-            ZYXaxis.UpdateVAO();
+            XYZGizmo = new cGizmo(appViewModel);
+            XYZGizmo.InitializeGeometry();
+            XYZGizmo.UpdateVAO();
 
             ShellModel = new cShellModel(appViewModel);
             ShellModel.InitializeGeometry();

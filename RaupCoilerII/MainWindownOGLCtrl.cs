@@ -41,7 +41,7 @@ namespace RaupCoilerII {
         // Open GL related parameters
         private int shaderProgram;
 
-        cGizmo ZYXaxis;
+        cGizmo XYZGizmo;
         cAxis CoilingAxis;
         cShellModel ShellModel;
         unitCube UnitContainerCube;
@@ -277,31 +277,36 @@ namespace RaupCoilerII {
             float flGizmoViewDist = 4.0f;
             float flGizmoLightDist = 100.0f;
             float flGizmoScale = 1.0f;
+            float flAux = 0.0f;
 
             if (appViewModel.bRequireToRegenerate) {
 
                 appViewModel.bRequireToRegenerate = false;
                 appViewModel.bRequireToReRender = true;
 
+                // ## Shell
                 // regenerate the shell model geometry
                 ShellModel.InitializeGeometry();
-
+                
+                // ## Spiral
                 // apply the same scale and translation to the spiral geometry
                 Spiral.objModelScale = ShellModel.objModelScale;
                 Spiral.objModelTransX = ShellModel.objModelTransX;
                 Spiral.objModelTransY = ShellModel.objModelTransY;
-                Spiral.objModelTransZ = ShellModel.objModelTransZ;
-            
+                Spiral.objModelTransZ = ShellModel.objModelTransZ;            
                 // regenerate the spiral model geometry
                 Spiral.InitializeGeometry();
 
+                // ## Axis
                 // apply the same scale and translation to the coiling axis
-                CoilingAxis.objModelScale = 1;// ShellModel.objModelScale;
+                CoilingAxis.objModelScale = ShellModel.objModelScale;
                 CoilingAxis.objModelTransX = ShellModel.objModelTransX;
                 CoilingAxis.objModelTransY = ShellModel.objModelTransY;
                 CoilingAxis.objModelTransZ = ShellModel.objModelTransZ;
-                CoilingAxis.fMaxY = 1.25f * (ShellModel.flMaxY * ShellModel.objModelScale);
-                CoilingAxis.fMinY = 1.25f * (ShellModel.flMinY * ShellModel.objModelScale);
+                // calculate the length of the axis by adding a percentaje to the height of the shell model
+                flAux = (ShellModel.flMaxY - ShellModel.flMinY) * CoilingAxis.objModelScale * 0.25f;
+                CoilingAxis.fBotY = (ShellModel.flMinY * CoilingAxis.objModelScale) - flAux;
+                CoilingAxis.fTopY = (ShellModel.flMaxY * CoilingAxis.objModelScale) + flAux;
                 // regenerate the spiral model geometry
                 CoilingAxis.InitializeGeometry();
 
@@ -445,7 +450,7 @@ namespace RaupCoilerII {
                 }//if
 
                 // render the shell coiling axis
-                if (appViewModel.Axis) {
+                if (appViewModel.ShellAxis) {
 
                     // clear the context
                     GL.BindVertexArray(0);
@@ -476,7 +481,7 @@ namespace RaupCoilerII {
                 }// if (appViewModel.UnitCube) {
 
                 // render the XYZ Axis ( GIZMO ) if enabled. It is drawn in an independent ViewPort
-                if (appViewModel.Axis3D) {
+                if (appViewModel.XYZGizmo) {
 
                     // clear the context
                     GL.BindVertexArray(0);
@@ -559,7 +564,7 @@ namespace RaupCoilerII {
                     GL.BindVertexArray(0);
 
                     // ###### render the XYZ Axis ######
-                    GL.BindVertexArray(ZYXaxis.objectVAO);
+                    GL.BindVertexArray(XYZGizmo.objectVAO);
                     // transforMatrix = Matrix4.CreateScale((float)ZYXaxis.objModelScale) * Matrix4.CreateTranslation(ZYXaxis.objModelTransX, ZYXaxis.objModelTransY, ZYXaxis.objModelTransZ);
                     transforMatrix = Matrix4.CreateScale((float)flGizmoScale) * Matrix4.CreateTranslation(0, 0, 0);
                     // transforMatrix = transforMatrix * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(objAngleX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(objAngleY)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(objAngleZ));
@@ -567,7 +572,7 @@ namespace RaupCoilerII {
                     // GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModelTransform"), false, ref transforMatrix);
 
                     // GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    GL.DrawElements(BeginMode.Triangles, ZYXaxis.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
+                    GL.DrawElements(BeginMode.Triangles, XYZGizmo.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
                     
                 }//if (appViewModel.Axis3D)
 

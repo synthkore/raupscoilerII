@@ -198,8 +198,8 @@
                                     <!-- END GroupBox: Shell mesh geometry options -->
                                     <!-- BEGIN CheckBoxes Spiral, Axis, AUtoscale -->
                                     <CheckBox Content="Spiral" IsChecked="{Binding Spiral}" Margin="8,8,4,4" />
-                                    <CheckBox Content="Model axis" IsChecked="{Binding Axis}" Margin="8,2,4,4"/>
-                                    <CheckBox Content="3D Axis" IsChecked="{Binding Axis3D}" Margin="8,2,4,4"/>
+                                    <CheckBox Content="Shell axis" IsChecked="{Binding ShellAxis}" Margin="8,2,4,4"/>
+                                    <CheckBox Content="ZYX gizmo" IsChecked="{Binding XYZGizmo}" Margin="8,2,4,4"/>
                                     <CheckBox Content="Autoscale" IsChecked="{Binding Autoscale}" Margin="8,2,4,4" />
                                     <CheckBox Content="UnitCube" IsChecked="{Binding UnitCube}" Margin="8,2,4,4" />
                                     <CheckBox Content="XZ plane" IsChecked="{Binding XZPlane}" Margin="8,2,4,4" />
