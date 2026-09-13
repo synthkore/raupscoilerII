@@ -524,65 +524,31 @@ namespace RaupCoilerII {
             }//set
         }//XYZGizmo
 
-        // Model transformation parameters
-        // Model rotation arround X axis
-        double dXOrientation;
-        public double XOrientation {
-            get { return dXOrientation; }
+        // To render the model with perspective projection
+        bool bPerspective;
+        public bool Perspective {
+            get { return bPerspective; }
             set {
-                if (dXOrientation != value) {
-                    // check that received value is in range
-                    if (value > XOrientationMax) {
-                        dXOrientation = XOrientationMax;
-                    } else if (value < XOrientationMin) {
-                        dXOrientation = XOrientationMin;
-                    } else {
-                        dXOrientation = value;
-                    }
-                    this.NotifyMyPropertyChanged("Xorientation");
-                }
+                if (bPerspective != value) {
+                    bPerspective = value;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("Perspective");
+                }//if
             }//set
-        }//Xorientation
+        }//Perspective
 
-        // Y rotation
-        // Model rotation arround Y axis
-        double dYOrientation;
-        public double YOrientation {
-            get { return dYOrientation; }
+        // To render the model with ortographic projection
+        bool bOrtographic;
+        public bool Ortographic {
+            get { return bOrtographic; }
             set {
-                if (dYOrientation != value) {
-                    // check that received value is in range
-                    if (value > YOrientationMax) {
-                        dYOrientation = YOrientationMax;
-                    } else if (value < YOrientationMin) {
-                        dYOrientation = YOrientationMin;
-                    } else {
-                        dYOrientation = value;
-                    }
-                    this.NotifyMyPropertyChanged("Yorientation");
-                }
+                if (bOrtographic != value) {
+                    bOrtographic = value;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("Ortographic");
+                }//if
             }//set
-        }//Yorientation
-
-        // Z rotation
-        // Model rotation arround Z axis
-        double dZOrientation;
-        public double ZOrientation {
-            get { return dZOrientation; }
-            set {
-                if (dZOrientation != value) {
-                    // check that received value is in range
-                    if (value > ZOrientationMax) {
-                        dZOrientation = ZOrientationMax;
-                    } else if (value < ZOrientationMin) {
-                        dZOrientation = ZOrientationMin;
-                    } else {
-                        dZOrientation = value;
-                    }
-                    this.NotifyMyPropertyChanged("Zorientation");
-                }
-            }//set
-        }//Zorientation
+        }//Ortographic
 
         // The view vector, points from the coordinates defined by the Spheric
         // coordinates (Ro,Theta,Phi) to the origin (0,0,0)
@@ -835,9 +801,8 @@ namespace RaupCoilerII {
             SpiralResolution = 18;
             SpiralWidth = 1.5;
 
-            XOrientation = 0;
-            YOrientation = 0;
-            ZOrientation = 0;
+            Perspective = true;
+            Ortographic = false;
 
             // set all the view vector parameters to its default value
             ViewPhiZenithAngle = 0;

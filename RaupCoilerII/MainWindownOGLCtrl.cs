@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Media3D;
 using Assimp;
 using OpenTK.Core;
 using OpenTK.Graphics.OpenGL4;
@@ -266,7 +267,8 @@ namespace RaupCoilerII {
 
         /*******************************************************************************
         * @brief delegate that manages the event raised by the OpenGL WPF control to 
-        * request to render its content.
+        * request to render its content. This delegate is periodically called by the 
+        * application to refresh the content of the GL WPF Control
         * @param[in] sender reference to the object that raises the event
         * @param[in] e the information related to the event
         *******************************************************************************/
@@ -279,6 +281,7 @@ namespace RaupCoilerII {
             float flGizmoScale = 1.0f;
             float flAux = 0.0f;
 
+            // regenerate the different 3D objects geometry only if the corresponding flag has been set
             if (appViewModel.bRequireToRegenerate) {
 
                 appViewModel.bRequireToRegenerate = false;
@@ -312,6 +315,7 @@ namespace RaupCoilerII {
 
             }//if
 
+            // update the different 3D objects VAOs only if the corresponding flag has been set
             if (appViewModel.bRequireToUpdateVAO) {
 
                 appViewModel.bRequireToUpdateVAO = false;
@@ -323,7 +327,7 @@ namespace RaupCoilerII {
 
             }//if
 
-            // only repaint the model in case the flag has been set
+            //  "repaint" the model only if the corresponding flag has been set
             if (appViewModel.bRequireToReRender) {
                 
                 appViewModel.bRequireToReRender = false;
@@ -364,8 +368,8 @@ namespace RaupCoilerII {
                 view_vector = new Vector3(viewX, viewY, viewZ);
 
                 // the view matrix has a direction vector but also needs an 'up vector' that specifies where
-                // is "up" and where is "down" of the view. 
-                // The Up vector must be inverted to avoid that the camera flips when passing 90º over the model or 270º under the model.
+                // is "up" and where is "down" of the view. The Up vector must be inverted to avoid that the
+                // camera flips when passing 90º over the model or 270º under the model.
                 if ((Math.Abs(viewYAngle) > (Math.PI / 2)) && (Math.Abs(viewYAngle) < (3 * (Math.PI / 2)))) {                    
                     up_vector = -1 * Vector3.UnitY;
                 } else {
@@ -388,11 +392,27 @@ namespace RaupCoilerII {
                 lightZ = (float)Math.Sin(lightZAngle) * projectLight;
                 // now get the vector
                 light_vector = new Vector3(lightX, lightY, lightZ);
-                 
+
                 Matrix4 transforMatrix = Matrix4.Identity; // Matrix4.CreateScale((float)ShellModel.objModelScale);// * Matrix4.CreateTranslation(ShellModel.objModelTransX* ShellModel.objModelScale, ShellModel.objModelTransY*ShellModel.objModelScale, ShellModel.objModelTransZ* ShellModel.objModelScale);
                 Matrix4 viewMatrix = Matrix4.LookAt(view_vector,Vector3.Zero,up_vector);
-                Matrix4 projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
+                Matrix4 projectionMatrix;
+                if (appViewModel.Perspective) {
+
+                    // perspective projection matrix
+                    projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
                 
+                } else{
+
+                    // ortographic projection matrix: otrographic projection is not perspective projection
+                    // so distance is not considered when transfering 3D coordinates to 2D coordinates, so
+                    // to zoom in or zoom out you can not use the camera distance. In orgorgraphic projection,
+                    // zoom in and zoom out is achieved by changing the size of the ortographic volume.
+                    float viewSize = viewDist;// 2.0f;
+                    float aspect = (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight;
+                    projectionMatrix = Matrix4.CreateOrthographic(viewSize * aspect, viewSize, 0.1f, 100.0f);
+
+                }//if (appViewModel.Perspective) 
+
                 // initialize the content of the different graphic card Uniform buffers used by
                 // the vertex shader and the fragment shader:                
                 // data for the vertex shader:
@@ -408,10 +428,10 @@ namespace RaupCoilerII {
                 GL.Uniform1(GL.GetUniformLocation(shaderProgram, "specularStrength"), 0.5);// miViewModel.difuse);
                 GL.Uniform1(GL.GetUniformLocation(shaderProgram, "shininess"), 16);// miViewModel.shine);
 
-                // ###### render the Model ######
+                // render the shell model
                 GL.BindVertexArray(ShellModel.objectVAO);
 
-                // generate the geoemtry with the selecthed method
+                // draw the geoemtry with the selecthed method
                 switch (appViewModel.geometryStyle) {
 
                     case (tGeometryStyleEnum.Vertexs):
@@ -436,7 +456,7 @@ namespace RaupCoilerII {
 
                 }//switch                                                             
 
-                // render the shell model spiral
+                // if enabled, render the shell spiral
                 if (appViewModel.Spiral) {
 
                     // clear the context
@@ -449,7 +469,7 @@ namespace RaupCoilerII {
 
                 }//if
 
-                // render the shell coiling axis
+                // if enabled,  render the shell coiling axis
                 if (appViewModel.ShellAxis) {
 
                     // clear the context
@@ -466,7 +486,7 @@ namespace RaupCoilerII {
 
                 }//if
 
-                // render the unit cube that contains the shell model when autoscale mode is enabled
+                // if enabled, render the unit cube that contains the shell model when autoscale mode is enabled
                 if (appViewModel.UnitCube) {
 
                     // clear the context
@@ -480,7 +500,7 @@ namespace RaupCoilerII {
 
                 }// if (appViewModel.UnitCube) {
 
-                // render the XYZ Axis ( GIZMO ) if enabled. It is drawn in an independent ViewPort
+                // if enabled,  render the XYZ Axis ( GIZMO ) if enabled. It is drawn in an independent ViewPort
                 if (appViewModel.XYZGizmo) {
 
                     // clear the context
@@ -543,14 +563,14 @@ namespace RaupCoilerII {
 
                     // transforMatrix = Matrix4.Identity; // * Matrix4.CreateTranslation(ShellModel.objModelTransX* ShellModel.objModelScale, ShellModel.objModelTransY*ShellModel.objModelScale, ShellModel.objModelTransZ* ShellModel.objModelScale);
                     viewMatrix = Matrix4.LookAt(view_vector, Vector3.Zero, up_vector);
-                    // projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
+                    projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), (float)OpenTkControl.ActualWidth / (float)OpenTkControl.ActualHeight, 0.1f, 100f);
 
                     // initialize the content of the different graphic card Uniform buffers used by
                     // the vertex shader and the fragment shader:
                     // data for the vertex shader:
                     // GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uModelTransform"), false, ref transforMatrix);
                     GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uView"), false, ref viewMatrix);
-                    // GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uProjection"), false, ref projectionMatrix);
+                    GL.UniformMatrix4(GL.GetUniformLocation(shaderProgram, "uProjection"), false, ref projectionMatrix);
                     // vectors data for the fragment shader:
                     GL.Uniform3(GL.GetUniformLocation(shaderProgram, "lightPos"), light_vector);
                     // GL.Uniform3(GL.GetUniformLocation(shaderProgram, "viewPos"), view_vector);

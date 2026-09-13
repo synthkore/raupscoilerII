@@ -246,7 +246,7 @@
                 <!-- END: ######################################################### Model TabPage control ######################################################### -->
                 <!-- BEGIN:##################################################### View & Light TabPage control ######################################################### -->
                 <!-- View TabPage controls-->
-                <TabItem Header="View" HorizontalAlignment="Left" Width="37">
+                <TabItem Header="View" Height="20" VerticalAlignment="Center">
                     <!-- BEGIN: ############ View TabPage main grid ############ -->
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -262,9 +262,20 @@
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="85"/>
                                 <RowDefinition Height="282"/>
                             </Grid.RowDefinitions>
-                            <GroupBox Header="View Orientation" Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
+                            <!-- BEGIN: ############ Model TabPage main grid: Column 0: Row 0 : Projection ############ -->
+                            <!-- GroupBox Drawing options panel -->
+                            <GroupBox Header="Projection" Grid.Row="0" Margin="2,2,2,2" BorderBrush="Black" BorderThickness="1">
+                                <StackPanel Margin="10,10,10,10" >
+                                    <RadioButton Name="perspective" Content="Perspective" Height="24" VerticalAlignment="Top" IsChecked="{Binding Perspective}"/>
+                                    <RadioButton Name="ortographic" Content="Ortographic" Height="24" VerticalAlignment="Top" IsChecked="{Binding Ortographic}"/>
+                                </StackPanel>
+                            </GroupBox>
+                            <!-- END: ############ Model TabPage main grid: Column 0: Row 0 : Projection ############ -->                            
+                            <!-- BEGIN: ############ View TabPage main grid: Column 0: Row 1 : View Orientation ############ -->
+                            <GroupBox Header="View Orientation" Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
@@ -303,6 +314,7 @@
                                     <Button x:Name="btnResetOrientationToZ" Grid.Row="5" Height="22" Content="Reset to Y X" Click="btnResetViewOrientationToYX_Click" Width="140" />
                                 </Grid>
                             </GroupBox>
+                            <!-- END: ############ View TabPage main grid: Column 0: Row 1 : View Orientation ############ -->
                         </Grid>
                         <!-- END: ############ View TabPage main grid: Column 0: Row 0 ############ -->
                         <!-- BEGIN: ############ View TabPage main grid: Column 1: Row 0 ############ -->
@@ -314,6 +326,7 @@
                                 <RowDefinition Height="250"/>
                                 <RowDefinition />
                             </Grid.RowDefinitions>
+                            <!-- BEGIN: ############ View TabPage main grid: Column 1: Row 0 : Light Orientation ############ -->
                             <GroupBox Header="Light Orientation" Grid.Column="1" Grid.Row="0" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -352,6 +365,7 @@
                                     <Button x:Name="btnResetLightOrientation" Grid.Row="4" Height="22" Content="Reset" Click="btnResetLightOrientation_Click" Width="140" Grid.ColumnSpan="2" Margin="44,3,45,3" />
                                 </Grid>
                             </GroupBox>
+                            <!-- END: ############ View TabPage main grid: Column 1: Row 0 : Light Orientation ############ -->
                         </Grid>
                     </Grid>
                     <!-- END: ############ View TabPage main grid ############ -->

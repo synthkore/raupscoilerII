@@ -23,19 +23,19 @@ using System.Windows.Shapes;
 
 /* JBR notas
    Parece que el autoscale no va bien, pues al generar un bivalvo con W=10000 contra el cubo unitario este sale fuera del cubo. Quizas sea por la resolcuion de la malla utilizada al hacer el GetScaleFactors
-   Espiral
-   Eje
    Poder sobreimponer en render valores de parámetros D,W,T,S para facilitar capturas.
    Botón de reset o desplegable con parámetros por defeto
    Al rotar llega un momento que ya no deja rotar más, estaria bien utilizar el % modulo del angulo en lugar del valor absoluto.
-   Seleccionar proyecccion en perspectiva o isométrica.
    Mostrar plano horizontal para ver como se desplaza en Y (T)
    Corregir sombreado triangulos de la cara interior
    La iluminacion a veces parece que no funciona bien y quedan zonas muy oscuras ¿ hay que poner algun tipo de ilumniación global, omni ?
-   Porder sobreponer Faces con Triangles / Quads o Vertexs.
 Hecho:
    Meter transparencia de la concha
    Situar siempre y con la misma escala el eje de coordenadas en una esquina
+   Espiral
+   Eje
+   Seleccionar proyecccion en perspectiva o isométrica.
+   Porder sobreponer Faces con Triangles / Quads o Vertexs.
  */
 
 /*******************************************************************************
