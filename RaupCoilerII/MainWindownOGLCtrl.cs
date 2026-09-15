@@ -102,7 +102,8 @@ namespace RaupCoilerII {
             // initialize the OpenGL WPF control           
             var settings = new GLWpfControlSettings {
                 MajorVersion = 4,
-                MinorVersion = 6
+                MinorVersion = 6,
+                RenderContinuously = true
             };
 
             OpenTkControl.Start(settings);

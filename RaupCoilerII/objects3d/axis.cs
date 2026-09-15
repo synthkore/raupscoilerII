@@ -97,8 +97,8 @@ namespace RaupCoilerII {
             // create and calculate the ring used to generate the axis tube
             liAxisSectionVertices = new List<Vector2D>();
 
-            fRadius = 0.02f;// the axis width
-            iverticesPerRing = 16;// axis circle ressolution
+            fRadius = (float) refAppViewModel.AxisWidth;// the axis width
+            iverticesPerRing = refAppViewModel.AxisResolution;// axis circle ressolution
 
             flAngleVerticesRad = (2.0f * (float)Math.PI) / (float)iverticesPerRing;
             fCurrRingVertexAngleRad = 0;
@@ -200,7 +200,7 @@ namespace RaupCoilerII {
             int iAux = 0;
             float fXAux = 0.0f, fYAux = 0.0f, fZAux = 0.0f;
 
-            iverticesPerRing = 16;// axis circle ressolution
+            iverticesPerRing = refAppViewModel.AxisResolution;// axis circle ressolution
 
             // #### calcualate the normals for the axis top cover vertices
 
@@ -371,7 +371,7 @@ namespace RaupCoilerII {
             int iAux = 0;
             int iVertexsPerRing = 0;
 
-            iVertexsPerRing = 16;
+            iVertexsPerRing = refAppViewModel.AxisResolution;// axis circle ressolution
 
             // ######## calcualate the faces indices of the faces of the axis tube top cover ########
 

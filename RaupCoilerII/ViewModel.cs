@@ -50,6 +50,10 @@ namespace RaupCoilerII {
         public int RingsRevMin { get; } = 1;
         public int SpiralResolutionMax { get; } = 36;
         public int SpiralResolutionMin { get; } = 3;
+        public int AxisResolutionMax { get; } = 36;
+        public int AxisResolutionMin { get; } = 3;
+        public double AxisWidthMax { get; } = 0.2;
+        public double AxisWidthMin { get; } = 0.001;
 
         public double XOrientationMin { get; } = -360;
         public double XOrientationMax { get; } = 360;
@@ -353,7 +357,7 @@ namespace RaupCoilerII {
             }//set
         }//ExpandSpiral
 
-        // Resolution
+        // Spiral resolution
         int iSpiralResolution;
         public int SpiralResolution {
             get { return iSpiralResolution; }
@@ -373,7 +377,7 @@ namespace RaupCoilerII {
                     this.NotifyMyPropertyChanged("SpiralResolution");
                 }
             }//set
-        }// SpiralResolution
+        }// Spiral resolution
 
         // The with of the shell SpiralWidth
         double dSpiralWidth;
@@ -396,6 +400,52 @@ namespace RaupCoilerII {
                 }
             }//set
         }// SpiralWidth
+
+        // Shell coiling axis parameters
+
+        // Axis resolution
+        int iAxisResolution;
+        public int AxisResolution {
+            get { return iAxisResolution; }
+            set {
+                if (iAxisResolution != value) {
+                    // check that received value is in range
+                    if (value > ResolutionMax) {
+                        iAxisResolution = AxisResolutionMax;
+                    } else if (value < AxisResolutionMin) {
+                        iAxisResolution = AxisResolutionMin;
+                    } else {
+                        iAxisResolution = value;
+                    }
+                    bRequireToRegenerate = true;
+                    bRequireToUpdateVAO = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("AxisResolution");
+                }
+            }//set
+        }// Axis resolution
+
+        // The with of the shell coiling axis
+        double dAxisWidth;
+        public double AxisWidth {
+            get { return dAxisWidth; }
+            set {
+                if (dAxisWidth != value) {
+                    // check that received value is in range
+                    if (value > AxisWidthMax) {
+                        dAxisWidth = AxisWidthMax;
+                    } else if (value < AxisWidthMin) {
+                        dAxisWidth = AxisWidthMin;
+                    } else {
+                        dAxisWidth = value;
+                    }
+                    bRequireToRegenerate = true;
+                    bRequireToUpdateVAO = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("AxisWidth");
+                }
+            }//set
+        }// AxisWidth
 
         // Mesh parameters
 
@@ -797,6 +847,9 @@ namespace RaupCoilerII {
             RingsRev = 36;
             ShellWidthPercent = 5;
             IniRadius = 0.01;
+
+            AxisResolution = 16;
+            AxisWidth = 0.01;
 
             SpiralResolution = 18;
             SpiralWidth = 1.5;

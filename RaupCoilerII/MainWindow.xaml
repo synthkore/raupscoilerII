@@ -178,6 +178,7 @@
                         <Grid Grid.Column="1">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="340"/>
+                                <RowDefinition Height="135"/>
                                 <RowDefinition Height="330"/>
                             </Grid.RowDefinitions>
                             <!-- BEGIN: ############ Model TabPage main grid: Column 1: Row 0 -->
@@ -209,21 +210,47 @@
                             <!-- END: ############ Model TabPage main grid: Column 1: Row 0 ############ -->
                             <!-- BEGIN: ############ Model TabPage main grid: Column 1: Row 1 ############ -->
                             <!-- GroupBox Spiral options panel -->
-                            <GroupBox Header="Spiral" Grid.Row="1" Margin="2,2,2,168" BorderBrush="Black" BorderThickness="1" IsEnabled="{Binding Spiral}">
+                            <GroupBox Header="Axis" Grid.Row="1" Margin="2,2,2,2" BorderBrush="Black" BorderThickness="1" IsEnabled="{Binding ShellAxis}">
                                 <Grid Height="140">
                                     <Grid.RowDefinitions>
                                         <RowDefinition/>
                                         <RowDefinition/>
                                         <RowDefinition Height="35"/>
                                     </Grid.RowDefinitions>
-                                    <!-- Resolution  -->
+                                    <!-- Axis cylinder resolution  -->
+                                    <WrapPanel Margin="2,2,0,2" Grid.Row="0">
+                                        <Label Content="Resolution:"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding AxisResolution, Converter={StaticResource doubleToIntConverter}, Mode=TwoWay}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding AxisResolution, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Minimum="{Binding AxisResolutionMin}" Maximum="{Binding AxisResolutionMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="0.01" LargeChange="0.0"/>
+                                    </WrapPanel>
+                                    <!-- Axis width  -->
+                                    <WrapPanel Margin="2,2,0,2" Grid.Row="1">
+                                        <Label Content=" Width:"/>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding AxisWidth, Mode=TwoWay, Converter={StaticResource stringToDoubleConverter},ConverterParameter=3}"  Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
+                                        <!-- binding in the controls width to take the same width than the parent Grid -->
+                                        <ScrollBar Value="{Binding AxisWidth, Mode=TwoWay}" Minimum="{Binding AxisWidthMin}" Maximum="{Binding AxisWidthMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="0.001" LargeChange="0.05"/>
+                                    </WrapPanel>
+                                </Grid>
+                            </GroupBox>
+                            <!-- END: ############ Model TabPage main grid: Column 1: Row 1 ############ -->
+                            <!-- BEGIN: ############ Model TabPage main grid: Column 1: Row 2 ############ -->
+                            <!-- GroupBox Spiral options panel -->
+                            <GroupBox Header="Spiral" Grid.Row="2" Margin="2,2,2,168" BorderBrush="Black" BorderThickness="1" IsEnabled="{Binding Spiral}">
+                                <Grid Height="140">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition Height="35"/>
+                                    </Grid.RowDefinitions>
+                                    <!-- Spiral resolution  -->
                                     <WrapPanel Margin="2,2,0,2" Grid.Row="0">
                                         <Label Content="Resolution:"/>
                                         <TextBox TextWrapping="Wrap" Text="{Binding SpiralResolution,Converter={StaticResource doubleToIntConverter}, Mode=TwoWay}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
                                         <ScrollBar Value="{Binding SpiralResolution, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Minimum="{Binding SpiralResolutionMin}" Maximum="{Binding SpiralResolutionMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
                                     </WrapPanel>
-                                    <!-- Shell width  -->
+                                    <!-- Spiral width  -->
                                     <WrapPanel Margin="2,2,0,2" Grid.Row="1">
                                         <Label Content=" Width:"/>
                                         <TextBox TextWrapping="Wrap" Text="{Binding SpiralWidth, Mode=TwoWay, Converter={StaticResource stringToDoubleConverter},ConverterParameter=3}" IsEnabled="{Binding ExpandSpiral, Converter={StaticResource InverseBoolConverter}}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
@@ -238,6 +265,7 @@
                                 </Grid>
                             </GroupBox>
                             <!-- END: ############ Model TabPage main grid: Column 1: Row 1 ############ -->
+
                         </Grid>
                         <!--END: ############ Model TabPage main grid: Column 1 ############ -->
                     </Grid>

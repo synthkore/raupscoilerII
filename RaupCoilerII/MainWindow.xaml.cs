@@ -29,6 +29,7 @@ using System.Windows.Shapes;
    Mostrar plano horizontal para ver como se desplaza en Y (T)
    Corregir sombreado triangulos de la cara interior
    La iluminacion a veces parece que no funciona bien y quedan zonas muy oscuras ¿ hay que poner algun tipo de ilumniación global, omni ?
+   Ahora el control GlWPFControl se refresca cauando el decide, pero para mejorar la fluidez del renderizado lo suyo sería que lo controlásemos nosotros desde la propia aplicacion poniendo RenderContinuously a false en GLWpfControlSettings y llamando a OpenTkControl.InvalidateVisual(); 
 Hecho:
    Meter transparencia de la concha
    Situar siempre y con la misma escala el eje de coordenadas en una esquina
