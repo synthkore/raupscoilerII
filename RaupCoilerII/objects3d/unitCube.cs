@@ -18,14 +18,14 @@ namespace RaupCoilerII {
        * @brief class that implements the methods of the shell -1,+1,-1,+1 container 
        * cube.
        *******************************************************************************/
-    public class unitCube : object3D {
+    public class cUnitCube : object3D {
 
         /*******************************************************************************
         * @brief Constructor with pararameters.
         * @param[in] _refViewModel reference to the VieModel object that will be used 
         * to retrive some information.
         *******************************************************************************/
-        public unitCube(ViewModel _refViewModel) {
+        public cUnitCube(ViewModel _refViewModel) {
 
             refAppViewModel = _refViewModel;
 
@@ -96,10 +96,10 @@ namespace RaupCoilerII {
                 liCoordNColors.Add((float)mesh.Vertices[iAux2].Y);
                 liCoordNColors.Add((float)mesh.Vertices[iAux2].Z);
                 // color
-                liCoordNColors.Add((float)1.0f);
-                liCoordNColors.Add((float)0.0f);
-                liCoordNColors.Add((float)0.0f);
-                liCoordNColors.Add(0.3f);// alpha:transparency
+                liCoordNColors.Add(((float)refAppViewModel.UCubeColor.R) / 255f);
+                liCoordNColors.Add(((float)refAppViewModel.UCubeColor.G) / 255f);
+                liCoordNColors.Add(((float)refAppViewModel.UCubeColor.B) / 255f);
+                liCoordNColors.Add((float)0.4f);// ;(refAppViewModel.UCubeColor / 100.0f));
                 // normal
                 liCoordNColors.Add((float)mesh.Normals[iAux2].X);
                 liCoordNColors.Add((float)mesh.Normals[iAux2].Y);
@@ -165,7 +165,7 @@ namespace RaupCoilerII {
 
         }//UpdateVAO
 
-    }//cUnityCube
+    }//cUnitCube
 
 }//}//namespace RaupCoilerII
 

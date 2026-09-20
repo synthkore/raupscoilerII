@@ -280,6 +280,7 @@ namespace RaupCoilerII {
             set {
                 if (bSpiral != value) {
                     bSpiral = value;
+                    bRequireToRegenerate = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("Spiral");
                 }//if
@@ -293,6 +294,7 @@ namespace RaupCoilerII {
             set {
                 if (bShellAxis != value) {
                     bShellAxis = value;
+                    bRequireToRegenerate = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("ShellAxis");
                 }//if
@@ -327,18 +329,18 @@ namespace RaupCoilerII {
             }//set
         }//UnitCube
 
-        // XZPlane flag to enable or disable showing the XZ plane in order to show how does the T parameter affect to the model
-        bool bXZPlane;
-        public bool XZPlane {
-            get { return bXZPlane; }
+        // ZXPlane flag to enable or disable showing the XZ plane in order to show how does the T parameter affect to the model
+        bool bZXPlane;
+        public bool ZXPlane {
+            get { return bZXPlane; }
             set {
-                if (bXZPlane != value) {
-                    bXZPlane = value;
+                if (bZXPlane != value) {
+                    bZXPlane = value;
                     bRequireToReRender = true;
-                    this.NotifyMyPropertyChanged("XZPlane");
+                    this.NotifyMyPropertyChanged("ZXPlane");
                 }//if
             }//set
-        }//XZPlane
+        }//ZXPlane
 
         // Spiral parameters
 
@@ -788,12 +790,41 @@ namespace RaupCoilerII {
             get { return colBackgroundColor; }
             set {
                 if (colBackgroundColor != value) {
+                    colBackgroundColor = value;
                     bRequireToUpdateVAO = true;
                     bRequireToReRender = true;
                     this.NotifyMyPropertyChanged("BackgroundColor");
                 }
             }//set
         }//BackgroundColor
+
+        // axis color code
+        Color colUCubeColor;
+        public Color UCubeColor {
+            get { return colUCubeColor; }
+            set {
+                if (colUCubeColor != value) {
+                    colUCubeColor = value;
+                    bRequireToUpdateVAO = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("UCubeColor");
+                }
+            }//set
+        }//UCubeColor
+
+        // spiral color code
+        Color colZXPlaneColor;
+        public Color ZXPlaneColor {
+            get { return colZXPlaneColor; }
+            set {
+                if (colZXPlaneColor != value) {
+                    colZXPlaneColor = value;
+                    bRequireToUpdateVAO = true;
+                    bRequireToReRender = true;
+                    this.NotifyMyPropertyChanged("ZXPlaneColor");
+                }
+            }//set
+        }//ZXPlaneColor
 
         // mesh transparency percentage
         int iMeshTransparency;
@@ -872,6 +903,8 @@ namespace RaupCoilerII {
             MeshColor = System.Windows.Media.Color.FromRgb(0, 255, 0);
             AxisColor = System.Windows.Media.Color.FromRgb(0, 0, 255);
             SpiralColor = System.Windows.Media.Color.FromRgb(255, 0, 0);
+            ZXPlaneColor = System.Windows.Media.Color.FromRgb(255, 0, 0);
+            UCubeColor = System.Windows.Media.Color.FromRgb(255, 0, 0);
             BackgroundColor = System.Windows.Media.Color.FromRgb(0, 0, 0);
             MeshTransparency = 100;
 

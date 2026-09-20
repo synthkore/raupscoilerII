@@ -203,7 +203,7 @@
                                     <CheckBox Content="ZYX gizmo" IsChecked="{Binding XYZGizmo}" Margin="8,2,4,4"/>
                                     <CheckBox Content="Autoscale" IsChecked="{Binding Autoscale}" Margin="8,2,4,4" />
                                     <CheckBox Content="UnitCube" IsChecked="{Binding UnitCube}" Margin="8,2,4,4" />
-                                    <CheckBox Content="XZ plane" IsChecked="{Binding XZPlane}" Margin="8,2,4,4" />
+                                    <CheckBox Content="ZX plane" IsChecked="{Binding ZXPlane}" Margin="8,2,4,4" />
                                     <!-- END CheckBoxes Spiral, Axis, AUtoscale -->
                                 </StackPanel>
                             </GroupBox>
@@ -416,14 +416,14 @@
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition  Height="234"/>
+                                <RowDefinition  Height="300"/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <GroupBox Header="Colors" Grid.Row="0" Grid.Column="0" Margin="2,2,247,0" BorderBrush="Black" BorderThickness="1">
                                 <StackPanel>
                                     <!--- View coordinates Phi (zenith angle) -->
                                     <!-- BEGIN GroupBox: color selection buttons -->
-                                    <GroupBox Header="Color selection" Margin="2,0,2,0" BorderBrush="Black" BorderThickness="1" Height="154" Width="220">
+                                    <GroupBox Header="Color selection" Margin="2,0,2,0" BorderBrush="Black" BorderThickness="1" Height="210" Width="220">
                                         <StackPanel Margin="10,10,10,10" >
                                             <StackPanel Orientation="Horizontal"  Margin="8,2,2,0" >
                                                 <Label Content="Shell:" Width="90" />
@@ -436,6 +436,14 @@
                                             <StackPanel Orientation="Horizontal"  Margin="8,2,2,0" >
                                                 <Label Content="Shell spiral:" Width="90" />
                                                 <Button x:Name="btnSpiralColor" Content="" Width="85" Height="22" Click="btnSpiralColor_Click" Background="{Binding SpiralColor, Converter={StaticResource colorToBrushConverter}}"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal"  Margin="8,2,2,0">
+                                                <Label Content="Unit cube:" Width="90" />
+                                                <Button x:Name="btnUCubeColor" Content="" Width="85" Height="22" Click="btnUintCubeColor_Click" Background="{Binding UCubeColor, Converter={StaticResource colorToBrushConverter}}"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal"  Margin="8,2,2,0">
+                                                <Label Content="ZX plane:" Width="90" />
+                                                <Button x:Name="btnZXPlaneColor" Content="" Width="85" Height="22" Click="btnZXPlaneColor_Click" Background="{Binding ZXPlaneColor, Converter={StaticResource colorToBrushConverter}}"/>
                                             </StackPanel>
                                             <StackPanel Orientation="Horizontal"  Margin="8,2,2,0">
                                                 <Label Content="Background:" Width="90" />

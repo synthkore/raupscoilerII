@@ -22,11 +22,12 @@ using System.Windows.Shapes;
 
 
 /* JBR notas
+   Se puede quitar ¿ bRequireToUpdateVAO ?
+   Para calcular el máximo y minimo no hace falta calcular todas las anillas de la 1a y utlima vuelta basta con hacer 4 por vuelta a 90º cada una
    Parece que el autoscale no va bien, pues al generar un bivalvo con W=10000 contra el cubo unitario este sale fuera del cubo. Quizas sea por la resolcuion de la malla utilizada al hacer el GetScaleFactors
    Poder sobreimponer en render valores de parámetros D,W,T,S para facilitar capturas.
    Botón de reset o desplegable con parámetros por defeto
    Al rotar llega un momento que ya no deja rotar más, estaria bien utilizar el % modulo del angulo en lugar del valor absoluto.
-   Mostrar plano horizontal para ver como se desplaza en Y (T)
    Corregir sombreado triangulos de la cara interior
    La iluminacion a veces parece que no funciona bien y quedan zonas muy oscuras ¿ hay que poner algun tipo de ilumniación global, omni ?
    Ahora el control GlWPFControl se refresca cauando el decide, pero para mejorar la fluidez del renderizado lo suyo sería que lo controlásemos nosotros desde la propia aplicacion poniendo RenderContinuously a false en GLWpfControlSettings y llamando a OpenTkControl.InvalidateVisual(); 
@@ -37,6 +38,7 @@ Hecho:
    Eje
    Seleccionar proyecccion en perspectiva o isométrica.
    Porder sobreponer Faces con Triangles / Quads o Vertexs.
+   Mostrar plano horizontal para ver como se desplaza en Y (T)
  */
 
 /*******************************************************************************
@@ -188,17 +190,21 @@ namespace RaupCoilerII {
 
             InitializeOpenGL();
 
-            XYZGizmo = new cGizmo(appViewModel);
-            XYZGizmo.InitializeGeometry();
-            XYZGizmo.UpdateVAO();
+            ZYXGizmo = new cGizmo(appViewModel);
+            ZYXGizmo.InitializeGeometry();
+            ZYXGizmo.UpdateVAO();
 
             ShellModel = new cShellModel(appViewModel);
             ShellModel.InitializeGeometry();
             ShellModel.UpdateVAO();
 
-            UnitContainerCube = new unitCube(appViewModel);
+            UnitContainerCube = new cUnitCube(appViewModel);
             UnitContainerCube.InitializeGeometry();
             UnitContainerCube.UpdateVAO();
+
+            ZXPlane = new cPlane(appViewModel);
+            ZXPlane.InitializeGeometry();
+            ZXPlane.UpdateVAO();
 
             Spiral = new cSpiral(appViewModel);
             Spiral.InitializeGeometry();
@@ -418,13 +424,54 @@ namespace RaupCoilerII {
             if (resultado == true && dialog.SelectedColor.HasValue) {
 
                 Color color = dialog.SelectedColor.Value;
-
-                // Aquí usas el color
                 appViewModel.BackgroundColor = color;
 
             }//if
 
         }//btnBackColor_Click               
+
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the unity cube color selecction button.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void btnUintCubeColor_Click(object sender, RoutedEventArgs e) {
+            var dialog = new ColorPickerWindow(appViewModel.UCubeColor);
+            dialog.Owner = this;
+
+            bool? resultado = dialog.ShowDialog();
+
+            if (resultado == true && dialog.SelectedColor.HasValue) {
+
+                Color color = dialog.SelectedColor.Value;
+                appViewModel.UCubeColor = color;
+
+            }//if
+
+        }//btnUintCubeColor_Click        
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the ZXplane color selecction button.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void btnZXPlaneColor_Click(object sender, RoutedEventArgs e) {
+            var dialog = new ColorPickerWindow(appViewModel.ZXPlaneColor);
+            dialog.Owner = this;
+
+            bool? resultado = dialog.ShowDialog();
+
+            if (resultado == true && dialog.SelectedColor.HasValue) {
+
+                Color color = dialog.SelectedColor.Value;
+                appViewModel.ZXPlaneColor = color;
+
+            }//if
+
+        }//btnZXPlane_Click    
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user clicks over
