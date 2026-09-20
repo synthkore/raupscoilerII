@@ -15,7 +15,7 @@ using Assimp;
 namespace RaupCoilerII {
 
     /*******************************************************************************
-    * @brief class that implements the methods of the shell 3D model.
+    * @brief class that implements the methods of the shell 3D model. 
     *******************************************************************************/
     public class cShellModel : object3D {
 
