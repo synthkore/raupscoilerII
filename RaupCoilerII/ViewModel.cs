@@ -885,18 +885,18 @@ namespace RaupCoilerII {
             SpiralResolution = 18;
             SpiralWidth = 1.5;
 
-            Perspective = true;
-            Ortographic = false;
+            Perspective = false;
+            Ortographic = true;
 
             // set all the view vector parameters to its default value
             ViewPhiZenithAngle = 0;
-            ViewThetaAzimuthAngle = 0;
-            ViewRoDistance = 4;
+            ViewThetaAzimuthAngle = 90.0d;
+            ViewRoDistance = 2.5d;
 
             // set all the view vector parameters to its default value
             LightPhiZenithAngle = 0;
-            LightThetaAzimuthAngle = 0;
-            LightRoDistance = 4;
+            LightThetaAzimuthAngle = 90.0d;
+            LightRoDistance = 2.5d;
 
             bLinkLightToView = true;
 

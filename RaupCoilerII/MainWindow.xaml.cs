@@ -484,7 +484,7 @@ namespace RaupCoilerII {
             // set all the view vector parameters to its default value
             appViewModel.ViewPhiZenithAngle = 0;
             appViewModel.ViewThetaAzimuthAngle = 0;
-            appViewModel.ViewRoDistance = 4;
+            // appViewModel.ViewRoDistance = 4;
 
         }//btnResetViewOrientationToYZ_Click
 
@@ -499,7 +499,7 @@ namespace RaupCoilerII {
             // set all the view vector parameters to its default value
             appViewModel.ViewPhiZenithAngle = 90;
             appViewModel.ViewThetaAzimuthAngle = 0;
-            appViewModel.ViewRoDistance = 4;
+            // appViewModel.ViewRoDistance = 4;
 
         }//btnResetViewOrientationToZX_Click
 
@@ -514,7 +514,7 @@ namespace RaupCoilerII {
             // set all the view vector parameters to its default value
             appViewModel.ViewPhiZenithAngle = 0;
             appViewModel.ViewThetaAzimuthAngle = 90;
-            appViewModel.ViewRoDistance = 4;
+            // appViewModel.ViewRoDistance = 4;
 
         }//btnResetViewOrientationToYX_Click
 
@@ -561,6 +561,86 @@ namespace RaupCoilerII {
             }
 
         }//menuExportItem_Click
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the New menu option.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void menuNewShell_Click(object sender, RoutedEventArgs e) {
+
+            MessageBoxResult result = MessageBox.Show(
+                "All shell parameters will be lost. Start a new shell model?",
+                "New shell model",
+                MessageBoxButton.OKCancel,
+                MessageBoxImage.Question
+            );
+
+            if (result == MessageBoxResult.OK) {
+                // El usuario ha pulsado Aceptar
+                // Aquí puedes iniciar el nuevo proyecto
+            } else {
+                // El usuario ha pulsado Cancelar
+            }
+
+        }//menuNewShell_Click
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the Load Shell menu option to load the Shell model information from a file.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void menuLoadShell_Click(object sender, RoutedEventArgs e) {
+
+            OpenFileDialog openFileDialog = new OpenFileDialog {
+                Title = "Open shell model",
+                Filter = "Raup coiler II file (*.rii)|*.rii|" +
+                         "All files (*.*)|*.*",
+                DefaultExt = ".rii",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+
+            bool? result = openFileDialog.ShowDialog();
+
+            if (result == true) {
+                string rutaFichero = openFileDialog.FileName;
+
+                // call the method that loads the project parameters from the file
+                // ShellModel.Load(rutaFichero);
+            }
+
+        }//menuLoadShell_Click
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the Save Shell model menu option to save model information into a file.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void menuSaveShell_Click(object sender, RoutedEventArgs e) {
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog {
+                Title = "Save shell model",
+                Filter = "Raup coiler II file (*.rii)|*.rii|" +
+                         "All files (*.*)|*.*",
+                DefaultExt = ".rii",
+                AddExtension = true,
+                OverwritePrompt = true
+            };
+
+            bool? result = saveFileDialog.ShowDialog();
+
+            if (result == true) {
+                string rutaFichero = saveFileDialog.FileName;
+
+                // call the method that saves the project parameters into a file
+                // ShellModel.Save(rutaFichero);
+            }
+
+        }//menuSaveShell_Click
 
     }
 }

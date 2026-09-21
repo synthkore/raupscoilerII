@@ -26,11 +26,11 @@
         </Grid.ColumnDefinitions>
         <Menu Height="40" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <MenuItem Header="File">
-                <MenuItem Header="New">
+                <MenuItem Header="New" Click="menuNewShell_Click">
                 </MenuItem>
-                <MenuItem Header="Load">
+                <MenuItem Header="Load" Click="menuLoadShell_Click">
                 </MenuItem>
-                <MenuItem Header="Save">
+                <MenuItem Header="Save" Click="menuSaveShell_Click">
                 </MenuItem>
                 <MenuItem Header="Export" Click="menuExportItem_Click">
                 </MenuItem>
