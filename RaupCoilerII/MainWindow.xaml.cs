@@ -7,6 +7,7 @@ using OpenTK.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,9 +27,7 @@ using System.Windows.Shapes;
    Para calcular el máximo y minimo no hace falta calcular todas las anillas de la 1a y utlima vuelta basta con hacer 4 por vuelta a 90º cada una
    Parece que el autoscale no va bien, pues al generar un bivalvo con W=10000 contra el cubo unitario este sale fuera del cubo. Quizas sea por la resolcuion de la malla utilizada al hacer el GetScaleFactors
    Poder sobreimponer en render valores de parámetros D,W,T,S para facilitar capturas.
-   Botón de reset o desplegable con parámetros por defeto
    Al rotar llega un momento que ya no deja rotar más, estaria bien utilizar el % modulo del angulo en lugar del valor absoluto.
-   Corregir sombreado triangulos de la cara interior
    La iluminacion a veces parece que no funciona bien y quedan zonas muy oscuras ¿ hay que poner algun tipo de ilumniación global, omni ?
    Ahora el control GlWPFControl se refresca cauando el decide, pero para mejorar la fluidez del renderizado lo suyo sería que lo controlásemos nosotros desde la propia aplicacion poniendo RenderContinuously a false en GLWpfControlSettings y llamando a OpenTkControl.InvalidateVisual(); 
 Hecho:
@@ -39,6 +38,8 @@ Hecho:
    Seleccionar proyecccion en perspectiva o isométrica.
    Porder sobreponer Faces con Triangles / Quads o Vertexs.
    Mostrar plano horizontal para ver como se desplaza en Y (T)
+   Botón de reset o desplegable con parámetros por defeto >> Lo hacemos con la función "New"
+   Corregir sombreado triangulos de la cara interior
  */
 
 /*******************************************************************************
@@ -520,6 +521,21 @@ namespace RaupCoilerII {
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user clicks over
+        * the reset view to 45 45 axis
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void btnResetOrientationTo4545_Click(object sender, RoutedEventArgs e) {
+
+            // set all the view vector parameters to its default value
+            appViewModel.ViewPhiZenithAngle = 45;
+            appViewModel.ViewThetaAzimuthAngle = 45;
+            // appViewModel.ViewRoDistance = 4;
+
+        }//btnResetOrientationTo4545
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
         * the reset light vector parameters
         * @param[in] sender reference to the object that raises the event
         * @param[in] e the information related to the event
@@ -534,12 +550,45 @@ namespace RaupCoilerII {
         }//btnResetLightOrientation_Click
 
         /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user requests to 
+        * close the window
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+
+            MessageBoxResult result = MessageBox.Show(
+                    "Do you want to leave Raup Coiler II application?",
+                    "Confirm leave application",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question
+            );
+
+            e.Cancel = (result!= MessageBoxResult.Yes) && (result != MessageBoxResult.OK);
+
+        }//mainWindow_Closing
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the Exit menu option to leave the application.
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void menuExitItem_Click(object sender, RoutedEventArgs e) {
+
+            // close the main form (it callse the mainWindow_Closing event )
+            Close();
+
+        }//menuExitItem_Click
+
+        /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user clicks over
         * the export menu option.
         * @param[in] sender reference to the object that raises the event
         * @param[in] e the information related to the event
         *******************************************************************************/
         private void menuExportItem_Click(object sender, RoutedEventArgs e) {
+            string strExportFormat = "";
 
             SaveFileDialog saveFileDialog = new SaveFileDialog {
                 Title = "Export shell model",
@@ -554,11 +603,19 @@ namespace RaupCoilerII {
             bool? result = saveFileDialog.ShowDialog();
 
             if (result == true) {
-                string rutaFichero = saveFileDialog.FileName;
+                string fileName = saveFileDialog.FileName;
 
-                // call the method that exports the information
-                ShellModel.export(rutaFichero);
-            }
+                strExportFormat = System.IO.Path.GetExtension(fileName);
+                strExportFormat = strExportFormat.Replace(".","");
+
+                // call the method that exports the 3D model
+                if (ShellModel.export(fileName, strExportFormat) >= 0) {
+                    MessageBox.Show("The current shell model has been succesfully exported to \"" + fileName + "\" file.", "Export shell model");
+                } else {
+                    MessageBox.Show("The current shell model could not be exported to \"" + fileName + "\" file.", "Export shell model");
+                }
+
+            }//if
 
         }//menuExportItem_Click
 
@@ -578,8 +635,10 @@ namespace RaupCoilerII {
             );
 
             if (result == MessageBoxResult.OK) {
+
                 // El usuario ha pulsado Aceptar
-                // Aquí puedes iniciar el nuevo proyecto
+                appViewModel.setDefaultValues();
+
             } else {
                 // El usuario ha pulsado Cancelar
             }
@@ -606,11 +665,16 @@ namespace RaupCoilerII {
             bool? result = openFileDialog.ShowDialog();
 
             if (result == true) {
-                string rutaFichero = openFileDialog.FileName;
+                string fileName = openFileDialog.FileName;
 
                 // call the method that loads the project parameters from the file
-                // ShellModel.Load(rutaFichero);
-            }
+                if (appViewModel.loadFromDisc(fileName) >= 0) {
+                    MessageBox.Show("Shell model has been succesfully loaded from \"" + fileName + "\" file.", "Load shell model");
+                } else {
+                    MessageBox.Show("Could not load the shell model in \"" + fileName + "\" file.", "Load shell model");
+                }
+
+            }//if
 
         }//menuLoadShell_Click
 
@@ -634,11 +698,16 @@ namespace RaupCoilerII {
             bool? result = saveFileDialog.ShowDialog();
 
             if (result == true) {
-                string rutaFichero = saveFileDialog.FileName;
+                string fileName = saveFileDialog.FileName;
 
                 // call the method that saves the project parameters into a file
-                // ShellModel.Save(rutaFichero);
-            }
+                if (appViewModel.saveToDisc(fileName) >= 0) {
+                    MessageBox.Show("The current shell model has been succesfully saved to \"" + fileName + "\" file.", "Save shell model");
+                } else {
+                    MessageBox.Show("The current shell model could not be saved to \"" + fileName + "\" file.", "Save shell model");
+                }
+
+            }//if
 
         }//menuSaveShell_Click
 

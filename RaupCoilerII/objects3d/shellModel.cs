@@ -1348,8 +1348,9 @@ namespace RaupCoilerII {
         * 
         * @param[in] strFileName with the name of the file where the object geometry data
         * will be exported.
+        * @param[in] strFormatId the export format for the scene ( "obj", "fbx", "stl" )
         *******************************************************************************/
-        public int export(string strFileName) {
+        public int export(string strFileName, string strFormatId) {
             int retVal = 0;
             float fScaleFactor = 40.0f;
             Mesh scaledMeshToExport = null;
@@ -1357,8 +1358,7 @@ namespace RaupCoilerII {
             int iTotalVertices;
             int iAux;
 
-
-            // clone and scale the mesh
+            // before exporting it, clone and scale the mesh 
             scaledMeshToExport = new Mesh();
 
             scaledMeshToExport = object3D.CloneMesh(liMeshesOriginal[0]);
@@ -1366,7 +1366,6 @@ namespace RaupCoilerII {
             iTotalVertices = scaledMeshToExport.Vertices.Count();
             for (iAux = 0; iAux < iTotalVertices; iAux++) {
 
-                // vertex coords centered in the middle (flMax... - flMin...) / 2;
                 scaledMeshToExport.Vertices[iAux] = new Vector3D(
                     (float)(scaledMeshToExport.Vertices[iAux].X * fScaleFactor),
                     (float)(scaledMeshToExport.Vertices[iAux].Y * fScaleFactor),
@@ -1392,7 +1391,7 @@ namespace RaupCoilerII {
             liMeshesOriginal[0].MaterialIndex = 0;
 
             // 5. Exportar (elige formato: "obj", "fbx", "stl", etc.)
-            context.ExportFile(scene, strFileName, "stl");
+            context.ExportFile(scene, strFileName, strFormatId);
 
             return retVal;
 

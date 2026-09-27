@@ -6,7 +6,8 @@
         xmlns:glWpfControl="clr-namespace:OpenTK.Wpf;assembly=GLWpfControl"
         xmlns:local="clr-namespace:RaupCoilerII"
         mc:Ignorable="d"
-        Title="Raup Coiler II" Height="745" Width="1105" MinWidth="1055" MinHeight="650">
+        Title="Raup Coiler II" Height="745" Width="1105" MinWidth="1055" MinHeight="650"
+        Closing="mainWindow_Closing">
     <Window.Resources>
         <Style x:Key="VerticalCenteredTextBox"
                TargetType="TextBox">
@@ -28,12 +29,17 @@
             <MenuItem Header="File">
                 <MenuItem Header="New" Click="menuNewShell_Click">
                 </MenuItem>
+                <Separator />
                 <MenuItem Header="Load" Click="menuLoadShell_Click">
                 </MenuItem>
                 <MenuItem Header="Save" Click="menuSaveShell_Click">
                 </MenuItem>
+                <Separator />
                 <MenuItem Header="Export" Click="menuExportItem_Click">
                 </MenuItem>
+                <Separator />
+                <MenuItem Header="Exit" Click="menuExitItem_Click">
+                </MenuItem>                
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="Online help">
@@ -79,7 +85,7 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="250"/>
-                                <RowDefinition  Height="280"/>
+                                <RowDefinition  Height="260"/>
                             </Grid.RowDefinitions>
                             <!-- BEGIN: ############ Model TabPage main grid Column 0: Column 0 -->
                             <!-- GroupBox Raup parameters panel -->
@@ -128,7 +134,7 @@
                             <!-- END: ############ Model TabPage main grid Column 0: Column 0: Row 0 -->
                             <!-- BEGIN: ############ Model TabPage main grid Column 0: Column 0: Row 1 -->
                             <!-- GroupBox Mesh parameters panel -->
-                            <GroupBox Header="Mesh" Grid.Column="0" Grid.Row="1" Margin="2,2,2,58" BorderBrush="Black" BorderThickness="1">
+                            <GroupBox Header="Mesh" Grid.Column="0" Grid.Row="1" Margin="2,2,2,2" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="227*"/>
@@ -139,9 +145,10 @@
                                         <RowDefinition/>
                                         <RowDefinition/>
                                         <RowDefinition/>
+                                        <RowDefinition Height="30"/>
                                     </Grid.RowDefinitions>
                                     <!-- Revolutions  -->
-                                    <WrapPanel Margin="2,2,0,2" Grid.Row="0">
+                                    <WrapPanel Margin="2,3,0,2" Grid.Row="0">
                                         <Label Content="Revolutions:"/>
                                         <TextBox TextWrapping="Wrap" Text="{Binding Revolutions,Converter={StaticResource doubleToIntConverter}, Mode=TwoWay}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
@@ -168,7 +175,10 @@
                                         <TextBox TextWrapping="Wrap" Text="{Binding ShellWidthPercent, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Width="120" Style="{StaticResource VerticalCenteredTextBox}"/>
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
                                         <ScrollBar Value="{Binding ShellWidthPercent, Mode=TwoWay, Converter={StaticResource doubleToIntConverter}}" Minimum="1" Maximum="100" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
-                                    </WrapPanel>                                    
+                                    </WrapPanel>
+                                    <WrapPanel Margin="2,2,0,2" Grid.Row="4">
+                                        <CheckBox Content="Autoscale mesh to unit" IsChecked="{Binding Autoscale}" Margin="8,4,4,4" />
+                                    </WrapPanel>
                                 </Grid>
                             </GroupBox>
                             <!-- END: ############ Model TabPage main grid Column 0: Column 0: Row 0 -->
@@ -177,7 +187,7 @@
                         <!--BEGIN: ############ Model TabPage main grid: Column 1 Grid: 1 column 2 rows  ############ -->
                         <Grid Grid.Column="1">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="340"/>
+                                <RowDefinition Height="320"/>
                                 <RowDefinition Height="135"/>
                                 <RowDefinition Height="330"/>
                             </Grid.RowDefinitions>
@@ -190,8 +200,8 @@
                                         <StackPanel Margin="10,10,10,10" >
                                             <RadioButton Name="radNoMesh" Content="No mesh" Height="24" VerticalAlignment="Top" IsChecked="{Binding NoMesh}"/>
                                             <RadioButton Name="radVertexs" Content="Vertexs" Height="24" VerticalAlignment="Top" IsChecked="{Binding Vertexs}"/>
-                                            <RadioButton Name="radRings" Content="Rings" Height="24" VerticalAlignment="Top"  IsChecked="{Binding Rings}"/>
-                                            <RadioButton Name="radQuads" Content="Quads" Height="24" VerticalAlignment="Top"  IsChecked="{Binding Quads}"/>
+                                            <RadioButton Name="radRings"  IsEnabled="False" Content="Rings" Height="24" VerticalAlignment="Top"  IsChecked="{Binding Rings}"/>
+                                            <RadioButton Name="radQuads" IsEnabled="False" Content="Quads" Height="24" VerticalAlignment="Top"  IsChecked="{Binding Quads}"/>
                                             <RadioButton Name="radTriangles" Content="Triangles" Height="24" VerticalAlignment="Top" IsChecked="{Binding Triangles}"/>
                                             <RadioButton Name="radFaces" Content="Faces" Height="24" VerticalAlignment="Top" IsChecked="{Binding Faces}"/>
                                         </StackPanel>
@@ -201,7 +211,6 @@
                                     <CheckBox Content="Spiral" IsChecked="{Binding Spiral}" Margin="8,8,4,4" />
                                     <CheckBox Content="Shell axis" IsChecked="{Binding ShellAxis}" Margin="8,2,4,4"/>
                                     <CheckBox Content="ZYX gizmo" IsChecked="{Binding XYZGizmo}" Margin="8,2,4,4"/>
-                                    <CheckBox Content="Autoscale" IsChecked="{Binding Autoscale}" Margin="8,2,4,4" />
                                     <CheckBox Content="UnitCube" IsChecked="{Binding UnitCube}" Margin="8,2,4,4" />
                                     <CheckBox Content="ZX plane" IsChecked="{Binding ZXPlane}" Margin="8,2,4,4" />
                                     <!-- END CheckBoxes Spiral, Axis, AUtoscale -->
@@ -291,7 +300,7 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="85"/>
-                                <RowDefinition Height="282"/>
+                                <RowDefinition Height="300"/>
                             </Grid.RowDefinitions>
                             <!-- BEGIN: ############ Model TabPage main grid: Column 0: Row 0 : Projection ############ -->
                             <!-- GroupBox Drawing options panel -->
@@ -312,6 +321,7 @@
                                         <RowDefinition />
                                         <RowDefinition />
                                         <RowDefinition />
+                                        <RowDefinition Height="28"/>
                                         <RowDefinition Height="28"/>
                                         <RowDefinition Height="28"/>
                                         <RowDefinition Height="28"/>
@@ -337,9 +347,10 @@
                                         <!-- binding in the controls width to take the same width than the parent Grid -->
                                         <ScrollBar Value="{Binding ViewRoDistance, Mode=TwoWay}" Minimum="{Binding ViewDistanceMin}" Maximum="{Binding ViewDistanceMax}" Margin="2,2,0,2" Orientation="Horizontal"  Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=WrapPanel}}" SmallChange="1" LargeChange="1"/>
                                     </WrapPanel>
-                                    <Button x:Name="btnResetOrientationToX" Grid.Row="3" Height="22" Content="Reset to Y Z" Click="btnResetViewOrientationToYZ_Click" Width="140" />
+                                    <Button x:Name="btnResetOrientationToX" Grid.Row="3" Height="22" Content="Reset to Y Z " Click="btnResetViewOrientationToYZ_Click" Width="140" />
                                     <Button x:Name="btnResetOrientationToY" Grid.Row="4" Height="22" Content="Reset to Z X" Click="btnResetViewOrientationToZX_Click" Width="140" />
                                     <Button x:Name="btnResetOrientationToZ" Grid.Row="5" Height="22" Content="Reset to Y X" Click="btnResetViewOrientationToYX_Click" Width="140" />
+                                    <Button x:Name="btnResetOrientationTo4545" Grid.Row="6" Height="22" Content="Reset to Z Y X 45º" Click="btnResetOrientationTo4545_Click" Width="140" />
                                 </Grid>
                             </GroupBox>
                             <!-- END: ############ View TabPage main grid: Column 0: Row 1 : View Orientation ############ -->
@@ -462,7 +473,7 @@
                                 </StackPanel>
                             </GroupBox>
                         </Grid>
-                        <!--############ Column 1 Procedural ############ -->
+                        <!--############ Column 1  ############ -->
                         <Grid Grid.ColumnSpan="2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
@@ -471,7 +482,7 @@
                                 <RowDefinition Height="250"/>
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <GroupBox Header="Procedural" Grid.Row="0" Margin="247,2,2,2" BorderBrush="Black" BorderThickness="1">
+                            <GroupBox Header=" " Visibility="Hidden" Grid.Row="0" Margin="247,2,2,2" BorderBrush="Black" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
@@ -483,13 +494,10 @@
                                         <RowDefinition Height="27"/>
                                         <RowDefinition Height="28"/>
                                     </Grid.RowDefinitions>
-                                    <!--- Light coordinates Phi (zenith angle) -->
                                     <WrapPanel Margin="2,2,2,2" Grid.Row="0">
                                     </WrapPanel>
-                                    <!--- Light coordinates Theta (azimuth angle) -->
                                     <WrapPanel Margin="2,2,2,2" Grid.Row="1">
                                     </WrapPanel>
-                                    <!--- Light coordinates Ro (radius distance)-->
                                     <WrapPanel Margin="2,2,2,2" Grid.Row="2">
                                     </WrapPanel>
                                 </Grid>
@@ -498,9 +506,6 @@
                     </Grid>
                 </TabItem>
                 <!-- END :######################################################## Appearence TabPage control ######################################################### -->
-                <!-- Section TabPage controls-->
-                <TabItem Header="Section">
-                </TabItem>
             </TabControl>
         </Grid>
     </Grid>

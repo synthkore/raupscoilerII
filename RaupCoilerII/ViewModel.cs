@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Data;
+using System.Text.Json;
+using System.IO;
 
 namespace RaupCoilerII {
 
@@ -853,12 +855,21 @@ namespace RaupCoilerII {
         *******************************************************************************/
         public ViewModel() {
 
+            setDefaultValues();
+
+        }//ViewModel
+
+        /*******************************************************************************
+        * @brief Sets de dafault values in the class parameters
+        *******************************************************************************/
+        public void setDefaultValues() {
+
             Dparam = 0.25f;
             Wparam = 1.8f;
             Tparam = 0.8f;
             Sparam = 1.0f;
 
-            geometryStyle = tGeometryStyleEnum.Triangles;
+            geometryStyle = tGeometryStyleEnum.Faces;
 
             NoMesh = false;
             Vertexs = false;
@@ -867,11 +878,12 @@ namespace RaupCoilerII {
             Triangles = false;
             Faces = true;
             Spiral = false;
-            ShellAxis = true;
-            Autoscale = true;
+            ShellAxis = false;
             ExpandSpiral = false;
+            Autoscale = true;
 
             XYZGizmo = true;
+            ZXPlane = false;
 
             Revolutions = 10;
             Resolution = 36;
@@ -889,13 +901,13 @@ namespace RaupCoilerII {
             Ortographic = true;
 
             // set all the view vector parameters to its default value
-            ViewPhiZenithAngle = 0;
-            ViewThetaAzimuthAngle = 90.0d;
+            ViewPhiZenithAngle = 45.0d;
+            ViewThetaAzimuthAngle = 45.0d;
             ViewRoDistance = 2.5d;
 
             // set all the view vector parameters to its default value
-            LightPhiZenithAngle = 0;
-            LightThetaAzimuthAngle = 90.0d;
+            LightPhiZenithAngle = 45.0d;
+            LightThetaAzimuthAngle = 45.0d;
             LightRoDistance = 2.5d;
 
             bLinkLightToView = true;
@@ -907,8 +919,125 @@ namespace RaupCoilerII {
             UCubeColor = System.Windows.Media.Color.FromRgb(255, 0, 0);
             BackgroundColor = System.Windows.Media.Color.FromRgb(0, 0, 0);
             MeshTransparency = 100;
+        
+        }//setDefaultValues
 
-        }//ViewModel
+        /*******************************************************************************
+        * @brief stores in a file with the specified name the value of the fields 
+        * of this class. The file is a JSON with text format.
+        * @param[in] strFileName the name of the file to create
+        * @return >=0 if the file could be created, <0 if something failed.
+        *******************************************************************************/
+        public int saveToDisc(string strFileName) {
+            int i_ret_val = 0;
+
+            try {
+
+                var opciones = new JsonSerializerOptions {
+                    WriteIndented = true // Ident the file in order to make it easier to read by humans
+                };
+
+                // serialize this ViewModel object
+                string jsonString = JsonSerializer.Serialize(this, opciones);
+
+                // write the serialized ViewModel object to the file
+                File.WriteAllText(strFileName, jsonString);
+            
+            } catch (Exception ex) {
+                
+                i_ret_val = -1;
+
+            }//try
+
+            return i_ret_val;
+
+        }//saveToDisc
+
+        /*******************************************************************************
+        * @brief reads the specified JSON file and updates the content of the current ViewModel
+        * object with the content read from that file.
+        * @param[in] strFileName the name of the file to load
+        *******************************************************************************//// 
+        public int loadFromDisc(string rutaFichero) {
+            int i_ret_val = 0;
+
+            try {
+                if (!File.Exists(rutaFichero)) {
+                    Console.WriteLine($"[Advertencia] El fichero '{rutaFichero}' no existe.");
+                    return -1;
+                }
+
+                string jsonString = File.ReadAllText(rutaFichero);
+
+                var opciones = new JsonSerializerOptions {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                // Deserializamos los valores cargados en una instancia temporal o sobre el contexto
+                ViewModel? datosCargados = JsonSerializer.Deserialize<ViewModel>(jsonString, opciones);
+
+                if (datosCargados != null) {
+                    // Copiamos los valores de las propiedades principales para disparar los setters y notificaciones de WPF
+                    this.Dparam = datosCargados.Dparam;
+                    this.Wparam = datosCargados.Wparam;
+                    this.Tparam = datosCargados.Tparam;
+                    this.Sparam = datosCargados.Sparam;
+
+                    this.NoMesh = datosCargados.NoMesh;
+                    this.Vertexs = datosCargados.Vertexs;
+                    this.Rings = datosCargados.Rings;
+                    this.Quads = datosCargados.Quads;
+                    this.Triangles = datosCargados.Triangles;
+                    this.Faces = datosCargados.Faces;
+                    this.Spiral = datosCargados.Spiral;
+                    this.ShellAxis = datosCargados.ShellAxis;
+                    this.Autoscale = datosCargados.Autoscale;
+                    this.UnitCube = datosCargados.UnitCube;
+                    this.ZXPlane = datosCargados.ZXPlane;
+
+                    this.ExpandSpiral = datosCargados.ExpandSpiral;
+                    this.SpiralResolution = datosCargados.SpiralResolution;
+                    this.SpiralWidth = datosCargados.SpiralWidth;
+
+                    this.AxisResolution = datosCargados.AxisResolution;
+                    this.AxisWidth = datosCargados.AxisWidth;
+
+                    this.IniRadius = datosCargados.IniRadius;
+                    this.Revolutions = datosCargados.Revolutions;
+                    this.Resolution = datosCargados.Resolution;
+                    this.RingsRev = datosCargados.RingsRev;
+                    this.ShellWidthPercent = datosCargados.ShellWidthPercent;
+
+                    this.XYZGizmo = datosCargados.XYZGizmo;
+                    this.Perspective = datosCargados.Perspective;
+                    this.Ortographic = datosCargados.Ortographic;
+
+                    this.ViewRoDistance = datosCargados.ViewRoDistance;
+                    this.ViewPhiZenithAngle = datosCargados.ViewPhiZenithAngle;
+                    this.ViewThetaAzimuthAngle = datosCargados.ViewThetaAzimuthAngle;
+
+                    this.LightRoDistance = datosCargados.LightRoDistance;
+                    this.LightPhiZenithAngle = datosCargados.LightPhiZenithAngle;
+                    this.LightThetaAzimuthAngle = datosCargados.LightThetaAzimuthAngle;
+                    this.LinkLightToView = datosCargados.LinkLightToView;
+
+                    this.MeshColor = datosCargados.MeshColor;
+                    this.AxisColor = datosCargados.AxisColor;
+                    this.SpiralColor = datosCargados.SpiralColor;
+                    this.BackgroundColor = datosCargados.BackgroundColor;
+                    this.UCubeColor = datosCargados.UCubeColor;
+                    this.ZXPlaneColor = datosCargados.ZXPlaneColor;
+                    this.MeshTransparency = datosCargados.MeshTransparency;
+
+                }
+
+            } catch (Exception ex) {
+                i_ret_val = -1;
+            }
+
+            return i_ret_val;
+
+        }//loadFromDisc
 
     }//ViewModel
 
