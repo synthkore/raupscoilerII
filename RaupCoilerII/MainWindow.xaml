@@ -6,8 +6,9 @@
         xmlns:glWpfControl="clr-namespace:OpenTK.Wpf;assembly=GLWpfControl"
         xmlns:local="clr-namespace:RaupCoilerII"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="Raup Coiler II" Height="745" Width="1105" MinWidth="1055" MinHeight="650"
-        Closing="mainWindow_Closing">
+        Closing="mainWindow_Closing" >
     <Window.Resources>
         <Style x:Key="VerticalCenteredTextBox"
                TargetType="TextBox">
@@ -44,7 +45,7 @@
             <MenuItem Header="Help">
                 <MenuItem Header="Online help">
                 </MenuItem>
-                <MenuItem Header="About">
+                <MenuItem Header="About"  Click="menuAboutItem_Click">
                 </MenuItem>
             </MenuItem>
         </Menu>

@@ -9,7 +9,16 @@
     <Platforms>AnyCPU;x64</Platforms>
     <ApplicationIcon>resources\raupcoilerii.ico</ApplicationIcon>
     <PackageIcon>raupcoilerii.ico</PackageIcon>
+    <BuildDate>$([System.DateTime]::Now.ToString("yyyy-MM-dd HH:mm:ss"))</BuildDate>	
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="resources\logomini.png" />
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>BuildDate</_Parameter1>
+        <_Parameter2>$(BuildDate)</_Parameter2>
+    </AssemblyAttribute>	
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="resources\raupcoilerii.ico" />
@@ -18,9 +27,16 @@
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
     <PackageReference Include="OpenTK" Version="4.9.4" />
     <PackageReference Include="OpenTK.Core" Version="4.9.4" />
     <PackageReference Include="OpenTK.GLWpfControl" Version="4.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="resources\logomini.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

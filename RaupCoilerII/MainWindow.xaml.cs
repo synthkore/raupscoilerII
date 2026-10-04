@@ -20,9 +20,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 
 /* JBR notas
+   Los grosores del eje y del espiral deberían seguir escalas coherentes / equivalentes con las mismas unidades.
    Se puede quitar ¿ bRequireToUpdateVAO ?
    Para calcular el máximo y minimo no hace falta calcular todas las anillas de la 1a y utlima vuelta basta con hacer 4 por vuelta a 90º cada una
    Parece que el autoscale no va bien, pues al generar un bivalvo con W=10000 contra el cubo unitario este sale fuera del cubo. Quizas sea por la resolcuion de la malla utilizada al hacer el GetScaleFactors
@@ -52,8 +54,6 @@ Hecho:
 
 * Geometric Analysis of Shell Coiling: General Problems
 *******************************************************************************/
-
-
 namespace RaupCoilerII {
 
     /*******************************************************************************
@@ -219,6 +219,18 @@ namespace RaupCoilerII {
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("EN-US");
 
         }//MainWindow
+
+        /*******************************************************************************
+        * @brief shows the About dialog with the application version general information.
+        *******************************************************************************/
+        private void showAboutDialog() {
+            string strVersion="";
+
+            // strVersion = VERSION_MAJOR.ToString() + "." + VERSION_MINOR.ToString() + "." + VERSION_PATCH.ToString();
+            AboutWindow aboutWindow = new AboutWindow();
+            aboutWindow.Show();
+
+        }//showAboutDialog
 
         /*******************************************************************************
         * @brief delegate that manages the event that occurs when the user float clicks over
@@ -710,6 +722,18 @@ namespace RaupCoilerII {
             }//if
 
         }//menuSaveShell_Click
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the About menu option
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void menuAboutItem_Click(object sender, RoutedEventArgs e) {
+
+            showAboutDialog();
+
+        }//menuAboutItem_Click
 
     }
 }

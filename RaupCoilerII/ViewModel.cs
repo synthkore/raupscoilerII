@@ -35,7 +35,7 @@ namespace RaupCoilerII {
 
         public static readonly GridLength rightPanelWidth = new GridLength(500);
 
-        public const double DparamMax = 1.5f;
+        public const double DparamMax = 1.0f;
         public const double DparamMin = 0;
         public double WparamMax { get; } = 10000;
         public double WparamMin { get; } = 1;

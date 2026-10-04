@@ -266,6 +266,8 @@ namespace RaupCoilerII {
             appViewModel.bRequireToReRender = true;
 
         }//OpenTkControl_SizeChanged
+        
+        private bool _welcomeShown = false;// JBR 2026-10-03 Borra, para pruebas
 
         /*******************************************************************************
         * @brief delegate that manages the event raised by the OpenGL WPF control to 
@@ -705,6 +707,28 @@ namespace RaupCoilerII {
                     GL.DrawElements(BeginMode.Triangles, ZYXGizmo.iIndicesFacesCter, DrawElementsType.UnsignedInt, 0);
                     
                 }//if (appViewModel.Axis3D)
+
+                // JBR 2026-10-03 Puesto para pruebas de pantalla de bienvendia
+                if (!_welcomeShown) {
+                    _welcomeShown = true;
+
+                    // Retrasamos ligeramente la llamada para asegurarnos de que el 
+                    // frame actual de OpenTK se ha presentado completamente en pantalla.
+                    Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() =>
+                    {
+
+                        // strVersion = VERSION_MAJOR.ToString() + "." + VERSION_MINOR.ToString() + "." + VERSION_PATCH.ToString();
+                        AboutWindow aboutWindow = new AboutWindow();
+                        aboutWindow.Owner = this;
+
+                        // Truco anti-parpadeo: Puedes inicializarlo u opcionalmente 
+                        // gestionarlo con un fundido si lo deseas, pero ShowDialog directo 
+                        // tras un Dispatcher.Background suele eliminar el parpadeo de carga.
+                        aboutWindow.ShowDialog();
+                    }));
+                }
+
+                // FIN JBR 2026-10-03 Puesto para pruebas de pantalla de bienvendia
 
             }// if (appViewModel.bRequireToReRender)
 
