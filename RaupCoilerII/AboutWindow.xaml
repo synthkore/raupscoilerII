@@ -46,26 +46,38 @@
              MinHeight="201" MinWidth="459"/>
         </Border>
 
-        <!-- 1. Nombre de Producto -->
+        <!-- Product name -->
         <TextBlock x:Name="lblProductName" Grid.Row="1" Text="Nombre de producto" Grid.ColumnSpan="2" Margin="7,0,4,0" />
 
-        <!-- 2. Versión -->
+        <!-- Version -->
         <TextBlock x:Name="lblVersion" Grid.Row="2" Text="Versión" Grid.ColumnSpan="2" Margin="7,0,4,0" />
 
-        <!-- 3. Build Date -->
+        <!-- Build Date -->
         <TextBlock x:Name="lblBuild" Grid.Row="3" Text="Build date" Margin="7,0,4,0" Grid.ColumnSpan="2"/>
 
-        <!-- 4. Enlace de Licencia -->
-        <TextBlock Grid.Row="4" Margin="7,0,4,0" Grid.ColumnSpan="2">
-      <Hyperlink x:Name="lnkLblLicense">
-        RaupCoilerII license
-      </Hyperlink>
+        <!-- Link to license conditions -->
+        <TextBlock x:Name="licenseLbl" Grid.Row="4" Margin="7,0,4,0" Grid.ColumnSpan="2">
+          <Hyperlink x:Name="lnkLblLicense" NavigateUri="https://www.tolaemon.com/raupcoilerii/index.htm#license" RequestNavigate="lnkLblLicense_RequestNavigate">
+          
+          <Hyperlink.Style>             
+            <Style TargetType="Hyperlink">
+                <Setter Property="Foreground" Value="Green"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Foreground" Value="DarkGreen"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>             
+          </Hyperlink.Style>             
+              
+            RaupCoilerII license
+          </Hyperlink>
         </TextBlock>
 
-        <!-- 5. Contenedor para el navegador web -->
+        <!-- Web browser container-->
         <Grid x:Name="webContainer" Grid.Row="5" Margin="3,3,3,3" Grid.ColumnSpan="2"/>
 
-        <!-- 6. Botón de Aceptar -->
+        <!-- Accept button -->
         <Button x:Name="btnAccept" Grid.Row="6" Content="Accept" 
             Width="118" Height="28" 
             HorizontalAlignment="Right" VerticalAlignment="Bottom"

@@ -7,6 +7,7 @@ using System.Net;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Windows;
+using System.Windows.Navigation;
 // Asegúrate de tener este using:
 using Microsoft.Web.WebView2.Wpf;
 
@@ -171,6 +172,24 @@ namespace RaupCoilerII {
             this.Close();
 
         }//BtnAccept_Click
+
+
+        /*******************************************************************************
+        * @brief delegate that captures the event when the user clicks on the License
+        * HyperLink control
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void lnkLblLicense_RequestNavigate(object sender, RequestNavigateEventArgs e) {
+        
+            Process.Start(new ProcessStartInfo {
+                FileName = e.Uri.AbsoluteUri,
+                UseShellExecute = true
+            });
+
+            e.Handled = true;
+        
+        }//lnkLblLicense_RequestNavigate
 
     }//AboutWindow : Window
 
