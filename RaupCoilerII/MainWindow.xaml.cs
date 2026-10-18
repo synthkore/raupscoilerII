@@ -6,6 +6,7 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Wpf;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -735,5 +736,21 @@ namespace RaupCoilerII {
 
         }//menuAboutItem_Click
 
-    }
+
+        /*******************************************************************************
+        * @brief delegate that manages the event that occurs when the user clicks over
+        * the Help menu option
+        * @param[in] sender reference to the object that raises the event
+        * @param[in] e the information related to the event
+        *******************************************************************************/
+        private void menuHelpItem_Click(object sender, RoutedEventArgs e) {
+
+            Process.Start(new ProcessStartInfo {
+                FileName = "https://www.tolaemon.com/raupcoilerii",
+                UseShellExecute = true
+            });
+
+        }//menuHelpItem_Click
+
+    }//MainWindow
 }
